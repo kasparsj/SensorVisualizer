@@ -1,0 +1,3 @@
+[submodule "Android/Sensor2OSC"]
+	path = Android/Sensor2OSC
+	url = git@github.com:kasparsj/Sensor2OSC.git
