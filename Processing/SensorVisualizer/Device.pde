@@ -1,3 +1,6 @@
+import java.util.Date;
+import java.text.SimpleDateFormat;
+
 enum SensorType {
   ACC,
   GYRO,
@@ -18,11 +21,14 @@ public class Device {
   SensorDisplay curSensor = null;
   SensorFusion fusion;
   boolean enableFusion;
+  Map<SensorType, PrintWriter> recorders;
+  boolean isRecording;
   
   Device(String id, String oscPrefix, Map<SensorType, SensorDisplay> sensors, FusionType fusionType) {
     this.id = id;
     this.oscPrefix = oscPrefix;
     this.sensors = sensors;
+    this.recorders = new HashMap<SensorType, PrintWriter>();
     for (SensorDisplay sensor : sensors.values()) {
       sensor.device = this;
     }
@@ -50,6 +56,8 @@ public class Device {
   }
   
   void drawTab(int idx, boolean isActive) {
+    pushMatrix();
+    translate(idx * 100, height - 20);
     pushStyle();
     stroke(255);
     if (isActive) {
@@ -58,11 +66,16 @@ public class Device {
     else {
       noFill();
     }
-    rect(idx * 100, height - 20, 100, 20);
+    rect(0, 0, 100, 20);
     fill(255);
     textAlign(CENTER);
-    text(id, idx*100 + 50, height - 7);
+    text(id, 50, 13);
     popStyle();
+    if (isRecording) {
+      fill(255, 0, 0);
+      ellipse(10, 10, 10, 10);
+    }
+    popMatrix();
   }
   
   void drawSensors() {
@@ -85,31 +98,38 @@ public class Device {
   
   void oscEvent(OscMessage msg) {
     try {
+      SensorDisplay sensor = null;
       switch (msg.addrPattern().substring(oscPrefix.length())) {
         case "/acc":
-          getOrCreateSensor(SensorType.ACC).oscEvent(msg);
+          sensor = getOrCreateSensor(SensorType.ACC);
           break;
         case "/gyro":
-          getOrCreateSensor(SensorType.GYRO).oscEvent(msg);
+          sensor = getOrCreateSensor(SensorType.GYRO);
           break;
         case "/mag":
-          getOrCreateSensor(SensorType.MAG).oscEvent(msg);
+          sensor = getOrCreateSensor(SensorType.MAG);
           break;
         case "/euler":
-          getOrCreateSensor(SensorType.EULER).oscEvent(msg);
+          sensor = getOrCreateSensor(SensorType.EULER);
           break;
         case "/hr":
-          getOrCreateSensor(SensorType.HR).oscEvent(msg);
+          sensor = getOrCreateSensor(SensorType.HR);
           break;
         case "/ecg":
-          getOrCreateSensor(SensorType.ECG).oscEvent(msg);
+          sensor = getOrCreateSensor(SensorType.ECG);
           break;
         case "/altitude":
-          getOrCreateSensor(SensorType.ALTITUDE).oscEvent(msg);
+          sensor = getOrCreateSensor(SensorType.ALTITUDE);
           break;
         case "/quat":
-          getOrCreateSensor(SensorType.QUAT).oscEvent(msg);
+          sensor = getOrCreateSensor(SensorType.QUAT);
           break;
+      }
+      if (sensor != null) {
+        sensor.oscEvent(msg);
+        if (isRecording) {
+          recordLine(msg, sensor.type);
+        }
       }
     }
     catch (Exception e) {
@@ -120,6 +140,7 @@ public class Device {
   SensorDisplay getOrCreateSensor(SensorType st) {
     if (sensors.get(st) == null) {
       SensorDisplay sensor = createSensor(st);
+      sensor.type = st;
       sensor.device = this;
       sensors.put(st, sensor);
     }
@@ -176,6 +197,39 @@ public class Device {
     return sensors.get(SensorType.EULER) != null;
   }
   
+  void recordLine(OscMessage msg, SensorType st) {
+    String line = msg.addrPattern();
+    String typetag = msg.typetag();
+    if (typetag.length() > 1) {
+      for (int i=1; i<typetag.length(); i++) {
+        OscArgument arg = msg.get(i);
+        switch (typetag.charAt(i)) {
+          case 'f':
+            line += "\t" + arg.floatValue();
+            break;
+          case 'i':
+            line += "\t" + arg.intValue();
+            break;
+          case 's':
+            line += "\t" + arg.stringValue();
+            break;
+        }
+      }
+      getOrCreateRecorder(st).println(line);
+    }
+  }
+  
+  PrintWriter getOrCreateRecorder(SensorType st) {
+    PrintWriter recorder = recorders.get(st);
+    if (recorder == null) {
+      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HHmmss");
+      String date = df.format(new Date());
+      recorder = createWriter("data/" + id + "_" + st.toString() + "_" + date + ".csv");
+      recorders.put(st, recorder);
+    }
+    return recorder;
+  }
+    
   boolean mouseClicked() {
     for (SensorDisplay sensor : sensors.values()) {
       if (sensor.mouseClicked()) {
@@ -201,6 +255,10 @@ public class Device {
       
       return true;
     }
+    if (key == 'r') {
+      toggleRecording();
+      return true;
+    }
     if (curSensor != null && curSensor.keyPressed()) {
       return true;
     }
@@ -210,5 +268,17 @@ public class Device {
       }
     }
     return false;
+  }
+  
+  void toggleRecording() {
+    isRecording = !isRecording;
+    if (!isRecording) {
+      for (PrintWriter recorder : recorders.values()) {
+        recorder.flush();
+        recorder.close();        
+      }
+    }
+    recorders = null;
+    recorders = new HashMap<SensorType, PrintWriter>();
   }
 }

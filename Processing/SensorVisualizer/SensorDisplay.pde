@@ -14,6 +14,7 @@ enum FilterType {
 
 abstract class SensorDisplay<T> {
   
+  SensorType type;
   Device device;
   float x = 0, y = 0, w, h;
   T value;
