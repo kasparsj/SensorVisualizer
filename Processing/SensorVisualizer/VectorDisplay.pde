@@ -14,6 +14,7 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
   
   VectorDisplay(float x, float y, float w, float h, int histLen) {
     super(x, y, w, h);
+    numArgs = 3;
     enableHistory(histLen);
   }
   

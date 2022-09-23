@@ -6,6 +6,7 @@ abstract class RotationStats extends SensorDisplay<Quaternion> {
   
   RotationStats(float x, float y, float w, float h, int histLen) {
     super(x, y, w, h);
+    numArgs = 4;
     enableHistory(histLen);
   }
   

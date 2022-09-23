@@ -70,11 +70,9 @@ public class AccDisplay extends VectorDisplay {
   void draw(float w, float h) {
     if (value == null) return;
     
-    pushMatrix();
-    pushStyle();
-    translate(0, 0);
-  
+    pushStyle();  
     fill(255); 
+    
     text("acceleration " + filterType + " " + nf(value.x, 0, 2) + ", " + nf(value.y, 0, 2) + ", " + nf(value.z, 0, 2) + ", mag: " + nf(mag(), 0, 2), 20, 20);
     text("gravity " + gravityMethod + " " + nf(gravity.x, 0, 2) + ", " + nf(gravity.y, 0, 2) + ", " + nf(gravity.z, 0, 2), 20, 40);
     text("(pps: "+ups+")", w - 70, 20);
@@ -99,7 +97,6 @@ public class AccDisplay extends VectorDisplay {
     }
         
     popStyle();
-    popMatrix();
   }
   
   void drawPlot3D(float w, float h) {

@@ -110,6 +110,8 @@ public class Device {
           sensor = getOrCreateSensor(SensorType.MAG);
           break;
         case "/euler":
+        case "/euler_rad":
+        case "/euler_deg":
           sensor = getOrCreateSensor(SensorType.EULER);
           break;
         case "/hr":
@@ -128,7 +130,7 @@ public class Device {
       if (sensor != null) {
         sensor.oscEvent(msg);
         if (isRecording) {
-          recordLine(msg, sensor.type);
+          sensor.record(msg);
         }
       }
     }
@@ -196,29 +198,7 @@ public class Device {
   boolean hasEuler() {
     return sensors.get(SensorType.EULER) != null;
   }
-  
-  void recordLine(OscMessage msg, SensorType st) {
-    String line = msg.addrPattern();
-    String typetag = msg.typetag();
-    if (typetag.length() > 1) {
-      for (int i=1; i<typetag.length(); i++) {
-        OscArgument arg = msg.get(i);
-        switch (typetag.charAt(i)) {
-          case 'f':
-            line += "\t" + arg.floatValue();
-            break;
-          case 'i':
-            line += "\t" + arg.intValue();
-            break;
-          case 's':
-            line += "\t" + arg.stringValue();
-            break;
-        }
-      }
-      getOrCreateRecorder(st).println(line);
-    }
-  }
-  
+    
   PrintWriter getOrCreateRecorder(SensorType st) {
     PrintWriter recorder = recorders.get(st);
     if (recorder == null) {
@@ -245,14 +225,11 @@ public class Device {
       return true;
     }
     if (key == 'e') {
-      SensorDisplay euler = sensors.get(SensorType.EULER);
-      if (euler == null) {
-        euler = getOrCreateSensor(SensorType.EULER);
-      }
-      else {
-        euler.visible = !euler.visible;
-      }
-      
+      toggleVisible(SensorType.EULER);
+      return true;
+    }
+    if (key == 'g') {
+      toggleVisible(SensorType.GYRO);
       return true;
     }
     if (key == 'r') {
@@ -268,6 +245,16 @@ public class Device {
       }
     }
     return false;
+  }
+  
+  void toggleVisible(SensorType st) {
+    SensorDisplay euler = sensors.get(st);
+    if (euler == null) {
+      euler = getOrCreateSensor(st);
+    }
+    else {
+      euler.visible = !euler.visible;
+    }
   }
   
   void toggleRecording() {

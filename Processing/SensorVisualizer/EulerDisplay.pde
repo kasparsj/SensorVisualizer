@@ -168,6 +168,11 @@ public class EulerDisplay extends SensorDisplay<PVector> {
     if ((numArgs-1) % 3 == 0) {
       for (int i=0; i<(numArgs-1) / 3; i++) {
         PVector val = new PVector(msg.get(1+i*3).floatValue(), msg.get(2+i*3).floatValue(), msg.get(3+i*3).floatValue());
+        if (msg.addrPattern().substring(oscPrefix.length()).equals("/euler_deg")) { //<>// //<>//
+          val.x = radians(val.x);
+          val.y = radians(val.y);
+          val.z = radians(val.z);
+        }
         update(val);
         
         OscMessage fw = new OscMessage("/euler");

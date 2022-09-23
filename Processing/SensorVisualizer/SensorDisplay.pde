@@ -28,6 +28,7 @@ abstract class SensorDisplay<T> {
   int histCursor = -1;
   FilterType filterType = FilterType.NONE;
   boolean visible = true;
+  int numArgs = 1;
   
   SensorDisplay(float x, float y, float w, float h) {
     this.x = x;
@@ -143,6 +144,36 @@ abstract class SensorDisplay<T> {
   abstract void draw(float w, float h);
   
   abstract void oscEvent(OscMessage msg);
+  
+  void record(OscMessage msg) {
+    String typetag = msg.typetag();
+    int totalArgs = typetag.length()-1;
+    if (totalArgs % numArgs == 0) {
+      PrintWriter recorder = device.getOrCreateRecorder(type);
+      int numLines = totalArgs / numArgs;
+      for (int i=0; i<numLines; i++) {
+        //long time = msg.timetag();
+        long time = millis();
+        String line = msg.addrPattern() + "\t" + time;
+        for (int j=0; j<numArgs; j++) {
+          var idx = 1+i*numArgs+j;
+          OscArgument arg = msg.get(idx);
+          switch (typetag.charAt(idx)) {
+            case 'f':
+              line += "\t" + arg.floatValue();
+              break;
+            case 'i':
+              line += "\t" + arg.intValue();
+              break;
+            case 's':
+              line += "\t" + arg.stringValue();
+              break;
+          }
+        }
+        recorder.println(line);
+      }
+    }
+  }
   
   boolean mouseClicked() {
     if (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h) {
