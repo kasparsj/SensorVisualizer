@@ -2,6 +2,7 @@ public class GyroDisplay extends VectorDisplay {
   
   GyroDisplay(float x, float y, float w, float h, int histLen, int deltaSumWin) {
     super(x, y, w, h, histLen);
+    type = SensorType.GYRO;
     enableMagnitude(deltaSumWin);
     setFilterType(FilterType.LOWPASS);
   }

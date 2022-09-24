@@ -2,6 +2,7 @@ public class QuatDisplay extends RotationStats {
   
   QuatDisplay(float x, float y, float w, float h, int histLen) {
     super(x, y, w, h, histLen);
+    type = SensorType.QUAT;
   }
   
   QuatDisplay() {

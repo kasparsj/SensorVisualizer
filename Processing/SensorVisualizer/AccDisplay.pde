@@ -25,6 +25,7 @@ public class AccDisplay extends VectorDisplay {
   
   AccDisplay(float x, float y, float w, float h, GravityMethod gm, int histLen, int deltaSumWin, float maxMag) {
     super(x, y, w, h, histLen);
+    type = SensorType.ACC;
     gravityMethod = gm;
     gravity = new PVector(0, 0, 0);
     enableMagnitude(deltaSumWin, maxMag);

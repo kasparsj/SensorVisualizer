@@ -6,6 +6,7 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
   
   AltitudeDisplay(float x, float y, float w, float h, int avgLen, int histLen) {
     super(x, y, w, h);
+    type = SensorType.ALTITUDE;
     enableHistory(histLen);
     enableAverage(avgLen);
   }

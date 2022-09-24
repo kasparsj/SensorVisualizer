@@ -4,6 +4,7 @@ public class MagDisplay extends VectorDisplay {
 
   MagDisplay(float x, float y, float w, float h, int histLen) {
     super(x, y, w, h, histLen);
+    type = SensorType.MAG;
   }
   
   MagDisplay() {

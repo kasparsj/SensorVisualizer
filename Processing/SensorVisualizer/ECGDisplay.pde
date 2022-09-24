@@ -9,6 +9,7 @@ public class ECGDisplay extends SensorDisplay<Float> {
   
   ECGDisplay(float x, float y, float w, float h, int histLen) {
     super(x, y, w, h);
+    type = SensorType.ECG;
     enableHistory(histLen);
   }
   

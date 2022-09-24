@@ -2,6 +2,7 @@ public class HRDisplay extends SensorDisplay<Float> {
   
   HRDisplay(float x, float y, float w, float h, int avgLen, int histLen) {
     super(x, y, w, h);
+    type = SensorType.HR;
     enableHistory(histLen);
     enableAverage(avgLen);
   }

@@ -142,7 +142,6 @@ public class Device {
   SensorDisplay getOrCreateSensor(SensorType st) {
     if (sensors.get(st) == null) {
       SensorDisplay sensor = createSensor(st);
-      sensor.type = st;
       sensor.device = this;
       sensors.put(st, sensor);
     }

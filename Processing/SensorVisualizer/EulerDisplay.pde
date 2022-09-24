@@ -2,6 +2,7 @@ public class EulerDisplay extends SensorDisplay<PVector> {
   
   EulerDisplay(float x, float y, float w, float h, int histLen) {
     super(x, y, w, h);
+    type = SensorType.EULER;
     enableHistory(histLen);
   }
   
