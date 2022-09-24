@@ -20,7 +20,6 @@ public class Device {
   Map<SensorType, SensorDisplay> sensors;
   SensorDisplay curSensor = null;
   SensorFusion fusion;
-  boolean enableFusion;
   Map<SensorType, PrintWriter> recorders;
   boolean isRecording;
   
@@ -32,17 +31,6 @@ public class Device {
     for (SensorDisplay sensor : sensors.values()) {
       sensor.device = this;
     }
-    
-    switch (fusionType) {
-      case KALMAN:
-        println("WIP - KalmanFusion");
-        //fusion = new KalmanFusion(this);
-        break;
-      case NONE:
-      default:
-        break;
-    }
-    enableFusion = (fusion != null);
   }
   
   Device(String id, String oscPrefix, Map<SensorType, SensorDisplay> sensors) {
@@ -87,7 +75,7 @@ public class Device {
   }
   
   PVector getEulerAngles() {
-    if (enableFusion && fusion != null) {
+    if (fusion != null) {
       return fusion.getEulerAngles();
     }
     if (hasAccelerometer()) {
@@ -197,6 +185,10 @@ public class Device {
   boolean hasEuler() {
     return sensors.get(SensorType.EULER) != null;
   }
+  
+  EulerDisplay getEuler() {
+    return ((EulerDisplay) sensors.get(SensorType.EULER));
+  }
     
   PrintWriter getOrCreateRecorder(SensorType st) {
     PrintWriter recorder = recorders.get(st);
@@ -220,7 +212,7 @@ public class Device {
   
   boolean keyPressed() {
     if (key == 'u') {
-      enableFusion = !enableFusion;
+      setFusionType((fusion == null ? FusionType.NONE : fusion.type).next());
       return true;
     }
     if (key == 'e') {
@@ -244,6 +236,18 @@ public class Device {
       }
     }
     return false;
+  }
+  
+  void setFusionType(FusionType ft) {
+    switch (ft) {
+      case KALMAN:
+        fusion = new KalmanFusion(this);
+        break;
+      case NONE:
+      default:
+        fusion = null;
+        break;
+    }
   }
   
   void toggleVisible(SensorType st) {

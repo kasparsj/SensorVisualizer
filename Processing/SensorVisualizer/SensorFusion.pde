@@ -1,11 +1,18 @@
 enum FusionType {
   NONE,
-  KALMAN,
+  KALMAN;
+  
+  private static FusionType[] vals = values();
+  public FusionType next()
+  {
+      return vals[(this.ordinal()+1) % vals.length];
+  }
 };
 
 abstract class SensorFusion {
   
   Device device;
+  FusionType type;
   PVector measuredPose;
   PVector fusionPose;
   Quaternion measuredQPose;  
@@ -22,9 +29,10 @@ abstract class SensorFusion {
     Quaternion m = new Quaternion();
     Quaternion q = new Quaternion();
 
-    if (device.hasAccelerometer()) {
-        measuredPose = device.getAccelerometer().getOrigEulerAngles();
-    } else {
+    if (device.hasEuler() && device.getEuler().value != null || device.hasAccelerometer()) {
+        measuredPose = device.hasEuler() && device.getEuler().value != null ? device.getEuler().val() : device.getAccelerometer().getOrigEulerAngles();
+    }
+    if (measuredPose == null) {
         measuredPose = fusionPose.copy();
         measuredPose.z = 0;
     }

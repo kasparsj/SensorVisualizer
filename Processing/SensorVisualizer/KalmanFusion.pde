@@ -14,7 +14,7 @@ public class KalmanFusion extends SensorFusion {
   float timeDelta;
   Quaternion stateQ;
   Quaternion stateQError;                               // difference between stateQ and measuredQ
-  boolean debug = false;
+  boolean debug = true;
 
   Matrix4x4 m_Kk;                                       // the Kalman gain matrix
   Matrix4x4 m_Pkk_1;                                    // the predicted estimated covariance matrix
@@ -27,6 +27,7 @@ public class KalmanFusion extends SensorFusion {
   
   KalmanFusion(Device dev) {
     super(dev);
+    type = FusionType.KALMAN;
     stateQ = new Quaternion();
     m_Pkk = new Matrix4x4();
     m_Q = new Matrix4x4();

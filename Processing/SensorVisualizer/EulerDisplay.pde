@@ -1,9 +1,8 @@
-public class EulerDisplay extends SensorDisplay<PVector> {
+public class EulerDisplay extends VectorDisplay {
   
   EulerDisplay(float x, float y, float w, float h, int histLen) {
-    super(x, y, w, h);
+    super(x, y, w, h, histLen);
     type = SensorType.EULER;
-    enableHistory(histLen);
   }
   
   EulerDisplay() {
@@ -12,7 +11,7 @@ public class EulerDisplay extends SensorDisplay<PVector> {
   
   void draw(float w, float h) {
     PVector angles;
-    if (value == null) {
+    if (value == null || device.fusion != null) {
       angles = device.getEulerAngles();
       updateHist(angles, null);
     }
@@ -25,7 +24,7 @@ public class EulerDisplay extends SensorDisplay<PVector> {
     
     pushStyle();
     fill(255);
-    text("euler", 20, 20);
+    text("euler " + filterType + (device.fusion != null ? " fusion: " + device.fusion.type : ""), 20, 20);
     text("(pps: "+ups+")", w - 70, 20);
     popStyle();
     
@@ -168,8 +167,8 @@ public class EulerDisplay extends SensorDisplay<PVector> {
     int numArgs = msg.typetag().length();
     if ((numArgs-1) % 3 == 0) {
       for (int i=0; i<(numArgs-1) / 3; i++) {
-        PVector val = new PVector(msg.get(1+i*3).floatValue(), msg.get(2+i*3).floatValue(), msg.get(3+i*3).floatValue());
-        if (msg.addrPattern().substring(oscPrefix.length()).equals("/euler_deg")) { //<>// //<>//
+        PVector val = new PVector(msg.get(1+i*3).floatValue(), msg.get(2+i*3).floatValue(), msg.get(3+i*3).floatValue()); //<>//
+        if (msg.addrPattern().substring(oscPrefix.length()).equals("/euler_deg")) { //<>//
           val.x = radians(val.x);
           val.y = radians(val.y);
           val.z = radians(val.z);
