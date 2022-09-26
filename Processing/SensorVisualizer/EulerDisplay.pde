@@ -184,7 +184,7 @@ public class EulerDisplay extends VectorDisplay {
     return val;
   }
   
-  void forward(OscMessage msg) { //<>// //<>//
+  void forward(OscMessage msg) { //<>// //<>// //<>// //<>//
     OscMessage fw = new OscMessage("/euler");
     fw.add(device.id);
     fw.add(value.x);

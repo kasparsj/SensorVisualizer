@@ -32,6 +32,7 @@ abstract class SensorDisplay<T> {
   FilterType filterType = FilterType.NONE;
   int numArgs = 1;
   boolean supportBatch; 
+  boolean makePlayRegular = true;
   boolean visible = true;
   
   SensorDisplay(float x, float y, float w, float h) {
@@ -216,7 +217,28 @@ abstract class SensorDisplay<T> {
       }
     }
   }
-    
+  
+  Table loadFile(File file) {
+    Table table = loadTable(file.getPath(), "tsv");
+    if (table.getColumnCount() < (numArgs+2)) {
+      println("Invalid file " + file + "! " + type + " requires " + (numArgs+2) + " columns, only " + table.getColumnCount() + " found.");      
+      return null;
+    }
+    if (makePlayRegular) {
+      makeIntervalsRegular(table);
+    }
+    return table;
+  }
+  
+  void makeIntervalsRegular(Table table) {
+    int minMs = table.getRow(0).getInt(1);
+    int maxMs = table.getRow(table.getRowCount()-1).getInt(1);
+    float diff = maxMs - minMs;
+    for (int i=1; i<table.getRowCount(); i++) {
+      table.getRow(i).setInt(1, round(minMs + i * (diff / (float)(table.getRowCount()-1))));
+    }
+  }
+  
   boolean mouseClicked() {
     if (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h) {
       device.curSensor = device.curSensor != this ? this : null;

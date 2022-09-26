@@ -367,14 +367,11 @@ public class Device {
       println("Cannot open unknown file type: " + type + "!");
     }
     if (sensor != null) {
-      Table table = loadTable(file.getPath(), "tsv");
-      if (table.getColumnCount() >= (sensor.numArgs+2)) {
+      Table table = sensor.loadFile(file);
+      if (table != null) {
         loadedTables.put(sensor.type, table);
         playMinMs = -1;
         startPlaying();
-      }
-      else {
-        println("Invalid file " + file + "! " + type + " requires " + (sensor.numArgs+2) + " columns, only " + table.getColumnCount() + " found.");
       }
     }
   }
@@ -385,7 +382,9 @@ public class Device {
   }
   
   void startPlaying() {
-    isPlaying = true;
-    playingStarted = millis();
+    if (loadedTables.keySet().size() > 0) {
+      isPlaying = true;
+      playingStarted = millis();
+    }
   }
 }
