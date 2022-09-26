@@ -35,7 +35,6 @@ public class Device {
     this.sensors = sensors;
     this.recorders = new HashMap<SensorType, PrintWriter>();
     this.loadedTables = new HashMap<SensorType, Table>();
-    this.nextRowCursor = new HashMap<SensorType, Integer>();
     for (SensorDisplay sensor : sensors.values()) {
       sensor.device = this;
     }

@@ -20,7 +20,7 @@ public class AccDisplay extends VectorDisplay {
   GravityMethod gravityMethod;
   int prevMillis = 0;
   PVector velocity;
-  ArrayList<PVector> velocities = null;
+  ArrayList<PVector> velocities;
   boolean showVelocity = false;
   
   AccDisplay(float x, float y, float w, float h, GravityMethod gm, int histLen, int deltaSumWin, float maxMag) {
@@ -44,6 +44,9 @@ public class AccDisplay extends VectorDisplay {
       for (int i=0; i<histLen; i++) {
         velocities.add(null);
       }
+    }
+    else {
+      velocities = null;
     }
     return this;
   }
