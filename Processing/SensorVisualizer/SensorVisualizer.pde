@@ -55,7 +55,16 @@ void draw() {
 
   Device dev = devs.get(cur);
   dev.drawSensors();
-  dev.drawPlayPos();
+  
+  if (dev.isPlaying && dev.playMinMs > -1) {
+    long dur = (dev.playMaxMs - dev.playMinMs);
+    pushStyle();
+    fill(255);
+    textSize(12);
+    text(((millis() - dev.playingStarted) % dur) + " / " + dur, width/2 + 20, height - 15);
+    popStyle();
+  }
+  
   int i=0;
   for (Device dev1 : devs.values()) {
     dev1.drawTab(i, dev1 == dev);
@@ -95,6 +104,28 @@ void openFolder(File folder) {
         String deviceId = fileName.substring(0, fileName.lastIndexOf('_'));
         getOrCreateDevice(deviceId).openFile(file);
       }
+    }
+    syncPlayback();
+  }
+}
+
+void syncPlayback() {
+  long minMs = -1, maxMs = -1;
+  for (Device dev : devs.values()) {
+    if (dev.isPlaying) {
+      long[] minMaxMs = dev.getMinMaxMs();
+      if (minMs == -1 || minMaxMs[0] < minMs) {
+        minMs = minMaxMs[0];
+      }
+      if (maxMs == -1 || minMaxMs[1] > maxMs) {
+        maxMs = minMaxMs[1];
+      }
+    }
+  }
+  for (Device dev : devs.values()) {
+    if (dev.isPlaying) {
+      dev.playMinMs = minMs;
+      dev.playMaxMs = maxMs;
     }
   }
 }

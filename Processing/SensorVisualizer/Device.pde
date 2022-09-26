@@ -91,17 +91,6 @@ public class Device {
     }
   }
   
-  void drawPlayPos() {
-    if (isPlaying) {
-      long dur = (playMaxMs - playMinMs);
-      pushStyle();
-      fill(255);
-      textSize(12);
-      text(((millis() - playingStarted) % dur) + " / " + dur, width/2 + 20, height - 15);
-      popStyle();
-    }
-  }
-  
   PVector getEulerAngles() {
     if (fusion != null) {
       return fusion.getEulerAngles();
@@ -159,26 +148,18 @@ public class Device {
   }
   
   void playEvent() {
-    if (playMinMs == -1) {
-      for (Table tbl : loadedTables.values()) {
-        if (playMinMs == -1 || tbl.getRow(0).getInt(1) < playMinMs) {
-          playMinMs = tbl.getRow(0).getInt(1);
-        }
-        if (playMaxMs == -1 || tbl.getRow(tbl.getRowCount()-1).getInt(1) > playMaxMs) {
-          playMaxMs = tbl.getRow(tbl.getRowCount()-1).getInt(1);
-        }
-      }
-    }
     long ms = millis();
     for (SensorType st : loadedTables.keySet()) {
       Table table = loadedTables.get(st);
-      Integer rowIdx = nextRowCursor.get(st);
-      if (rowIdx == null) { rowIdx = 0; }
-      while ((table.getRow(rowIdx).getInt(1) - playMinMs) <= (ms - playingStarted) % playMaxMs) {
-        TableRow row = table.getRow(rowIdx);
+      Integer cursor = nextRowCursor.get(st);
+      if (cursor == null) { cursor = 0; }
+      int loop = floor(cursor / table.getRowCount());
+      while ((table.getRow(cursor % table.getRowCount()).getInt(1) - playMinMs + (playMaxMs - playMinMs) * loop) <= (ms - playingStarted)) {
+        TableRow row = table.getRow(cursor % table.getRowCount());
         getOrCreateSensor(st).playEvent(row);
-        rowIdx = (rowIdx + 1) % table.getRowCount();
-        nextRowCursor.put(st, rowIdx);
+        cursor = (cursor + 1);
+        nextRowCursor.put(st, cursor);
+        loop = floor(cursor / table.getRowCount());
       }
     }
   }
@@ -370,7 +351,8 @@ public class Device {
       Table table = sensor.loadFile(file);
       if (table != null) {
         loadedTables.put(sensor.type, table);
-        playMinMs = -1;
+        playMinMs = playMaxMs = -1;
+        nextRowCursor = new HashMap<SensorType, Integer>();
         startPlaying();
       }
     }
@@ -386,5 +368,18 @@ public class Device {
       isPlaying = true;
       playingStarted = millis();
     }
+  }
+  
+  long[] getMinMaxMs() {
+    long minMaxMs[] = new long[] {-1, -1};
+    for (Table tbl : loadedTables.values()) {
+      if (minMaxMs[0] == -1 || tbl.getRow(0).getInt(1) < minMaxMs[0]) {
+        minMaxMs[0] = tbl.getRow(0).getInt(1);
+      }
+      if (minMaxMs[1] == -1 || tbl.getRow(tbl.getRowCount()-1).getInt(1) > minMaxMs[1]) {
+        minMaxMs[1] = tbl.getRow(tbl.getRowCount()-1).getInt(1);
+      }
+    }
+    return minMaxMs;
   }
 }
