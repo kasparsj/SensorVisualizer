@@ -61,12 +61,7 @@ public class MagDisplay extends VectorDisplay {
     return heading;
   }
   
-  void oscEvent(OscMessage msg) {
-    update(new PVector(msg.get(1).floatValue(), msg.get(2).floatValue(), msg.get(3).floatValue()));
-    
-    OscMessage fw = new OscMessage("/compass");
-    fw.add(device.id);
-    fw.add(val().heading());
-    oscP5.send(fw, supercollider);
+  void forward(OscMessage msg) {
+    forwardHeading("/compass");
   }
 }

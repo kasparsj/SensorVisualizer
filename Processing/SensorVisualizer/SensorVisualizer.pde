@@ -12,7 +12,6 @@ import java.util.stream.*;
 //ControlP5 cp5;
 Map<String, Device> devs = new HashMap<String, Device>();
 String cur = "";
-long lastUps = 0;
 
 // osc
 OscP5 oscP5; 
@@ -44,11 +43,8 @@ void setupGui() {
 }
 
 void update() {
-  if (millis() - lastUps >= 1000) {
-    for (Device dev : devs.values()) {
-      dev.tick();
-    }
-    lastUps = millis();
+  for (Device dev : devs.values()) {
+    dev.update();
   }
 }
 
@@ -57,7 +53,6 @@ void draw() {
 
   update();
 
-  textSize(12);
   Device dev = devs.get(cur);
   dev.drawSensors();
   int i=0;
@@ -66,19 +61,39 @@ void draw() {
     i++;
   }
 
+  pushStyle();
+  color(255);
+  textSize(12);
   text(round(frameRate)+"fps", width - 50, height - 15);
+  popStyle();
 }
 
 void oscEvent(OscMessage msg) {
   if (msg.addrPattern().substring(0, oscPrefix.length()).equals(oscPrefix)) {    
     if (msg.typetag().charAt(0) == 's') {
       String deviceId = msg.get(0).stringValue();
-      if (devs.get(deviceId) == null) {
-        devs.put(deviceId, new Device(deviceId, oscPrefix, new HashMap<SensorType, SensorDisplay>(){{
-          
-        }}));
+      getOrCreateDevice(deviceId).oscEvent(msg);
+    }
+  }
+}
+
+Device getOrCreateDevice(String deviceId) {
+  if (devs.get(deviceId) == null) {
+    devs.put(deviceId, new Device(deviceId, oscPrefix, new HashMap<SensorType, SensorDisplay>(){{
+      
+    }}));
+  }
+  return devs.get(deviceId);
+}
+
+void openFolder(File folder) {
+  if (folder != null) {
+    for (File file : folder.listFiles()) {
+      String fileName = file.getName();
+      if (fileName.substring(fileName.length()-3).toLowerCase().equals("csv")) {
+        String deviceId = fileName.substring(0, fileName.lastIndexOf('_'));
+        getOrCreateDevice(deviceId).openFile(file);
       }
-      devs.get(deviceId).oscEvent(msg);
     }
   }
 }
@@ -92,7 +107,18 @@ void keyPressed() {
     cur = (new ArrayList<String>(devs.keySet())).get(key - '1');
     return;
   }
-  devs.get(cur).keyPressed();
+  if (key == 'o') {
+    selectFolder("Select a folder to process:", "openFolder");
+    return;
+  }
+  if (keyCode == SHIFT) {
+    for (Device dev : devs.values()) {
+      dev.keyPressed();
+    }
+  }
+  else {
+    devs.get(cur).keyPressed();
+  }
 }
 
 void buildBoxShape() {

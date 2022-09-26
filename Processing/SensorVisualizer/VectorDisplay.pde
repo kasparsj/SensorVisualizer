@@ -108,6 +108,39 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
     return magDeltaSumPerc(magDeltaSumCoeff);
   }
   
+  PVector parse(OscMessage msg, int i) {
+    PVector vec;
+    if (msg.typetag().charAt(1) == 'i') {
+      vec = new PVector(msg.get(1+i*3).intValue(), msg.get(2+i*3).intValue(), msg.get(3+i*3).intValue());
+    }
+    else {
+      vec = new PVector(msg.get(1+i*3).floatValue(), msg.get(2+i*3).floatValue(), msg.get(3+i*3).floatValue());
+    }
+    return vec;
+  }
+  
+  PVector parse(TableRow row) {
+    return new PVector(row.getFloat(2), row.getFloat(3), row.getFloat(4));
+  }
+  
+  void forwardMagnitude(String oscAddr, float magDeltaSumThresh) {
+    OscMessage fw = new OscMessage(oscAddr);
+    fw.add(device.id);
+    fw.add(mag());
+    fw.add(magPerc());
+    fw.add(magDeltaSum);
+    fw.add(magDeltaSumPerc());
+    fw.add(magDeltaSumPerc() > magDeltaSumThresh ? 1 : 0);
+    oscP5.send(fw, supercollider);
+  }
+  
+  void forwardHeading(String oscAddr) {
+    OscMessage fw = new OscMessage(oscAddr);
+    fw.add(device.id);
+    fw.add(val().heading());
+    oscP5.send(fw, supercollider);
+  }
+  
   PVector kalman(PVector val) {
     // measurement [x, y, z]
     Matrix m = new Matrix(3, 1);

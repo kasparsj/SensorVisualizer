@@ -26,6 +26,7 @@ public class AccDisplay extends VectorDisplay {
   AccDisplay(float x, float y, float w, float h, GravityMethod gm, int histLen, int deltaSumWin, float maxMag) {
     super(x, y, w, h, histLen);
     type = SensorType.ACC;
+    supportBatch = true;
     gravityMethod = gm;
     gravity = new PVector(0, 0, 0);
     enableMagnitude(deltaSumWin, maxMag);
@@ -148,57 +149,39 @@ public class AccDisplay extends VectorDisplay {
     popMatrix();
   }
   
-  void oscEvent(OscMessage msg) {
-    int numArgs = msg.typetag().length();
-    if ((numArgs-1) % 3 == 0) {
-      int numValues = (numArgs-1) / 3;
-      for (int i=0; i<numValues; i++) {
-        PVector vec;
-        if (msg.typetag().charAt(1) == 'i') {
-          vec = new PVector(msg.get(1+i*3).intValue(), msg.get(2+i*3).intValue(), msg.get(3+i*3).intValue());
-        }
-        else {
-          vec = new PVector(msg.get(1+i*3).floatValue(), msg.get(2+i*3).floatValue(), msg.get(3+i*3).floatValue());
-        }
-        
-        update(vec);
+  void forward(OscMessage msg) {
+    forwardMagnitude("/acc/mag", accMagDeltaSumThresh);
+    if (showVelocity) {
+      int numValues = (msg.typetag().length()-1) / numArgs;
+      calcVelocity(numValues);
+    }
+  }
   
-        OscMessage fw = new OscMessage("/acc/mag");
-        fw.add(device.id);
-        fw.add(mag());
-        fw.add(magPerc());
-        fw.add(magDeltaSum);
-        fw.add(magDeltaSumPerc());
-        fw.add(magDeltaSumPerc() > accMagDeltaSumThresh ? 1 : 0);
-        oscP5.send(fw, supercollider);
-      }
-      if (showVelocity) {
-        int millis = millis();
-        if (velocities != null) {
-          boolean useRaw = true;
-          ArrayList<PVector> vals = useRaw ? rawValues : values; 
-          for (int i=(numValues-1); i>=0; i--) {
-            int j = i > histCursor ? histLen - (i - histCursor) : histCursor - i;
-            PVector val = vals.get(j);
-            // when raw - add back gravity
-            if (gravityMethod != GravityMethod.NONE && useRaw) val = PVector.add(val, gravity);
-            if (useRaw) {
-              PVector prevVal = vals.get(j > 0 ? j-1 : histLen-1);
-              if (prevVal == null) prevVal = new PVector(0, 0);
-              val = PVector.add(prevVal, PVector.mult(PVector.sub(val, prevVal), 0.001));
-            }
-            PVector dv = PVector.mult(val, (millis - prevMillis) / numValues / 1000F);
-            PVector prevVelocity = velocity == null ? new PVector(0, 0) : velocity;
-            velocity = PVector.add(prevVelocity, dv);
-            velocity.x = abs(velocity.x);
-            velocity.y = abs(velocity.y);
-            velocity.z = abs(velocity.z);
-            velocities.set(j, velocity.copy());          
-          }
+  void calcVelocity(int numValues) {
+    int millis = millis();
+    if (velocities != null) {
+      boolean useRaw = true;
+      ArrayList<PVector> vals = useRaw ? rawValues : values; 
+      for (int i=(numValues-1); i>=0; i--) {
+        int j = i > histCursor ? histLen - (i - histCursor) : histCursor - i;
+        PVector val = vals.get(j);
+        // when raw - add back gravity
+        if (gravityMethod != GravityMethod.NONE && useRaw) val = PVector.add(val, gravity);
+        if (useRaw) {
+          PVector prevVal = vals.get(j > 0 ? j-1 : histLen-1);
+          if (prevVal == null) prevVal = new PVector(0, 0);
+          val = PVector.add(prevVal, PVector.mult(PVector.sub(val, prevVal), 0.001));
         }
-        prevMillis = millis;
+        PVector dv = PVector.mult(val, (millis - prevMillis) / numValues / 1000F);
+        PVector prevVelocity = velocity == null ? new PVector(0, 0) : velocity;
+        velocity = PVector.add(prevVelocity, dv);
+        velocity.x = abs(velocity.x);
+        velocity.y = abs(velocity.y);
+        velocity.z = abs(velocity.z);
+        velocities.set(j, velocity.copy());          
       }
     }
+    prevMillis = millis;
   }
   
   PVector getOrigEulerAngles() {

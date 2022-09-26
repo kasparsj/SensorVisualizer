@@ -167,9 +167,15 @@ public class QuatDisplay extends RotationStats {
     popMatrix();
   }
   
-  void oscEvent(OscMessage msg) {
-    update(new Quaternion(msg.get(1).floatValue(), msg.get(2).floatValue(), msg.get(3).floatValue(), msg.get(4).floatValue()));
-    
+  Quaternion parse(OscMessage msg, int i) {
+    return new Quaternion(msg.get(1+i*4).floatValue(), msg.get(2+i*4).floatValue(), msg.get(3+i*4).floatValue(), msg.get(4+i*4).floatValue());
+  }
+  
+  Quaternion parse(TableRow row) {
+    return new Quaternion(row.getFloat(1), row.getFloat(2), row.getFloat(3), row.getFloat(4));
+  }
+  
+  void forward(OscMessage msg) {
     OscMessage fw;
     PVector projXZ = projXZ();
     fw = new OscMessage("/quat/projXZ");

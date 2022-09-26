@@ -3,6 +3,7 @@ public class EulerDisplay extends VectorDisplay {
   EulerDisplay(float x, float y, float w, float h, int histLen) {
     super(x, y, w, h, histLen);
     type = SensorType.EULER;
+    supportBatch = true;
   }
   
   EulerDisplay() {
@@ -163,25 +164,32 @@ public class EulerDisplay extends VectorDisplay {
     popStyle();
   }
   
-  void oscEvent(OscMessage msg) {
-    int numArgs = msg.typetag().length();
-    if ((numArgs-1) % 3 == 0) {
-      for (int i=0; i<(numArgs-1) / 3; i++) {
-        PVector val = new PVector(msg.get(1+i*3).floatValue(), msg.get(2+i*3).floatValue(), msg.get(3+i*3).floatValue()); //<>//
-        if (msg.addrPattern().substring(oscPrefix.length()).equals("/euler_deg")) { //<>//
-          val.x = radians(val.x);
-          val.y = radians(val.y);
-          val.z = radians(val.z);
-        }
-        update(val);
-        
-        OscMessage fw = new OscMessage("/euler");
-        fw.add(device.id);
-        fw.add(value.x);
-        fw.add(value.y);
-        fw.add(value.z);
-        oscP5.send(fw, supercollider);
-      }
+  PVector parse(OscMessage msg, int i) {
+    PVector val = new PVector(msg.get(1+i*3).floatValue(), msg.get(2+i*3).floatValue(), msg.get(3+i*3).floatValue());
+    if (msg.addrPattern().substring(oscPrefix.length()).equals("/euler_deg")) {
+      val.x = radians(val.x);
+      val.y = radians(val.y);
+      val.z = radians(val.z);
     }
+    return val;
+  }
+  
+  PVector parse(TableRow row) {
+    PVector val = new PVector(row.getFloat(2), row.getFloat(3), row.getFloat(4));
+    if (row.getString(0).substring(oscPrefix.length()).equals("/euler_deg")) {
+      val.x = radians(val.x);
+      val.y = radians(val.y);
+      val.z = radians(val.z);
+    }
+    return val;
+  }
+  
+  void forward(OscMessage msg) { //<>// //<>//
+    OscMessage fw = new OscMessage("/euler");
+    fw.add(device.id);
+    fw.add(value.x);
+    fw.add(value.y);
+    fw.add(value.z);
+    oscP5.send(fw, supercollider);
   }
 }

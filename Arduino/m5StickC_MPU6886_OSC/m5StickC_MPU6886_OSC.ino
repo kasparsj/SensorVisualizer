@@ -14,7 +14,7 @@
 
 const char* ssid     = "internats";
 const char* password = "internats";
-const char * oscAddress = "192.168.25.155";
+const char * oscAddress = "192.168.2.155";
 const int oscPort = 57121;
 String oscPrefix = String(OSC_PREFIX);
 

@@ -3,6 +3,7 @@ public class GyroDisplay extends VectorDisplay {
   GyroDisplay(float x, float y, float w, float h, int histLen, int deltaSumWin) {
     super(x, y, w, h, histLen);
     type = SensorType.GYRO;
+    supportBatch = true;
     enableMagnitude(deltaSumWin);
     setFilterType(FilterType.LOWPASS);
   }
@@ -66,15 +67,7 @@ public class GyroDisplay extends VectorDisplay {
     popMatrix();
   }
   
-  void oscEvent(OscMessage msg) {
-    update(new PVector(msg.get(1).floatValue(), msg.get(2).floatValue(), msg.get(3).floatValue()));
-
-    OscMessage fw = new OscMessage("/gyro/mag");
-    fw.add(device.id);
-    fw.add(mag());
-    fw.add(magPerc());
-    fw.add(magDeltaSum);
-    fw.add(magDeltaSumPerc());
-    oscP5.send(fw, supercollider);
+  void forward(OscMessage msg) {
+    forwardMagnitude("/gyro/mag", 0);
   }
 }

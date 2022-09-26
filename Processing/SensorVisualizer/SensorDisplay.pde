@@ -18,8 +18,11 @@ abstract class SensorDisplay<T> {
   Device device;
   float x = 0, y = 0, w, h;
   T value;
+  T minValue = null;
+  T maxValue = null;
   ArrayList<T> values = null;
   ArrayList<T> rawValues = null;
+  Float[] perc = null;
   int ups = 0;
   int numUpdates = 0;
   int avgLen = 0;
@@ -27,8 +30,9 @@ abstract class SensorDisplay<T> {
   int histLen = 0;
   int histCursor = -1;
   FilterType filterType = FilterType.NONE;
-  boolean visible = true;
   int numArgs = 1;
+  boolean supportBatch; 
+  boolean visible = true;
   
   SensorDisplay(float x, float y, float w, float h) {
     this.x = x;
@@ -46,6 +50,7 @@ abstract class SensorDisplay<T> {
         values.add(null);
         rawValues.add(null);
       }
+      perc = new Float[histLen];
     }
     return this;
   }
@@ -65,10 +70,14 @@ abstract class SensorDisplay<T> {
     return this;
   }
   
-  void tick() {
+  void updateUps() {
     ups = numUpdates;
     numUpdates = 0;
   }
+  
+  abstract T parse(OscMessage msg, int batchIndex);
+  
+  abstract T parse(TableRow row);
   
   void update(T val) {
     switch (filterType) {
@@ -82,6 +91,14 @@ abstract class SensorDisplay<T> {
       default:
         value = val;
         break;
+    }
+    if (value instanceof Number) {
+      if (minValue == null || (float) value < (float) minValue) {
+        minValue = value;
+      }
+      if (maxValue == null || (float) value > (float) maxValue) {
+        maxValue = value;
+      }
     }
     updateHist(value, val);
     if (avgLen > 0) {
@@ -97,6 +114,9 @@ abstract class SensorDisplay<T> {
     }
     if (values != null) {
       values.set(nextCursor, value);
+    }
+    if (value instanceof Number && perc != null) {
+      perc[nextCursor] = ((float) value - (float) minValue) / ((float) maxValue - (float) minValue);
     }
     histCursor = nextCursor;
   }
@@ -141,20 +161,42 @@ abstract class SensorDisplay<T> {
     draw(w, h);
     popMatrix();
   }
+  
   abstract void draw(float w, float h);
   
-  abstract void oscEvent(OscMessage msg);
+  final void oscEvent(OscMessage msg) {
+    if (supportBatch) {
+      int msgArgs = msg.typetag().length();
+      if ((msgArgs-1) % numArgs == 0) {
+        int numValues = (msgArgs-1) / numArgs;
+        for (int i=0; i<numValues; i++) {
+          update(parse(msg, i));
+        }
+      }
+    }
+    else {
+      update(parse(msg, 0));
+    }
+    forward(msg);
+  }
   
-  void record(OscMessage msg) {
-    String typetag = msg.typetag();
+  final void playEvent(TableRow row) {
+    update(parse(row));
+  }
+  
+  abstract void forward(OscMessage msg);
+  
+  final void record(OscMessage msg) {
+    String typetag = msg.typetag(); //<>//
     int totalArgs = typetag.length()-1;
     if (totalArgs % numArgs == 0) {
       PrintWriter recorder = device.getOrCreateRecorder(type);
-      int numLines = totalArgs / numArgs;
+      int numLines = supportBatch ? totalArgs / numArgs : 1;
       for (int i=0; i<numLines; i++) {
         //long time = msg.timetag();
         long time = millis();
         String line = msg.addrPattern() + "\t" + time;
+        // todo: would be better to use "parse" method
         for (int j=0; j<numArgs; j++) {
           var idx = 1+i*numArgs+j;
           OscArgument arg = msg.get(idx);
@@ -174,7 +216,7 @@ abstract class SensorDisplay<T> {
       }
     }
   }
-  
+    
   boolean mouseClicked() {
     if (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h) {
       device.curSensor = device.curSensor != this ? this : null;

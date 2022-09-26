@@ -16,18 +16,25 @@ public class Device {
   
   String id;
   String oscPrefix;
-
+  long lastUps = 0;
   Map<SensorType, SensorDisplay> sensors;
   SensorDisplay curSensor = null;
   SensorFusion fusion;
   Map<SensorType, PrintWriter> recorders;
   boolean isRecording;
+  Map<SensorType, Table> loadedTables;
+  Map<SensorType, Integer> nextRowCursor;
+  boolean isPlaying;
+  long playingStarted = -1;
+  long playMinMs = -1;
   
   Device(String id, String oscPrefix, Map<SensorType, SensorDisplay> sensors, FusionType fusionType) {
     this.id = id;
     this.oscPrefix = oscPrefix;
     this.sensors = sensors;
     this.recorders = new HashMap<SensorType, PrintWriter>();
+    this.loadedTables = new HashMap<SensorType, Table>();
+    this.nextRowCursor = new HashMap<SensorType, Integer>();
     for (SensorDisplay sensor : sensors.values()) {
       sensor.device = this;
     }
@@ -37,9 +44,18 @@ public class Device {
     this(id, oscPrefix, sensors, FusionType.NONE);
   }
   
-  void tick() {
+  void update() {
+    if (isPlaying) {
+      playEvent();
+    }
+    boolean updateUps = millis() - lastUps >= 1000;
     for (SensorDisplay sensor : sensors.values()) {
-      sensor.tick();
+      if (updateUps) {
+        sensor.updateUps();
+      }
+    }
+    if (updateUps) {
+      lastUps = millis();
     }
   }
   
@@ -59,8 +75,8 @@ public class Device {
     textAlign(CENTER);
     text(id, 50, 13);
     popStyle();
-    if (isRecording) {
-      fill(255, 0, 0);
+    if (isRecording || isPlaying) {
+      fill(isRecording ? 255 : 0, isPlaying ? 255 : 0, 0);
       ellipse(10, 10, 10, 10);
     }
     popMatrix();
@@ -85,6 +101,9 @@ public class Device {
   }
   
   void oscEvent(OscMessage msg) {
+    if (isPlaying) {
+      return;
+    }
     try {
       SensorDisplay sensor = null;
       switch (msg.addrPattern().substring(oscPrefix.length())) {
@@ -124,6 +143,28 @@ public class Device {
     }
     catch (Exception e) {
       e.printStackTrace();
+    }
+  }
+  
+  void playEvent() {
+    if (playMinMs == -1) {
+      for (Table tbl : loadedTables.values()) {
+        if (playMinMs == -1 || tbl.getRow(0).getInt(1) < playMinMs) {
+          playMinMs = tbl.getRow(0).getInt(1);
+        }
+      }
+    }
+    long ms = millis();
+    for (SensorType st : loadedTables.keySet()) {
+      Table table = loadedTables.get(st);
+      Integer rowIdx = nextRowCursor.get(st);
+      if (rowIdx == null) { rowIdx = 0; }
+      while ((table.getRow(rowIdx).getInt(1) - playMinMs) <= ms - playingStarted) {
+        TableRow row = table.getRow(rowIdx);
+        getOrCreateSensor(st).playEvent(row);
+        rowIdx = (rowIdx + 1) % table.getRowCount();
+        nextRowCursor.put(st, rowIdx);
+      }
     }
   }
   
@@ -193,12 +234,21 @@ public class Device {
   PrintWriter getOrCreateRecorder(SensorType st) {
     PrintWriter recorder = recorders.get(st);
     if (recorder == null) {
-      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HHmmss");
-      String date = df.format(new Date());
-      recorder = createWriter("data/" + id + "_" + st.toString() + "_" + date + ".csv");
-      recorders.put(st, recorder);
+      recorder = createRecorder(st);
     }
     return recorder;
+  }
+  
+  PrintWriter createRecorder(SensorType st, String folder) {
+    PrintWriter recorder = createWriter("data/" + folder + "/" + id + "_" + st.toString() + ".csv");
+    recorders.put(st, recorder);
+    return recorder;
+  }
+  
+  PrintWriter createRecorder(SensorType st) {
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HHmmss");
+    String date = df.format(new Date());
+    return createRecorder(st, date);
   }
     
   boolean mouseClicked() {
@@ -227,6 +277,14 @@ public class Device {
       toggleRecording();
       return true;
     }
+    if (key == 's') {
+      stopPlaying();
+      return true;
+    }
+    if (key == 'p') {
+      startPlaying();
+      return true;
+    }
     if (curSensor != null && curSensor.keyPressed()) {
       return true;
     }
@@ -251,12 +309,12 @@ public class Device {
   }
   
   void toggleVisible(SensorType st) {
-    SensorDisplay euler = sensors.get(st);
-    if (euler == null) {
-      euler = getOrCreateSensor(st);
+    SensorDisplay sensor = sensors.get(st);
+    if (sensor == null) {
+      sensor = getOrCreateSensor(st);
     }
     else {
-      euler.visible = !euler.visible;
+      sensor.visible = !sensor.visible;
     }
   }
   
@@ -265,10 +323,46 @@ public class Device {
     if (!isRecording) {
       for (PrintWriter recorder : recorders.values()) {
         recorder.flush();
-        recorder.close();        
+        recorder.close();
       }
     }
     recorders = null;
     recorders = new HashMap<SensorType, PrintWriter>();
+    if (isRecording) {
+      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HHmmss");
+      String date = df.format(new Date());
+      for (SensorType st : sensors.keySet()) {
+        createRecorder(st, date);
+      }
+    }
+  }
+  
+  void openFile(File file) {
+    if (isRecording) {
+      toggleRecording();
+    }
+    String fileName = file.getName();
+    String type = fileName.substring(fileName.lastIndexOf('_')+1, fileName.lastIndexOf('.'));
+    SensorType sensorType = SensorType.valueOf(type);
+    SensorDisplay sensor = getOrCreateSensor(sensorType);
+    Table table = loadTable(file.getPath(), "tsv");
+    if (table.getColumnCount() >= (sensor.numArgs+2)) {
+      loadedTables.put(sensorType, table);
+      playMinMs = -1;
+      startPlaying();
+    }
+    else {
+      println("Invalid file " + file + "! " + type + " requires " + (sensor.numArgs+2) + " columns, only " + table.getColumnCount() + " found.");
+    }
+  }
+  
+  void stopPlaying() {
+    isPlaying = false;
+    playingStarted = -1;
+  }
+  
+  void startPlaying() {
+    isPlaying = true;
+    playingStarted = millis();
   }
 }

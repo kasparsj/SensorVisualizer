@@ -2,24 +2,17 @@ public class ECGDisplay extends SensorDisplay<Float> {
   
   float w;
   float h;
-  float minEcg = 20000;
-  float maxEcg = -20000;
-  Float percEcg[];
   JKalman kalman;
   
   ECGDisplay(float x, float y, float w, float h, int histLen) {
     super(x, y, w, h);
     type = SensorType.ECG;
+    supportBatch = true;
     enableHistory(histLen);
   }
   
   ECGDisplay() {
     this(width/4, height/2, width/4, height/2, 500);
-  }
-  
-  ECGDisplay enableHistory(int histLen) {
-    percEcg = new Float[histLen];
-    return (ECGDisplay) super.enableHistory(histLen);
   }
   
   ECGDisplay setFilterType(FilterType ft) {
@@ -41,29 +34,18 @@ public class ECGDisplay extends SensorDisplay<Float> {
     return (ECGDisplay) super.setFilterType(ft);
   }
   
-  void update(Float val) {
-    super.update(val);
-    if (value < minEcg) {
-      minEcg = value;
-    }
-    if (value > maxEcg) {
-      maxEcg = value;
-    }
-    percEcg[histCursor] = (value - minEcg) / (maxEcg - minEcg);
-  }
-  
   void draw(float w, float h) {
     if (value == null) return;
     
     pushStyle();  
     fill(255);
-    text("ECG " + filterType + " " + nf(value, 0, 2)+(ups > 0 ? " ("+nf(minEcg, 0, 2)+", "+nf(maxEcg, 0, 2)+")" : ""), 20, 20);
+    text("ECG " + filterType + " " + nf(value, 0, 2)+(ups > 0 ? " ("+nf(minValue, 0, 2)+", "+nf(maxValue, 0, 2)+")" : ""), 20, 20);
     text("(pps: "+ups+")", w - 70, 20);
     popStyle();
     
     pushMatrix();
     translate(20, h - 20);
-    plotMagnitude(percEcg, w - 40, -h + 80, histCursor);
+    plotMagnitude(perc, w - 40, -h + 80, histCursor);
     popMatrix();
   }
   
@@ -90,27 +72,28 @@ public class ECGDisplay extends SensorDisplay<Float> {
     return val;
   }
   
-  void oscEvent(OscMessage msg) {
-    int numArgs = msg.typetag().length();
-    for (int i=0; i<numArgs-1; i++) {
-      float val;
-      if (msg.typetag().charAt(1+i) == 'i') {
-        val = (float) msg.get(1+i).intValue();
-      }
-      else {
-        val = msg.get(1+i).floatValue();
-      }
-      
-      update(val);
-
-      OscMessage fw = new OscMessage("/ecg/avg");
-      fw.add(device.id);
-      fw.add(value);
-      fw.add(percEcg[histCursor]);
-      fw.add(minEcg);
-      fw.add(maxEcg);
-      oscP5.send(fw, supercollider);
-
+  Float parse(OscMessage msg, int i) {
+    float val;
+    if (msg.typetag().charAt(1+i) == 'i') {
+      val = (float) msg.get(1+i).intValue();
     }
+    else {
+      val = msg.get(1+i).floatValue();
+    }
+    return val;
+  }
+  
+  Float parse(TableRow row) {
+    return row.getFloat(2);
+  }
+  
+  void forward(OscMessage msg) {
+    OscMessage fw = new OscMessage("/ecg/perc");
+    fw.add(device.id);
+    fw.add(value);
+    fw.add(perc[histCursor]);
+    fw.add(minValue);
+    fw.add(maxValue);
+    oscP5.send(fw, supercollider);
   }
 }

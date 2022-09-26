@@ -3,6 +3,7 @@ public class HRDisplay extends SensorDisplay<Float> {
   HRDisplay(float x, float y, float w, float h, int avgLen, int histLen) {
     super(x, y, w, h);
     type = SensorType.HR;
+    supportBatch = false;
     enableHistory(histLen);
     enableAverage(avgLen);
   }
@@ -57,16 +58,22 @@ public class HRDisplay extends SensorDisplay<Float> {
     popStyle();
   }
   
-  void oscEvent(OscMessage msg) {
+  Float parse(OscMessage msg, int i) {
     float val;
-    if (msg.typetag().charAt(1) == 'i') {
-      val = (float) msg.get(1).intValue();
+    if (msg.typetag().charAt(1+i) == 'i') {
+      val = (float) msg.get(1+i).intValue();
     }
     else {
-      val = msg.get(1).floatValue();
+      val = msg.get(1+i).floatValue();
     }
-    update(val);
-
+    return val;
+  }
+  
+  Float parse(TableRow row) {
+    return row.getFloat(2);
+  }
+  
+  void forward(OscMessage msg) {
     if (avgLen > 0) {
       OscMessage fw = new OscMessage("/hr/avg");
       fw.add(device.id);
