@@ -27,6 +27,7 @@ public class Device {
   boolean isPlaying;
   long playingStarted = -1;
   long playMinMs = -1;
+  long playMaxMs = -1;
   
   Device(String id, String oscPrefix, Map<SensorType, SensorDisplay> sensors, FusionType fusionType) {
     this.id = id;
@@ -87,6 +88,17 @@ public class Device {
       if (sensor.visible) {
         sensor.draw();
       }
+    }
+  }
+  
+  void drawPlayPos() {
+    if (isPlaying) {
+      long dur = (playMaxMs - playMinMs);
+      pushStyle();
+      fill(255);
+      textSize(12);
+      text(((millis() - playingStarted) % dur) + " / " + dur, width/2 + 20, height - 15);
+      popStyle();
     }
   }
   
@@ -152,6 +164,9 @@ public class Device {
         if (playMinMs == -1 || tbl.getRow(0).getInt(1) < playMinMs) {
           playMinMs = tbl.getRow(0).getInt(1);
         }
+        if (playMaxMs == -1 || tbl.getRow(tbl.getRowCount()-1).getInt(1) > playMaxMs) {
+          playMaxMs = tbl.getRow(tbl.getRowCount()-1).getInt(1);
+        }
       }
     }
     long ms = millis();
@@ -159,7 +174,7 @@ public class Device {
       Table table = loadedTables.get(st);
       Integer rowIdx = nextRowCursor.get(st);
       if (rowIdx == null) { rowIdx = 0; }
-      while ((table.getRow(rowIdx).getInt(1) - playMinMs) <= ms - playingStarted) {
+      while ((table.getRow(rowIdx).getInt(1) - playMinMs) <= (ms - playingStarted) % playMaxMs) {
         TableRow row = table.getRow(rowIdx);
         getOrCreateSensor(st).playEvent(row);
         rowIdx = (rowIdx + 1) % table.getRowCount();
@@ -343,16 +358,24 @@ public class Device {
     }
     String fileName = file.getName();
     String type = fileName.substring(fileName.lastIndexOf('_')+1, fileName.lastIndexOf('.'));
-    SensorType sensorType = SensorType.valueOf(type);
-    SensorDisplay sensor = getOrCreateSensor(sensorType);
-    Table table = loadTable(file.getPath(), "tsv");
-    if (table.getColumnCount() >= (sensor.numArgs+2)) {
-      loadedTables.put(sensorType, table);
-      playMinMs = -1;
-      startPlaying();
+    SensorDisplay sensor = null;
+    try {
+      SensorType sensorType = SensorType.valueOf(type);
+      sensor = getOrCreateSensor(sensorType);
     }
-    else {
-      println("Invalid file " + file + "! " + type + " requires " + (sensor.numArgs+2) + " columns, only " + table.getColumnCount() + " found.");
+    catch (Exception e) {
+      println("Cannot open unknown file type: " + type + "!");
+    }
+    if (sensor != null) {
+      Table table = loadTable(file.getPath(), "tsv");
+      if (table.getColumnCount() >= (sensor.numArgs+2)) {
+        loadedTables.put(sensor.type, table);
+        playMinMs = -1;
+        startPlaying();
+      }
+      else {
+        println("Invalid file " + file + "! " + type + " requires " + (sensor.numArgs+2) + " columns, only " + table.getColumnCount() + " found.");
+      }
     }
   }
   

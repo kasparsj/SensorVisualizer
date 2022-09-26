@@ -55,6 +55,7 @@ void draw() {
 
   Device dev = devs.get(cur);
   dev.drawSensors();
+  dev.drawPlayPos();
   int i=0;
   for (Device dev1 : devs.values()) {
     dev1.drawTab(i, dev1 == dev);
@@ -62,7 +63,7 @@ void draw() {
   }
 
   pushStyle();
-  color(255);
+  fill(255);
   textSize(12);
   text(round(frameRate)+"fps", width - 50, height - 15);
   popStyle();

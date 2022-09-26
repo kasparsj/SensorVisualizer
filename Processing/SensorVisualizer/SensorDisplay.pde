@@ -187,7 +187,7 @@ abstract class SensorDisplay<T> {
   abstract void forward(OscMessage msg);
   
   final void record(OscMessage msg) {
-    String typetag = msg.typetag(); //<>//
+    String typetag = msg.typetag();
     int totalArgs = typetag.length()-1;
     if (totalArgs % numArgs == 0) {
       PrintWriter recorder = device.getOrCreateRecorder(type);
