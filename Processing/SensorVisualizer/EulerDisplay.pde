@@ -14,7 +14,9 @@ public class EulerDisplay extends VectorDisplay {
     PVector angles;
     if (value == null || device.fusion != null) {
       angles = device.getEulerAngles();
-      updateHist(angles, null);
+      if (!(device.isPlaying && device.isPaused)) {
+        updateHist(angles, null);
+      }
     }
     else {
       angles = value.copy();
@@ -164,27 +166,7 @@ public class EulerDisplay extends VectorDisplay {
     popStyle();
   }
   
-  PVector parse(OscMessage msg, int i) {
-    PVector val = new PVector(msg.get(1+i*3).floatValue(), msg.get(2+i*3).floatValue(), msg.get(3+i*3).floatValue());
-    if (msg.addrPattern().substring(oscPrefix.length()).equals("/euler_deg")) {
-      val.x = radians(val.x);
-      val.y = radians(val.y);
-      val.z = radians(val.z);
-    }
-    return val;
-  }
-  
-  PVector parse(TableRow row) {
-    PVector val = new PVector(row.getFloat(2), row.getFloat(3), row.getFloat(4));
-    if (row.getString(0).substring(oscPrefix.length()).equals("/euler_deg")) {
-      val.x = radians(val.x);
-      val.y = radians(val.y);
-      val.z = radians(val.z);
-    }
-    return val;
-  }
-  
-  void forward(OscMessage msg) { //<>// //<>// //<>// //<>//
+  void forward(OscMessage msg) { //<>//
     OscMessage fw = new OscMessage("/euler");
     fw.add(device.id);
     fw.add(value.x);

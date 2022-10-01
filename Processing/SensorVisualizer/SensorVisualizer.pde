@@ -61,7 +61,7 @@ void draw() {
     pushStyle();
     fill(255);
     textSize(12);
-    text(((millis() - dev.playingStarted) % dur) + " / " + dur, width/2 + 20, height - 15);
+    text((dev.playPos % dur) + " / " + dur, width/2 + 20, height - 15);
     popStyle();
   }
   
@@ -143,7 +143,7 @@ void keyPressed() {
     selectFolder("Select a folder to process:", "openFolder");
     return;
   }
-  if (keyCode == SHIFT) {
+  if (keyCode == SHIFT || key == ' ') {
     for (Device dev : devs.values()) {
       dev.keyPressed();
     }

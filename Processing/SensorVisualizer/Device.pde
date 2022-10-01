@@ -25,9 +25,11 @@ public class Device {
   Map<SensorType, Table> loadedTables;
   Map<SensorType, Integer> nextRowCursor;
   boolean isPlaying;
-  long playingStarted = -1;
+  long lastMs = 0;
+  int playPos = 0;
   long playMinMs = -1;
   long playMaxMs = -1;
+  boolean isPaused;
   
   Device(String id, String oscPrefix, Map<SensorType, SensorDisplay> sensors, FusionType fusionType) {
     this.id = id;
@@ -45,7 +47,7 @@ public class Device {
   }
   
   void update() {
-    if (isPlaying) {
+    if (isPlaying && !isPaused) {
       playEvent();
     }
     boolean updateUps = millis() - lastUps >= 1000;
@@ -76,7 +78,7 @@ public class Device {
     text(id, 50, 13);
     popStyle();
     if (isRecording || isPlaying) {
-      fill(isRecording ? 255 : 0, isPlaying ? 255 : 0, 0);
+      fill(isRecording ? 255 : 0, isPlaying ? (isPaused ? 127 : 255) : 0, 0);
       ellipse(10, 10, 10, 10);
     }
     popMatrix();
@@ -91,8 +93,10 @@ public class Device {
   }
   
   PVector getEulerAngles() {
-    if (fusion != null) {
-      return fusion.getEulerAngles();
+    if (!(isPlaying && isPaused)) {
+      if (fusion != null && hasAccelerometer() && hasGyroscope()) {
+        return fusion.getEulerAngles();
+      } 
     }
     if (hasAccelerometer()) {
       return getAccelerometer().getOrigEulerAngles();
@@ -148,12 +152,14 @@ public class Device {
   
   void playEvent() {
     long ms = millis();
+    playPos += (ms - lastMs);
+    lastMs = ms;
     for (SensorType st : loadedTables.keySet()) {
       Table table = loadedTables.get(st);
       Integer cursor = nextRowCursor.get(st);
       if (cursor == null) { cursor = 0; }
       int loop = floor(cursor / table.getRowCount());
-      while ((table.getRow(cursor % table.getRowCount()).getInt(1) - playMinMs + (playMaxMs - playMinMs) * loop) <= (ms - playingStarted)) {
+      while ((table.getRow(cursor % table.getRowCount()).getInt(1) - playMinMs + (playMaxMs - playMinMs) * loop) <= playPos) {
         TableRow row = table.getRow(cursor % table.getRowCount());
         getOrCreateSensor(st).playEvent(row);
         cursor = (cursor + 1);
@@ -256,6 +262,11 @@ public class Device {
   }
   
   boolean keyPressed() {
+    if (key == ' ') {
+      isPaused = !isPaused;
+      lastMs = millis();
+      return true;
+    }
     if (key == 'u') {
       setFusionType((fusion == null ? FusionType.NONE : fusion.type).next());
       return true;
@@ -264,7 +275,7 @@ public class Device {
       toggleVisible(SensorType.EULER);
       return true;
     }
-    if (key == 'g') {
+    if (key == 'y') {
       toggleVisible(SensorType.GYRO);
       return true;
     }
@@ -293,6 +304,12 @@ public class Device {
   
   void setFusionType(FusionType ft) {
     switch (ft) {
+      case MAHONY:
+        fusion = new MahonyFusion(this);
+        break;
+      case MADGWICK:
+        fusion = new MadgwickFusion(this);
+        break;
       case KALMAN:
         fusion = new KalmanFusion(this);
         break;
@@ -359,13 +376,15 @@ public class Device {
   
   void stopPlaying() {
     isPlaying = false;
-    playingStarted = -1;
+    lastMs = 0;
+    playPos = 0;
   }
   
   void startPlaying() {
     if (loadedTables.keySet().size() > 0) {
       isPlaying = true;
-      playingStarted = millis();
+      lastMs = millis();
+      playPos = 0;
     }
   }
   

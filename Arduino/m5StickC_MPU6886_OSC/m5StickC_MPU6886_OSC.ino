@@ -263,7 +263,7 @@ void updateBMP() {
 
 void sendOSC() {
   OscWiFi.send(oscAddress, oscPort, oscPrefix + "/acc", DEVICE_ID, accX, accY, accZ);
-  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/gyro", DEVICE_ID, gyroX, gyroY, gyroZ);
+  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/gyro_deg", DEVICE_ID, gyroX, gyroY, gyroZ);
   OscWiFi.send(oscAddress, oscPort, oscPrefix + "/euler_deg", DEVICE_ID, roll, pitch, yaw);
   if (bmeInitialized) {
     OscWiFi.send(oscAddress, oscPort, oscPrefix + "/altitude", DEVICE_ID, alt);

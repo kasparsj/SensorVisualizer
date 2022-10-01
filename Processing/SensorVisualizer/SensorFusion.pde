@@ -1,5 +1,7 @@
 enum FusionType {
   NONE,
+  MAHONY,
+  MADGWICK,
   KALMAN;
   
   private static FusionType[] vals = values();

@@ -110,17 +110,28 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
   
   PVector parse(OscMessage msg, int i) {
     PVector vec;
-    if (msg.typetag().charAt(1) == 'i') {
+    if (msg.typetag().charAt(1+i*3) == 'i') {
       vec = new PVector(msg.get(1+i*3).intValue(), msg.get(2+i*3).intValue(), msg.get(3+i*3).intValue());
     }
     else {
       vec = new PVector(msg.get(1+i*3).floatValue(), msg.get(2+i*3).floatValue(), msg.get(3+i*3).floatValue());
     }
+    if (msg.addrPattern().substring(msg.addrPattern().length()-4).equals("_deg")) {
+      vec.x = radians(vec.x);
+      vec.y = radians(vec.y);
+      vec.z = radians(vec.z);
+    }
     return vec;
   }
   
   PVector parse(TableRow row) {
-    return new PVector(row.getFloat(2), row.getFloat(3), row.getFloat(4));
+    PVector vec = new PVector(row.getFloat(2), row.getFloat(3), row.getFloat(4));
+    if (row.getString(0).substring(row.getString(0).length()-4).equals("_deg")) {
+      vec.x = radians(vec.x);
+      vec.y = radians(vec.y);
+      vec.z = radians(vec.z);
+    }
+    return vec;
   }
   
   void forwardMagnitude(String oscAddr, float magDeltaSumThresh) {

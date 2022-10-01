@@ -134,9 +134,13 @@ public class KalmanFusion extends SensorFusion {
   }
   
   PVector getEulerAngles() {
-    if (device.hasAccelerometer() && device.getAccelerometer().val() == null) {
-      return null;
-    }
+    if (true) {
+      if (firstTime) {
+        println("Kalman Fusion implementation incomplete/disabled");
+        firstTime = false;
+      }
+      return new PVector();
+    }    
     if (firstTime) {
         lastFusionTime = millis();
         calculatePose();
