@@ -174,12 +174,6 @@ public class MahonyFusion extends SensorFusion {
     float pitch = asin(-2.0f * (q1*q3 - q0*q2));
     float yaw = atan2(q1*q2 + q0*q3, 0.5f - q2*q2 - q3*q3);
     
-    //float pitch = asin(-2 * q1 * q3 + 2 * q0 * q2);  // pitch
-    //float roll  = atan2(2 * q2 * q3 + 2 * q0 * q1,
-    //              -2 * q1 * q1 - 2 * q2 * q2 + 1);  // roll
-    //float yaw   = atan2(2 * (q1 * q2 + q0 * q3),
-    //             q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3);  // yaw
-    
     return new PVector(roll, pitch, yaw);
   }
 }

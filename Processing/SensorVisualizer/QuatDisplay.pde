@@ -3,6 +3,7 @@ public class QuatDisplay extends RotationStats {
   QuatDisplay(float x, float y, float w, float h, int histLen) {
     super(x, y, w, h, histLen);
     type = SensorType.QUAT;
+    addr = "/quat";
   }
   
   QuatDisplay() {
@@ -176,6 +177,7 @@ public class QuatDisplay extends RotationStats {
   }
   
   void forward(OscMessage msg) {
+    // todo: fix to send out only 1 message
     OscMessage fw;
     PVector projXZ = projXZ();
     fw = new OscMessage("/quat/projXZ");
@@ -184,7 +186,7 @@ public class QuatDisplay extends RotationStats {
     fw.add(projXZ.y);
     fw.add(projXZ.mag());
     fw.add(projXZ.heading());
-    oscP5.send(fw, supercollider);
+    oscP5.send(fw, forwardAddr);
     
     PVector projYX = projYX();
     fw = new OscMessage("/quat/projYX");
@@ -193,7 +195,7 @@ public class QuatDisplay extends RotationStats {
     fw.add(projYX.y);
     fw.add(projYX.mag());
     fw.add(projYX.heading());
-    oscP5.send(fw, supercollider);
+    oscP5.send(fw, forwardAddr);
 
     PVector projZY = projZY();
     fw = new OscMessage("/quat/projZY");
@@ -202,6 +204,6 @@ public class QuatDisplay extends RotationStats {
     fw.add(projZY.y);
     fw.add(projZY.mag());
     fw.add(projZY.heading());
-    oscP5.send(fw, supercollider);
+    oscP5.send(fw, forwardAddr);
   }
 }

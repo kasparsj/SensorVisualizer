@@ -165,13 +165,4 @@ public class EulerDisplay extends VectorDisplay {
   
     popStyle();
   }
-  
-  void forward(OscMessage msg) { //<>//
-    OscMessage fw = new OscMessage("/euler");
-    fw.add(device.id);
-    fw.add(value.x);
-    fw.add(value.y);
-    fw.add(value.z);
-    oscP5.send(fw, supercollider);
-  }
 }

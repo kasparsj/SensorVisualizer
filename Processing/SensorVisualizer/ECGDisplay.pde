@@ -7,6 +7,7 @@ public class ECGDisplay extends SensorDisplay<Float> {
   ECGDisplay(float x, float y, float w, float h, int histLen) {
     super(x, y, w, h);
     type = SensorType.ECG;
+    addr = "/ecg";
     supportBatch = true;
     enableHistory(histLen);
   }
@@ -85,15 +86,5 @@ public class ECGDisplay extends SensorDisplay<Float> {
   
   Float parse(TableRow row) {
     return row.getFloat(2);
-  }
-  
-  void forward(OscMessage msg) {
-    OscMessage fw = new OscMessage("/ecg/perc");
-    fw.add(device.id);
-    fw.add(value);
-    fw.add(perc[histCursor]);
-    fw.add(minValue);
-    fw.add(maxValue);
-    oscP5.send(fw, supercollider);
   }
 }

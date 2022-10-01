@@ -3,49 +3,21 @@
 // ~onsetBus = Bus.control(Server.default, 1).set(0);
 ~onsetBus = Bus.control(Server.default, 4).set(0);
 )
+
 (
-var prefix = "/polar";
 var rootFreq = 80;
-~ecg = [];
-~acc = [];
-OSCdef(\ecg, {|msg, time, addr, recvPort|
-	~ecg = msg[2..];
-	//~ecg.size.postln; // 73
-	// AppClock.seconds.postln; // latency = 0.6
-	// ("min: "++~ecg.minItem).postln; // -6000
-	// ("max: "++~ecg.maxItem).postln; // 6000
-	// 130hz
-}, prefix++"/ecg");
-
-OSCdef(\acc, {|msg, time, addr, recvPort|
-	~acc = msg[2..];
-	//~acc.size.postln; // 108
-	//AppClock.seconds.postln; // latency = 0.2
-	//("min: "++~acc.minItem).postln; // -2000
-	//("max: "++~acc.maxItem).postln; // 2000
-	// 200hz
-}, prefix++"/acc");
-
-OSCdef(\gyr, {|msg, time, addr, recvPort|
-	msg.postln;
-}, prefix++"/gyr");
-
-OSCdef(\mag, {|msg, time, addr, recvPort|
-	msg.postln;
-}, prefix++"/mag");
-
 ~heartSin.free;
 ~heartSin = SynthDef(\heart_sin, { |out=0, aout = 0, mod = 0.0, amp = 0.1|
 	var sig, chain, onset;
 	sig = SinOsc.ar();
-	sig = sig * mod;
+	sig = sig * (1-mod);
 	chain = FFT(LocalBuf(1024), sig);
 
 	onset = Onsets.kr(chain, 0.25);
 	Out.kr(out, onset);
 
 	Out.ar(aout, sig!2*amp);
-}).play(args: [\out, ~onsetBus.index, \amp, 0.2]);
+}).play(args: [\out, ~onsetBus.index, \amp, 0.1]);
 
 ~heartSound.free;
 ~heartSound = SynthDef(\heart_perc, { |out=0, gate=0, mod=0, room=0.5, amp=1.0|
@@ -61,18 +33,6 @@ OSCdef(\mag, {|msg, time, addr, recvPort|
 	sig = FreeVerb.ar(sig, room: room);
 	Out.ar(out, sig!2*amp);
 }).play(target: ~heartSin, args: [\gate, ~onsetBus.asMap, \amp, 1.0], addAction: \addAfter);
-
-~ecgValue = 0;
-Tdef(\ecg_loop, { loop {
-	if (~ecg.size > 0) {
-		~ecg[0] = (~ecg[0].min(6000).max(-6000) / 6000).range(0, 1);
-		~ecgValue = ~filter.value(~ecg[0], ~ecgValue, 0.75);
-		~heartSin.set(\mod, ~ecgValue);
-		~heartSound.set(\mod, ~ecgValue);
-		~ecg = ~ecg[1..];
-	};
-	(1.0/130).wait;
-} }).play;
 
 ~motionSyn.free;
 ~motionSyn = SynthDef(\motion, { |out = 0, x = 0, y = 0, z = 0, mag = 0, room=0.5, amp = 0.5|
@@ -105,59 +65,49 @@ Tdef(\ecg_loop, { loop {
 
 	Out.ar(out, sig * amp * mag);
 }).play;
+)
 
-~accValues = [0, 0, 0];
-~accMag = 0;
-~accPitch = 0;
-~accRoll = 0;
-Tdef(\acc_loop, { loop {
-	if (~acc.size > 2) {
-		~accValues = ~filter.value(~acc[0..2], ~accValues, 0.75);
+(
+var prefix = "/out";
+OSCdef(\ecg, {|msg, time, addr, recvPort|
+	var data = msg[1..];
+	~heartSin.set(\mod, data[4]);
+	~heartSound.set(\mod, data[4]);
+}, prefix++"/ecg");
 
-		~accMag = (~accValues[0].pow(2) + ~accValues[1].pow(2) + ~accValues[2].pow(2)).sqrt;
-		~accPitch = 180 * atan2(~accValues[0], (~accValues[1].pow(2) + ~accValues[2].pow(2)).sqrt) / pi;
-		~accRoll = 180 * atan2(~accValues[1], (~accValues[0].pow(2) + ~accValues[2].pow(2)).sqrt) / pi;
+OSCdef(\acc, {|msg, time, addr, recvPort|
+	var data = msg[1..];
+	// todo: https://github.com/KChen89/Accelerometer-Filtering
+	// todo: 9.8g acceleration of gravity
+	// todo: when jumping, magnitude goes down to 0g
+	// todo: when falling, e.g. squatting, magnitude goes up to 3000 (gravity + 20.2g)
+	// todo: can be used to calculate pitch and roll
+	// todo: should be able to detect impacts, that is sudden stops or reverses
+	// todo: should be able to detect change of speed along an axis
+	// todo: can integrate to know the absolute speed, movement along an axis
+	// todo: can be trained to recognize gestures, like walking, running etc?
+	// https://github.com/nerajbobra/embedded_pedometer
 
-		// accelerometer data comes on with three axises x,y and z. The unit is millig and it includes gravity.
+	// first combine and then introduce the next sensor
+	// first introduce impredactibility
+	// the performer has to think and react to the complex systems
+	// sound synthesis that work very well with microphones -> try spectral delay
 
-		// todo: https://github.com/KChen89/Accelerometer-Filtering
-		// todo: 9.8g acceleration of gravity
-		// todo: when jumping, magnitude goes down to 0g
-		// todo: when falling, e.g. squatting, magnitude goes up to 3000 (gravity + 20.2g)
-		// todo: can be used to calculate pitch and roll
-		// todo: should be able to detect impacts, that is sudden stops or reverses
-		// todo: should be able to detect change of speed along an axis
-		// todo: can integrate to know the absolute speed, movement along an axis
-		// todo: can be trained to recognize gestures, like walking, running etc?
-		// https://github.com/nerajbobra/embedded_pedometer
-
-		// first combine and then introduce the next sensor
-		// first introduce impredactibility
-		// the performer has to think and react to the complex systems
-		// sound synthesis that work very well with microphones -> try spectral delay
-
-		// written documentation 4-6 pages
-
-		~motionSyn.set(\mag, (((~accMag - 980).abs / 980)-0.025).min(1).max(0));
-		~motionSyn.set(\x, ((~accValues[0] + 2000) / 4000).min(1).max(0));
-		~motionSyn.set(\y, ((~accValues[1] + 2000) / 4000).min(1).max(0));
-		~motionSyn.set(\z, ((~accValues[2] + 2000) / 4000).min(1).max(0));
-		~acc = ~acc[3..];
-	};
-	(1.0/200).wait;
-} }).play;
-
-~filter = { |value, prevValue, coef|
-	var returnArray = true;
-	if (value.isSequenceableCollection.not, {
-		value = [value];
-		prevValue = [prevValue];
-		returnArray = false;
+	// written documentation 4-6 pages
+	if (data[0].asString() == "7E37D222", {
+		~motionSyn.set(\mag, data[5]);
+		~motionSyn.set(\x, ((data[1] + 2000) / 4000).min(1).max(0));
+		~motionSyn.set(\y, ((data[2] + 2000) / 4000).min(1).max(0));
+		~motionSyn.set(\z, ((data[3] + 2000) / 4000).min(1).max(0));
 	});
-	value.do { |val, i|
-		value[i] = prevValue[i] + ((val - prevValue[i]) * coef);
-		// value[i] = (~prevValue[i] * (1.0 - coef)) + (val * coef);
-	};
-	if (returnArray, { value }, { value[0] });
-};
+}, prefix++"/acc");
+
+OSCdef(\gyro, {|msg, time, addr, recvPort|
+	msg.postln;
+}, prefix++"/gyro");
+
+OSCdef(\mag, {|msg, time, addr, recvPort|
+	msg.postln;
+}, prefix++"/mag");
+
 )

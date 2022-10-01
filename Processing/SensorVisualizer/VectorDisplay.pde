@@ -134,22 +134,20 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
     return vec;
   }
   
-  void forwardMagnitude(String oscAddr, float magDeltaSumThresh) {
-    OscMessage fw = new OscMessage(oscAddr);
-    fw.add(device.id);
-    fw.add(mag());
-    fw.add(magPerc());
-    fw.add(magDeltaSum);
-    fw.add(magDeltaSumPerc());
-    fw.add(magDeltaSumPerc() > magDeltaSumThresh ? 1 : 0);
-    oscP5.send(fw, supercollider);
-  }
-  
-  void forwardHeading(String oscAddr) {
-    OscMessage fw = new OscMessage(oscAddr);
-    fw.add(device.id);
-    fw.add(val().heading());
-    oscP5.send(fw, supercollider);
+  void forward(OscMessage msg) {
+    if (addr != null && addr.length() > 0) {
+      OscMessage fw = new OscMessage(outPrefix + addr);
+      fw.add(device.id);
+      fw.add(value.x);
+      fw.add(value.y);
+      fw.add(value.z);
+      fw.add(mag());
+      fw.add(magPerc());
+      fw.add(magDeltaSum);
+      fw.add(magDeltaSumPerc());
+      fw.add(val().heading());
+      oscP5.send(fw, forwardAddr);   
+    }
   }
   
   PVector kalman(PVector val) {

@@ -3,6 +3,7 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
   AltitudeDisplay(float x, float y, float w, float h, int avgLen, int histLen) {
     super(x, y, w, h);
     type = SensorType.ALTITUDE;
+    addr = "/altitude";
     enableHistory(histLen);
     enableAverage(avgLen);
   }
@@ -57,15 +58,5 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
   
   Float parse(TableRow row) {
     return row.getFloat(2);
-  }
-  
-  void forward(OscMessage msg) {
-    OscMessage fw = new OscMessage("/altitude/avg");
-    fw.add(device.id);
-    fw.add(avgValue);
-    fw.add(perc[histCursor]);
-    fw.add(minValue);
-    fw.add(maxValue);
-    oscP5.send(fw, supercollider);
   }
 }

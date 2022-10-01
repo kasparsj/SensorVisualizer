@@ -66,8 +66,4 @@ public class GyroDisplay extends VectorDisplay {
     
     popMatrix();
   }
-  
-  void forward(OscMessage msg) {
-    forwardMagnitude("/gyro/mag", 0);
-  }
 }

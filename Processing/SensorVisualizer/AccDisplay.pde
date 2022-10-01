@@ -14,7 +14,6 @@ enum GravityMethod {
 
 public class AccDisplay extends VectorDisplay {
 
-  float accMagDeltaSumThresh = 0.4;
   color accMagDeltaSumColor = color(255, 0, 0);
   PVector gravity;
   GravityMethod gravityMethod;
@@ -26,6 +25,7 @@ public class AccDisplay extends VectorDisplay {
   AccDisplay(float x, float y, float w, float h, GravityMethod gm, int histLen, int deltaSumWin, float maxMag) {
     super(x, y, w, h, histLen);
     type = SensorType.ACC;
+    addr = "/acc";
     supportBatch = true;
     gravityMethod = gm;
     gravity = new PVector(0, 0, 0);
@@ -153,11 +153,11 @@ public class AccDisplay extends VectorDisplay {
   }
   
   void forward(OscMessage msg) {
-    forwardMagnitude("/acc/mag", accMagDeltaSumThresh);
     if (showVelocity) {
-      int numValues = (msg.typetag().length()-1) / numArgs;
+      int numValues = msg != null ? (msg.typetag().length()-1) / numArgs : 1;
       calcVelocity(numValues);
     }
+    super.forward(msg);
   }
   
   void calcVelocity(int numValues) {

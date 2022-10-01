@@ -16,18 +16,19 @@ String cur = "";
 // osc
 OscP5 oscP5; 
 int listenPort = 57121;
-String oscPrefix = "/polar";
-NetAddress supercollider;
+String inPrefix = "/polar";
+String outPrefix = "/out";
+NetAddress forwardAddr;
 
 void setup() {
   //size(1000, 600, P3D);
   fullScreen(P3D);
 
   oscP5 = new OscP5(this, listenPort);
-  supercollider = new NetAddress("127.0.0.1", 57120);
+  forwardAddr = new NetAddress("127.0.0.1", 57120);
   
   // Polar H10
-  devs.put("7E37D222", new Device("7E37D222", oscPrefix, new HashMap<SensorType, SensorDisplay>(){{
+  devs.put("7E37D222", new Device("7E37D222", inPrefix, outPrefix, new HashMap<SensorType, SensorDisplay>(){{
       put(SensorType.ACC, new AccDisplay(0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
       put(SensorType.EULER, new EulerDisplay(width/2, 0, width/2, height, 500));
       put(SensorType.HR, new HRDisplay(0, height/2, width/4, height/2, 0, 50));
@@ -79,7 +80,7 @@ void draw() {
 }
 
 void oscEvent(OscMessage msg) {
-  if (msg.addrPattern().substring(0, oscPrefix.length()).equals(oscPrefix)) {    
+  if (msg.addrPattern().substring(0, inPrefix.length()).equals(inPrefix)) {    
     if (msg.typetag().charAt(0) == 's') {
       String deviceId = msg.get(0).stringValue();
       getOrCreateDevice(deviceId).oscEvent(msg);
@@ -89,7 +90,7 @@ void oscEvent(OscMessage msg) {
 
 Device getOrCreateDevice(String deviceId) {
   if (devs.get(deviceId) == null) {
-    devs.put(deviceId, new Device(deviceId, oscPrefix, new HashMap<SensorType, SensorDisplay>(){{
+    devs.put(deviceId, new Device(deviceId, inPrefix, outPrefix, new HashMap<SensorType, SensorDisplay>(){{
       
     }}));
   }

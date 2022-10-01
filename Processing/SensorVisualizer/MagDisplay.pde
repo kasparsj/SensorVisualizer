@@ -5,6 +5,7 @@ public class MagDisplay extends VectorDisplay {
   MagDisplay(float x, float y, float w, float h, int histLen) {
     super(x, y, w, h, histLen);
     type = SensorType.MAG;
+    addr = "/mag";
   }
   
   MagDisplay() {
@@ -59,9 +60,5 @@ public class MagDisplay extends VectorDisplay {
     else if (heading < 0) heading += 2 * PI;
   
     return heading;
-  }
-  
-  void forward(OscMessage msg) {
-    forwardHeading("/compass");
   }
 }

@@ -15,7 +15,8 @@ enum SensorType {
 public class Device {
   
   String id;
-  String oscPrefix;
+  String inPrefix;
+  String outPrefix;
   long lastUps = 0;
   Map<SensorType, SensorDisplay> sensors;
   SensorDisplay curSensor = null;
@@ -31,9 +32,10 @@ public class Device {
   long playMaxMs = -1;
   boolean isPaused;
   
-  Device(String id, String oscPrefix, Map<SensorType, SensorDisplay> sensors, FusionType fusionType) {
+  Device(String id, String inPrefix, String outPrefix, Map<SensorType, SensorDisplay> sensors, FusionType fusionType) {
     this.id = id;
-    this.oscPrefix = oscPrefix;
+    this.inPrefix = inPrefix;
+    this.outPrefix = outPrefix;
     this.sensors = sensors;
     this.recorders = new HashMap<SensorType, PrintWriter>();
     this.loadedTables = new HashMap<SensorType, Table>();
@@ -42,8 +44,8 @@ public class Device {
     }
   }
   
-  Device(String id, String oscPrefix, Map<SensorType, SensorDisplay> sensors) {
-    this(id, oscPrefix, sensors, FusionType.NONE);
+  Device(String id, String inPrefix, String outPrefix, Map<SensorType, SensorDisplay> sensors) {
+    this(id, inPrefix, outPrefix, sensors, FusionType.NONE);
   }
   
   void update() {
@@ -110,7 +112,7 @@ public class Device {
     }
     try {
       SensorDisplay sensor = null;
-      switch (msg.addrPattern().substring(oscPrefix.length())) {
+      switch (msg.addrPattern().substring(inPrefix.length())) {
         case "/acc":
           sensor = getOrCreateSensor(SensorType.ACC);
           break;

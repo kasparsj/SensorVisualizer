@@ -34,6 +34,7 @@ abstract class SensorDisplay<T> {
   boolean supportBatch; 
   boolean makePlayRegular = true;
   boolean visible = true;
+  String addr;
   
   SensorDisplay(float x, float y, float w, float h) {
     this.x = x;
@@ -183,9 +184,32 @@ abstract class SensorDisplay<T> {
   
   final void playEvent(TableRow row) {
     update(parse(row));
+    forward();
   }
   
-  abstract void forward(OscMessage msg);
+  void forward(OscMessage msg) {
+    if (addr != null && addr.length() > 0) {
+      OscMessage fw = new OscMessage(device.outPrefix + addr);
+      fw.add(device.id);
+      if (value instanceof Number) {
+        fw.add((float) value);
+        fw.add((float) minValue);
+        fw.add((float) maxValue);
+        fw.add(perc[histCursor]);
+        if (avgLen > 0) {
+          fw.add((float) avgValue);
+        }
+      }
+      else if (value instanceof String) {
+        fw.add((String) value);
+      }
+      oscP5.send(fw, forwardAddr);
+    }
+  }
+  
+  void forward() {
+    forward(null);
+  }
   
   final void record(OscMessage msg) {
     String typetag = msg.typetag();
