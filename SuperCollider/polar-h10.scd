@@ -1,91 +1,112 @@
 (
-~onsetBus.free;
-// ~onsetBus = Bus.control(Server.default, 1).set(0);
-~onsetBus = Bus.control(Server.default, 4).set(0);
-)
-
-(
-var rootFreq = 80;
-~heartSin.free;
-~heartSin = SynthDef(\heart_sin, { |out=0, aout = 0, mod = 0.0, amp = 0.1|
-	var sig, chain, onset;
-	sig = SinOsc.ar();
+SynthDef(\heart_sin, { |out=0, freq=440, aout = 0, mod = 0.0, amp = 0.1, room = 0.5|
+	var sig, chain, onset, noise;
+	noise = LFNoise0.ar(1/14);
+	sig = SinOsc.ar(freq * (1+noise));
 	sig = sig * (1-mod);
 	chain = FFT(LocalBuf(1024), sig);
 
 	onset = Onsets.kr(chain, 0.25);
 	Out.kr(out, onset);
 
-	Out.ar(aout, sig!2*amp);
-}).play(args: [\out, ~onsetBus.index, \amp, 0.1]);
+	sig = RHPF.ar(sig, rq: 0.01);
+	sig = Compander.ar(sig, sig);
 
-~heartSound.free;
-~heartSound = SynthDef(\heart_perc, { |out=0, gate=0, mod=0, room=0.5, amp=1.0|
+	Out.ar(aout, sig!2*amp * LFPulse.ar(1/14) * noise);
+}).add;
+
+SynthDef(\heart_perc, { |out=0, freq=80, gate=0, mod=0, room=0.5, amp=1.0|
 	var sig, env, fmul, mul, track;
 
 	env = EnvGen.ar(Env.perc, gate);
 
-	// todo: link with motion, so that different samples trigger
-
-	fmul = (1.0 - (mod*2));
+	fmul = (mod*2);
 	mul = mod * 3;
-	sig = (SinOsc.ar(rootFreq * fmul) * env * mul);
-	sig = FreeVerb.ar(sig, room: room);
-	Out.ar(out, sig!2*amp);
-}).play(target: ~heartSin, args: [\gate, ~onsetBus.asMap, \amp, 1.0], addAction: \addAfter);
+	sig = (SinOsc.ar(freq * fmul) * env * mul);
+	//sig = FreeVerb.ar(sig, room: room);
+	Out.ar(out, sig!2*amp * SinOsc.ar(1/13) * LFPulse.ar(1/13) * LFNoise0.ar(1/13));
+}).add;
 
-~motionSyn.free;
-~motionSyn = SynthDef(\motion, { |out = 0, x = 0, y = 0, z = 0, mag = 0, room=0.5, amp = 0.5|
+SynthDef(\heart_perc2, { |out=0, freq = 80, gate=0, mod=0, room=0.5, amp=1.0|
+	var sig, env, fmul, mul, track;
+
+	env = EnvGen.ar(Env.perc, gate);
+
+	fmul = 1.0 - mod;
+	mul = mod * 3;
+	sig = (SinOsc.ar(freq * fmul) * env * mul);
+	sig = FreeVerb.ar(sig, room: room);
+
+	Out.ar(out, sig!2 * amp * LFPulse.ar(1/13, pi) * LFNoise0.ar(1/13));
+}).add;
+
+SynthDef(\motion2, { |out=0, freq=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1|
 	var sig = 0;
 
-	// x.poll; // liekties uz visam pusem, default 0.25
-	// y.poll; // liekties uz saniem, default 0.5
-	// z.poll; // liekties uz prieks/atpakal, default 0.5
-
-	// MiPlaits.ar(rootFreq * [1, 2, 3], (x*10).asInteger, y, z, mag).sum * (0.1+mag);
-
-	//sig = Formants.ar(([1, 2, 3, 4] * rootFreq * [x.min(0.003), y.min(0.003), z.min(0.003)]).flat, Vowel([\u, \e], [\soprano]),
-	//	freqMods: LFNoise2.ar(0.1*[0.1, 0.2, 0.3, 0.4, 0.5].scramble, 0.1), unfold: true).sum * 0.3 * (1.0+mag);
-	//sig = GVerb.ar(sig, room * 10);
-	//Out.ar(out, sig!2 * amp);
-
-	// combine pulse and movement
-	// more sensors (like mike)
-	// introduce more unpredactability -> performer thinks i am doing this, but the sound is not as expected
-	// fm instrument -> try swapping the axis parameters
-	// introduce samples -> when things reach some higher limits
-
-	var fcar = y * 240 + 40;
-	var rel = 1+16*x;
+	var fcar = ([x, y, z]) + (freq * [1, 2, 3]);
+	var rel = 1+16*mag;
 	var fmod = fcar * rel.round;
 	var amod = LFNoise0.ar(fmod);
 	var acar1 = LFSaw.ar(fcar + amod);
-	var acar2 = LFSaw.ar(fcar + amod*(1+z));
-	sig = GVerb.ar([acar1, acar2]*0.1);
+	var acar2 = LFSaw.ar(fcar + amod*(1.01));
+	sig = BPF.ar([acar1, acar2]*0.1, freq*rel);
+	sig = GVerb.ar(sig);
 
-	Out.ar(out, sig * amp * mag);
-}).play;
+	Out.ar(out, sig * amp * SinOsc.ar(1/12, pi));
+}).add;
+
+SynthDef(\motion3, { |out=0, freq=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1|
+	var sig = 0;
+
+	var fcar = ([x, y, z]) + (freq * [1, 2, 3]);
+	var rel = 1+16*mag;
+	var fmod = fcar * rel.round;
+	var amod = LFNoise0.ar(fmod);
+	var acar1 = SinOscFB.ar(fcar + amod, x);
+	var acar2 = SinOscFB.ar(fcar + amod*(1.01), y);
+	sig = BPF.ar([acar1, acar2]*0.1, freq*rel);
+	sig = GVerb.ar(sig);
+
+	Out.ar(out, sig * amp * SinOsc.ar(1/11));
+}).add;
 )
 
 (
 var prefix = "/out";
+
+~onsetBus.free;
+~onsetBus = Bus.control(Server.default, 4).set(0);
+~heartSin.free;
+~heartSin = Synth(\heart_sin, [\out, ~onsetBus.index, \amp, 0.05]);
+~heartPerc.free;
+~heartPerc = Synth(\heart_perc, [\gate, ~onsetBus.asMap, \amp, 0.4], ~heartSin, \addAfter);
+~heartPerc2.free;
+~heartPerc2 = Synth(\heart_perc2, [\gate, ~onsetBus.asMap, \amp, 0.4], ~heartSin, \addAfter);
+~motionSyn2.free;
+~motionSyn2 = Synth(\motion2, [\amp, 0.2]);
+~motionSyn3.free;
+~motionSyn3 = Synth(\motion3, [\amp, 0.4]);
+
 OSCdef(\ecg, {|msg, time, addr, recvPort|
 	var data = msg[1..];
 	~heartSin.set(\mod, data[4]);
-	~heartSound.set(\mod, data[4]);
+	~heartSin.set(\freq, data[3] * rrand(1, 5));
+	~heartPerc.set(\mod, data[4]);
+	~heartPerc2.set(\mod, data[4]);
 }, prefix++"/ecg");
+
+OSCdef(\hr, {|msg, time, addr, recvPort|
+	var data = msg[1..];
+	~heartSin.set(\freq, data[1]*3);
+	~heartPerc.set(\freq, data[1]);
+	~heartPerc2.set(\freq, data[1]);
+	~motionSyn2.set(\freq, data[1]*8);
+	~motionSyn3.set(\freq, data[1]/2);
+}, prefix++"/hr");
 
 OSCdef(\acc, {|msg, time, addr, recvPort|
 	var data = msg[1..];
 	// todo: https://github.com/KChen89/Accelerometer-Filtering
-	// todo: 9.8g acceleration of gravity
-	// todo: when jumping, magnitude goes down to 0g
-	// todo: when falling, e.g. squatting, magnitude goes up to 3000 (gravity + 20.2g)
-	// todo: can be used to calculate pitch and roll
-	// todo: should be able to detect impacts, that is sudden stops or reverses
-	// todo: should be able to detect change of speed along an axis
-	// todo: can integrate to know the absolute speed, movement along an axis
-	// todo: can be trained to recognize gestures, like walking, running etc?
 	// https://github.com/nerajbobra/embedded_pedometer
 
 	// first combine and then introduce the next sensor
@@ -95,10 +116,10 @@ OSCdef(\acc, {|msg, time, addr, recvPort|
 
 	// written documentation 4-6 pages
 	if (data[0].asString() == "7E37D222", {
-		~motionSyn.set(\mag, data[5]);
-		~motionSyn.set(\x, ((data[1] + 2000) / 4000).min(1).max(0));
-		~motionSyn.set(\y, ((data[2] + 2000) / 4000).min(1).max(0));
-		~motionSyn.set(\z, ((data[3] + 2000) / 4000).min(1).max(0));
+		~motionSyn2.set(\x, data[1], \y, data[2], \z, data[3], \mag, data[5]);
+	});
+	if (data[0].asString() == "m5StickC", {
+		~motionSyn3.set(\x, data[1], \y, data[2], \z, data[3], \mag, data[5]);
 	});
 }, prefix++"/acc");
 
