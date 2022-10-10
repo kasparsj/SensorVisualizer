@@ -264,7 +264,7 @@ abstract class SensorDisplay<T> {
   }
   
   boolean mouseClicked() {
-    if (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h) {
+    if (visible && mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h) {
       device.curSensor = device.curSensor != this ? this : null;
       return true;
     }
