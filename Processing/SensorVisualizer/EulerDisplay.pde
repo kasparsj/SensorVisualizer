@@ -25,12 +25,6 @@ public class EulerDisplay extends VectorDisplay {
       return;
     }
     
-    pushStyle();
-    fill(255);
-    text("euler " + filterType + (device.fusion != null ? " fusion: " + device.fusion.type : ""), 20, 20);
-    text("(pps: "+ups+")", w - 70, 20);
-    popStyle();
-    
     drawAngles(angles, w/3, h/4);
     
     pushMatrix();
@@ -147,8 +141,9 @@ public class EulerDisplay extends VectorDisplay {
   private void drawCube(PVector angles, float w, float h) {    
     pushStyle();
     fill(255);
-    text("euler (pps: "+(angles != null ? ups : 0)+")", w - 120, 20);
-    
+    text("euler " + filterType + (device.fusion != null ? " fusion: " + device.fusion.type : ""), 20, 20);
+    text("(pps: "+ups+")", w - 70, 20);
+    popStyle();
     
     pushMatrix();
     translate(w/2 - 50, h/2);
@@ -162,7 +157,5 @@ public class EulerDisplay extends VectorDisplay {
     buildBoxShape();
     
     popMatrix();
-  
-    popStyle();
   }
 }
