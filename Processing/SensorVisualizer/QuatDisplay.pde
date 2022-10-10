@@ -157,43 +157,4 @@ public class QuatDisplay extends RotationStats {
     buildBoxShape();
     popMatrix();
   }
-  
-  Quaternion parse(OscMessage msg, int i) {
-    return new Quaternion(msg.get(1+i*4).floatValue(), msg.get(2+i*4).floatValue(), msg.get(3+i*4).floatValue(), msg.get(4+i*4).floatValue());
-  }
-  
-  Quaternion parse(TableRow row) {
-    return new Quaternion(row.getFloat(1), row.getFloat(2), row.getFloat(3), row.getFloat(4));
-  }
-  
-  void forward(OscMessage msg) {
-    // todo: fix to send out only 1 message
-    OscMessage fw;
-    PVector projXZ = projXZ();
-    fw = new OscMessage("/quat/projXZ");
-    fw.add(device.id);
-    fw.add(projXZ.x);
-    fw.add(projXZ.y);
-    fw.add(projXZ.mag());
-    fw.add(projXZ.heading());
-    oscP5.send(fw, forwardAddr);
-    
-    PVector projYX = projYX();
-    fw = new OscMessage("/quat/projYX");
-    fw.add(device.id);
-    fw.add(projYX.x);
-    fw.add(projYX.y);
-    fw.add(projYX.mag());
-    fw.add(projYX.heading());
-    oscP5.send(fw, forwardAddr);
-
-    PVector projZY = projZY();
-    fw = new OscMessage("/quat/projZY");
-    fw.add(device.id);
-    fw.add(projZY.x);
-    fw.add(projZY.y);
-    fw.add(projZY.mag());
-    fw.add(projZY.heading());
-    oscP5.send(fw, forwardAddr);
-  }
 }
