@@ -21,9 +21,9 @@ abstract class RotationStats extends SensorDisplay<Quaternion> {
   
   void updateHist(Quaternion val, Quaternion rawVal) {
     super.updateHist(val, rawVal);
-    xz[histCursor] = value.projXZ();
-    yx[histCursor] = value.projYX();
-    zy[histCursor] = value.projZY();
+    xz[histCursor] = val.projXZ();
+    yx[histCursor] = val.projYX();
+    zy[histCursor] = val.projZY();
   }
   
   PVector projXZ() {

@@ -11,7 +11,19 @@ public class QuatDisplay extends RotationStats {
   }
   
   void draw(float w, float h) {
-    if (value == null) return; 
+    Quaternion quat;
+    if (value == null || device.fusion != null) {
+      quat = (new Quaternion()).fromEuler(device.getEulerAngles());
+      if (!(device.isPlaying && device.isPaused)) {
+        updateHist(quat, null);
+      }
+    }
+    else {
+      quat = value.copy();
+    }
+    if (quat == null) {
+      return;
+    }
     
     pushMatrix();
     translate(0, 0);
@@ -20,25 +32,25 @@ public class QuatDisplay extends RotationStats {
     
     pushMatrix();
     translate(0, h/4);
-    drawProjectionHistory(w, h/4);
+    drawProjectionHistory(w/3, h/4);
     popMatrix();
     
     pushMatrix();
     translate(0, h/2);
-    drawCube(w, h/2);
+    drawCube(quat, w, h/2);
     popMatrix();
   }
   
   private void drawProjections(float w, float h) {
-    float d = min(w/3, h);
+    float d = min(w/3, h)-20;
     
     pushMatrix();
-    translate(0, 20);
+    translate(20, 0);
     pushStyle();
     fill(255);
-    text("xzProj", 20, 0);
-    text("yxProj", w + 45, 0);
-    text("zyProj", 2*w + 70, 0);
+    text("xzProj", 0, 20);
+    text("yxProj", w/3, 20);
+    text("zyProj", 2*w/3, 20);
     
     // xzProj
     pushMatrix();
@@ -63,23 +75,15 @@ public class QuatDisplay extends RotationStats {
   }
   
   private void drawProjectionHistory(float w, float h) {
-    float d = min(w, h);
-    
-    //noFill();
-    //stroke(64);
-    //rect(width / 2, height / 4, width / 2, height / 4);
-  
     pushMatrix();
-    translate(0, h/4 + 20);
+    translate(20, 0);
     pushStyle();
     fill(255);
-    text("xzHist", 20, 0);
-    text("yxHist", w + 45, 0);
-    text("zyHist", 2*w + 70, 0);
+    text("xzHist", 0, 0);
+    text("yxHist", w, 0);
+    text("zyHist", 2*w, 0);
     popStyle();
-    
-    pushMatrix();
-    translate(0, h-20);
+    popMatrix();
     
     Float[] xzheading = new Float[histLen];
     Float[] yxheading = new Float[histLen];
@@ -94,67 +98,56 @@ public class QuatDisplay extends RotationStats {
     
     // xzHist
     pushMatrix();
-    translate(25, h/2);
+    translate(0, h/2);
     pushStyle();
     noFill();
     stroke(255, 0, 0);
-    plot2D(xzheading, w, -h + 40, histCursor);
+    plot2D(xzheading, w - 40, h - 40, histCursor);
     popStyle();
-    plotMagnitude(xz, w, -h + 40);
+    translate(0, -h/2);
+    plotMagnitude(xz, w - 40, h - 40, histCursor);
     popMatrix();
     
     // yxHist
     pushMatrix();
-    translate(w + 50, h/2);
+    translate(w, h/2);
     pushStyle();
     noFill();
     stroke(255, 0, 0);
-    plot2D(yxheading, w, -h + 40, histCursor);
+    plot2D(yxheading, w - 40, h - 40, histCursor);
     popStyle();
-    plotMagnitude(yx, w, -h + 40);
+    translate(0, -h/2);
+    plotMagnitude(yx, w - 40, h - 40, histCursor);
     popMatrix();
     
     // zyHist
     pushMatrix();
-    translate(2*w + 75, h/2);
+    translate(2*w, h/2);
     pushStyle();
     noFill();
     stroke(255, 0, 0);
-    plot2D(zyheading, w, -h + 40, histCursor);
+    plot2D(zyheading, w - 40, h - 40, histCursor);
     popStyle();
-    plotMagnitude(zy, w, -h + 40);
-    popMatrix();
-    
-    popMatrix();
+    translate(0, -h/2);
+    plotMagnitude(zy, w - 40, h - 40, histCursor);
     popMatrix();
   }
   
-  private void drawCube(float w, float h) {
-    pushMatrix();
+  private void drawCube(Quaternion quat, float w, float h) {
     pushStyle();
-  
     fill(255);
-    text("quats (pps: "+(value != null ? ups : 0)+")", w - 120, 20);
-    if (prevVal() != null) {
-      Quaternion qd = value.difference(prevVal());
-      if (qd != null) {
-        float angle = qd.angle();
-        float mag = (angle / (PI / 10.0));
-        text("mag", 20, 20);
-        rect(20, 30, mag * (w - 20), 10);
-        text(nf(mag, 0, 2), 20, 55);
-      }
-    }
-    
+    text("quats " + filterType + (device.fusion != null ? " fusion: " + device.fusion.type : ""), 20, 20);
+    text("(pps: "+ups+")", w - 70, 20);
+    popStyle();
     
     pushMatrix();
     translate(w/2 - 50, h/2);
     scale(4, 4, 4);
     
-    if (value != null) {
+    if (quat != null) {
       // this works with DMP quats
       PVector angles;
-      angles = value.toEuler();
+      angles = quat.toEuler();
       // the order is important!
       rotateZ(-angles.x); // roll
       rotateX(-angles.y); // pitch
@@ -162,9 +155,6 @@ public class QuatDisplay extends RotationStats {
     }
 
     buildBoxShape();
-    popMatrix();
-  
-    popStyle();
     popMatrix();
   }
   

@@ -49,9 +49,9 @@ public class EulerDisplay extends VectorDisplay {
     
     pushStyle();
     fill(255);
-    text("roll "+nf(angles.x, 0, 2), 20, height / 4-20);
-    text("pitch "+nf(angles.y, 0, 2), w+20, height / 4-20);
-    text("yaw "+nf(angles.z, 0, 2), 2*w+20, height / 4-20);
+    text("roll "+nf(angles.x, 0, 2), 20, h);
+    text("pitch "+nf(angles.y, 0, 2), w+20, h);
+    text("yaw "+nf(angles.z, 0, 2), 2*w+20, h);
   
     // roll
     pushMatrix();
@@ -119,7 +119,7 @@ public class EulerDisplay extends VectorDisplay {
     pushStyle();
     noFill();
     stroke(255, 0, 0);
-    plot2D(rolls, w - 40, h, histCursor);
+    plot2D(rolls, w - 40, h - 40, histCursor);
     popStyle();
     popMatrix();
     
@@ -129,7 +129,7 @@ public class EulerDisplay extends VectorDisplay {
     pushStyle();
     noFill();
     stroke(255, 0, 0);
-    plot2D(pitches, w - 40, h, histCursor);
+    plot2D(pitches, w - 40, h - 40, histCursor);
     popStyle();
     popMatrix();
     
@@ -139,7 +139,7 @@ public class EulerDisplay extends VectorDisplay {
     pushStyle();
     noFill();
     stroke(255, 0, 0);
-    plot2D(yaws, w - 40, h, histCursor);
+    plot2D(yaws, w - 40, h - 40, histCursor);
     popStyle();
     popMatrix();
   }

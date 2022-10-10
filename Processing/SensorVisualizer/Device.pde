@@ -265,8 +265,7 @@ public class Device {
   
   boolean keyPressed() {
     if (key == ' ') {
-      isPaused = !isPaused;
-      lastMs = millis();
+      togglePaused();
       return true;
     }
     if (key == 'u') {
@@ -275,10 +274,20 @@ public class Device {
     }
     if (key == 'e') {
       toggleVisible(SensorType.EULER);
+      if (sensors.get(SensorType.QUAT) != null) {
+        sensors.get(SensorType.QUAT).visible = false;
+      }
       return true;
     }
     if (key == 'y') {
       toggleVisible(SensorType.GYRO);
+      return true;
+    }
+    if (key == 'q') {
+      toggleVisible(SensorType.QUAT);
+      if (sensors.get(SensorType.EULER) != null) {
+        sensors.get(SensorType.EULER).visible = false;
+      }
       return true;
     }
     if (key == 'r') {
@@ -372,6 +381,7 @@ public class Device {
         playMinMs = playMaxMs = -1;
         nextRowCursor = new HashMap<SensorType, Integer>();
         startPlaying();
+        isPaused = true;
       }
     }
   }
@@ -380,6 +390,11 @@ public class Device {
     isPlaying = false;
     lastMs = 0;
     playPos = 0;
+    nextRowCursor = new HashMap<SensorType, Integer>();
+    
+    OscMessage fw = new OscMessage(outPrefix + "/stop_play");
+    fw.add(id);
+    oscP5.send(fw, forwardAddr);
   }
   
   void startPlaying() {
@@ -387,7 +402,20 @@ public class Device {
       isPlaying = true;
       lastMs = millis();
       playPos = 0;
+      
+      OscMessage fw = new OscMessage(outPrefix + "/start_play");
+      fw.add(id);
+      oscP5.send(fw, forwardAddr);
     }
+  }
+  
+  void togglePaused() {
+    isPaused = !isPaused;
+    lastMs = millis();
+    
+    OscMessage fw = new OscMessage(outPrefix + (isPaused ? "/pause" : "/resume"));
+    fw.add(id);
+    oscP5.send(fw, forwardAddr);
   }
   
   long[] getMinMaxMs() {

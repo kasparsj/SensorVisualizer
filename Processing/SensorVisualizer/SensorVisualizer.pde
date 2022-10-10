@@ -62,7 +62,7 @@ void draw() {
     pushStyle();
     fill(255);
     textSize(12);
-    text((dev.playPos % dur) + " / " + dur, width/2 + 20, height - 15);
+    text((dev.playPos % dur) + " / " + dur + (dev.isPaused ? " paused" : ""), width/2 + 20, height - 15);
     popStyle();
   }
   
