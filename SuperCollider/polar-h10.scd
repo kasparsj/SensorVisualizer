@@ -1,5 +1,5 @@
 (
-SynthDef(\heart_sin, { |out=0, freq=440, aout = 0, mod = 0.0, amp = 0.1, room = 0.5|
+SynthDef(\heart_sin, { |out=0, rec_out, onset_out, freq=440, mod=0.0, amp=0.1, room=0.5|
 	var sig, chain, onset, noise;
 	noise = LFNoise0.ar(1/14);
 	sig = SinOsc.ar(freq * (1+noise));
@@ -7,15 +7,16 @@ SynthDef(\heart_sin, { |out=0, freq=440, aout = 0, mod = 0.0, amp = 0.1, room = 
 	chain = FFT(LocalBuf(1024), sig);
 
 	onset = Onsets.kr(chain, 0.25);
-	Out.kr(out, onset);
+	Out.kr(onset_out, onset);
 
 	sig = RHPF.ar(sig, rq: 0.01);
 	sig = Compander.ar(sig, sig);
 
-	Out.ar(aout, sig!2*amp * LFPulse.ar(1/14) * noise);
+	Out.ar(out, sig!2*amp);
+	Out.ar(rec_out, sig*amp);
 }).add;
 
-SynthDef(\heart_perc, { |out=0, freq=80, gate=0, mod=0, room=0.5, amp=1.0|
+SynthDef(\heart_perc, { |out=0, rec_out, freq=80, gate=0, mod=0, room=0.5, amp=1.0|
 	var sig, env, fmul, mul, track;
 
 	env = EnvGen.ar(Env.perc, gate);
@@ -24,10 +25,11 @@ SynthDef(\heart_perc, { |out=0, freq=80, gate=0, mod=0, room=0.5, amp=1.0|
 	mul = mod * 3;
 	sig = (SinOsc.ar(freq * fmul) * env * mul);
 	//sig = FreeVerb.ar(sig, room: room);
-	Out.ar(out, sig!2*amp * SinOsc.ar(1/13) * LFPulse.ar(1/13) * LFNoise0.ar(1/13));
+	Out.ar(out, sig!2*amp);
+	Out.ar(rec_out, sig*amp);
 }).add;
 
-SynthDef(\heart_perc2, { |out=0, freq = 80, gate=0, mod=0, room=0.5, amp=1.0|
+SynthDef(\heart_perc2, { |out=0, rec_out, freq = 80, gate=0, mod=0, room=0.5, amp=1.0|
 	var sig, env, fmul, mul, track;
 
 	env = EnvGen.ar(Env.perc, gate);
@@ -37,10 +39,11 @@ SynthDef(\heart_perc2, { |out=0, freq = 80, gate=0, mod=0, room=0.5, amp=1.0|
 	sig = (SinOsc.ar(freq * fmul) * env * mul);
 	sig = FreeVerb.ar(sig, room: room);
 
-	Out.ar(out, sig!2 * amp * LFPulse.ar(1/13, pi) * LFNoise0.ar(1/13));
+	Out.ar(out, sig!2*amp);
+	Out.ar(rec_out, sig*amp);
 }).add;
 
-SynthDef(\motion2, { |out=0, freq=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1|
+SynthDef(\motion2, { |out=0, rec_out, freq=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1|
 	var sig = 0;
 
 	var fcar = ([x, y, z]) + (freq * [1, 2, 3]);
@@ -52,10 +55,11 @@ SynthDef(\motion2, { |out=0, freq=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1
 	sig = BPF.ar([acar1, acar2]*0.1, freq*rel);
 	sig = GVerb.ar(sig);
 
-	Out.ar(out, sig * amp * SinOsc.ar(1/12, pi));
+	Out.ar(out, sig*amp);
+	Out.ar(rec_out, sig*amp);
 }).add;
 
-SynthDef(\motion3, { |out=0, freq=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1|
+SynthDef(\motion3, { |out=0, rec_out, freq=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1|
 	var sig = 0;
 
 	var fcar = ([x, y, z]) + (freq * [1, 2, 3]);
@@ -67,25 +71,28 @@ SynthDef(\motion3, { |out=0, freq=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1
 	sig = BPF.ar([acar1, acar2]*0.1, freq*rel);
 	sig = GVerb.ar(sig);
 
-	Out.ar(out, sig * amp * SinOsc.ar(1/11));
+	Out.ar(out, sig*amp);
+	Out.ar(rec_out, sig*amp);
 }).add;
 )
 
 (
 var prefix = "/out";
 
+~recordBus.free;
+~recordBus = Bus.audio(Server.default, 7);
 ~onsetBus.free;
 ~onsetBus = Bus.control(Server.default, 4).set(0);
 ~heartSin.free;
-~heartSin = Synth(\heart_sin, [\out, ~onsetBus.index, \amp, 0.05]);
+~heartSin = Synth(\heart_sin, [\rec_out, ~recordBus.index, \onset_out, ~onsetBus.index, \amp, 0.05]);
 ~heartPerc.free;
-~heartPerc = Synth(\heart_perc, [\gate, ~onsetBus.asMap, \amp, 0.4], ~heartSin, \addAfter);
+~heartPerc = Synth(\heart_perc, [\rec_out, ~recordBus.index+1, \gate, ~onsetBus.asMap, \amp, 0.4], ~heartSin, \addAfter);
 ~heartPerc2.free;
-~heartPerc2 = Synth(\heart_perc2, [\gate, ~onsetBus.asMap, \amp, 0.4], ~heartSin, \addAfter);
+~heartPerc2 = Synth(\heart_perc2, [\rec_out, ~recordBus.index+2, \gate, ~onsetBus.asMap, \amp, 0.4], ~heartSin, \addAfter);
 ~motionSyn2.free;
-~motionSyn2 = Synth(\motion2, [\amp, 0.2]);
+~motionSyn2 = Synth(\motion2, [\rec_out, ~recordBus.index+3, \amp, 0.2]);
 ~motionSyn3.free;
-~motionSyn3 = Synth(\motion3, [\amp, 0.4]);
+~motionSyn3 = Synth(\motion3, [\rec_out, ~recordBus.index+5, \amp, 0.4]);
 
 OSCdef(\ecg, {|msg, time, addr, recvPort|
 	var data = msg[1..];
@@ -130,5 +137,12 @@ OSCdef(\gyro, {|msg, time, addr, recvPort|
 OSCdef(\mag, {|msg, time, addr, recvPort|
 	msg.postln;
 }, prefix++"/mag");
+
+OSCdef(\record, {|msg, time, addr, recvPort|
+	if (r.isNil, {
+		r = Recorder(s);
+		r.record(bus: ~recordBus, numChannels: ~recordBus.numChannels);
+	});
+}, prefix++"/resume");
 
 )
