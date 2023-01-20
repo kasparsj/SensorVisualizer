@@ -1,15 +1,19 @@
 public class GyroDisplay extends VectorDisplay {
   
-  GyroDisplay(float x, float y, float w, float h, int histLen, int deltaSumWin) {
-    super(x, y, w, h, histLen);
+  GyroDisplay(int firstArg, float x, float y, float w, float h, int histLen, int deltaSumWin) {
+    super(firstArg, x, y, w, h, histLen);
     type = SensorType.GYRO;
     supportBatch = true;
     enableMagnitude(deltaSumWin);
     setFilterType(FilterType.LOWPASS);
   }
   
+  GyroDisplay(int firstArg) {
+    this(firstArg, 0, height/2, width/2, height/2, 500, 2);
+  }
+  
   GyroDisplay() {
-    this(0, height/2, width/2, height/2, 500, 2);
+    this(1);
   }
 
   void draw(float w, float h) {

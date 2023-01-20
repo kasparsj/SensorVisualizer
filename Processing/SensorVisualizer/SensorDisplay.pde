@@ -16,6 +16,7 @@ abstract class SensorDisplay<T> {
   
   SensorType type;
   Device device;
+  int firstArg = 0;
   float x = 0, y = 0, w, h;
   T value;
   T minValue = null;
@@ -36,7 +37,8 @@ abstract class SensorDisplay<T> {
   boolean visible = true;
   String addr;
   
-  SensorDisplay(float x, float y, float w, float h) {
+  SensorDisplay(int firstArg, float x, float y, float w, float h) {
+    this.firstArg = firstArg;
     this.x = x;
     this.y = y;
     this.w = w;
@@ -169,8 +171,8 @@ abstract class SensorDisplay<T> {
   final void oscEvent(OscMessage msg) {
     if (supportBatch) {
       int msgArgs = msg.typetag().length();
-      if ((msgArgs-1) % numArgs == 0) {
-        int numValues = (msgArgs-1) / numArgs;
+      if ((msgArgs-firstArg) % numArgs == 0) {
+        int numValues = (msgArgs-firstArg) / numArgs;
         for (int i=0; i<numValues; i++) {
           update(parse(msg, i));
         }

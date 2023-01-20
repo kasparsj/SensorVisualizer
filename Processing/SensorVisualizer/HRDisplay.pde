@@ -1,7 +1,7 @@
 public class HRDisplay extends SensorDisplay<Float> {
   
-  HRDisplay(float x, float y, float w, float h, int avgLen, int histLen) {
-    super(x, y, w, h);
+  HRDisplay(int firstArg, float x, float y, float w, float h, int avgLen, int histLen) {
+    super(firstArg, x, y, w, h);
     type = SensorType.HR;
     addr = "/hr";
     supportBatch = false;
@@ -9,8 +9,12 @@ public class HRDisplay extends SensorDisplay<Float> {
     enableAverage(avgLen);
   }
   
+  HRDisplay(int firstArg) {
+    this(firstArg, 0, height/2, width/4, height/2, 0, 50);
+  }
+  
   HRDisplay() {
-    this(0, height/2, width/4, height/2, 0, 50);
+    this(1);
   }
   
   void updateAvg() {

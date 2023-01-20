@@ -17,6 +17,7 @@ public class Device {
   String id;
   String inPrefix;
   String outPrefix;
+  int firstArg = 1;
   long lastUps = 0;
   Map<SensorType, SensorDisplay> sensors;
   SensorDisplay curSensor = null;
@@ -32,10 +33,11 @@ public class Device {
   long playMaxMs = -1;
   boolean isPaused;
   
-  Device(String id, String inPrefix, String outPrefix, Map<SensorType, SensorDisplay> sensors, FusionType fusionType) {
+  Device(String id, String inPrefix, String outPrefix, int firstArg, Map<SensorType, SensorDisplay> sensors, FusionType fusionType) {
     this.id = id;
     this.inPrefix = inPrefix;
     this.outPrefix = outPrefix;
+    this.firstArg = firstArg;
     this.sensors = sensors;
     this.recorders = new HashMap<SensorType, PrintWriter>();
     this.loadedTables = new HashMap<SensorType, Table>();
@@ -44,8 +46,8 @@ public class Device {
     }
   }
   
-  Device(String id, String inPrefix, String outPrefix, Map<SensorType, SensorDisplay> sensors) {
-    this(id, inPrefix, outPrefix, sensors, FusionType.NONE);
+  Device(String id, String inPrefix, String outPrefix, int firstArg, Map<SensorType, SensorDisplay> sensors) {
+    this(id, inPrefix, outPrefix, firstArg, sensors, FusionType.NONE);
   }
   
   void update() {
@@ -114,6 +116,7 @@ public class Device {
       SensorDisplay sensor = null;
       switch (msg.addrPattern().substring(inPrefix.length())) {
         case "/acc":
+        case "/accel":
           sensor = getOrCreateSensor(SensorType.ACC);
           break;
         case "/gyro":
@@ -183,21 +186,21 @@ public class Device {
   SensorDisplay createSensor(SensorType st) {
     switch (st) {
       case ACC:
-        return new AccDisplay();
+        return new AccDisplay(firstArg);
       case GYRO:
-        return new GyroDisplay();
+        return new GyroDisplay(firstArg);
       case MAG:
-        return new MagDisplay();
+        return new MagDisplay(firstArg);
       case EULER:
-        return new EulerDisplay();
+        return new EulerDisplay(firstArg);
       case HR:
-        return new HRDisplay();
+        return new HRDisplay(firstArg);
       case ECG:
-        return new ECGDisplay();
+        return new ECGDisplay(firstArg);
       case ALTITUDE:
-        return new AltitudeDisplay();
+        return new AltitudeDisplay(firstArg);
       case QUAT:
-        return new QuatDisplay();
+        return new QuatDisplay(firstArg);
     }
     return null;
   }

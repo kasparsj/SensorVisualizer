@@ -16,7 +16,6 @@ String cur = "";
 // osc
 OscP5 oscP5; 
 int listenPort = 57121;
-String inPrefix = "/polar";
 String outPrefix = "/out";
 NetAddress forwardAddr;
 
@@ -28,11 +27,12 @@ void setup() {
   forwardAddr = new NetAddress("127.0.0.1", 57120);
   
   // Polar H10
-  devs.put("7E37D222", new Device("7E37D222", inPrefix, outPrefix, new HashMap<SensorType, SensorDisplay>(){{
-      put(SensorType.ACC, new AccDisplay(0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
-      put(SensorType.EULER, new EulerDisplay(width/2, 0, width/2, height, 500));
-      put(SensorType.HR, new HRDisplay(0, height/2, width/4, height/2, 0, 50));
-      put(SensorType.ECG, new ECGDisplay(width/4, height/2, width/4, height/2, 500));
+  int fa = 1;
+  devs.put("7E37D222", new Device("7E37D222", "/polar", outPrefix, fa, new HashMap<SensorType, SensorDisplay>(){{
+      put(SensorType.ACC, new AccDisplay(fa, 0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
+      put(SensorType.EULER, new EulerDisplay(fa, width/2, 0, width/2, height, 500));
+      put(SensorType.HR, new HRDisplay(fa, 0, height/2, width/4, height/2, 0, 50));
+      put(SensorType.ECG, new ECGDisplay(fa, width/4, height/2, width/4, height/2, 500));
   }}));
   cur = devs.keySet().iterator().next();
   
@@ -80,17 +80,28 @@ void draw() {
 }
 
 void oscEvent(OscMessage msg) {
-  if (msg.addrPattern().substring(0, inPrefix.length()).equals(inPrefix)) {    
-    if (msg.typetag().charAt(0) == 's') {
-      String deviceId = msg.get(0).stringValue();
-      getOrCreateDevice(deviceId).oscEvent(msg);
-    }
+  if (isGyrOsc(msg.addrPattern())) {
+    String deviceId = msg.netAddress().address() + ":" + msg.netAddress().port();
+    getOrCreateDevice(deviceId, "/gyrosc", 0).oscEvent(msg);
+    
+  }
+  else if (msg.typetag().charAt(0) == 's') {
+    String deviceId = msg.get(0).stringValue();
+    getOrCreateDevice(deviceId, getOscPrefix(msg.addrPattern()), 1).oscEvent(msg);
   }
 }
 
-Device getOrCreateDevice(String deviceId) {
+String getOscPrefix(String addrPattern) {
+  return addrPattern.substring(0, addrPattern.indexOf("/", 1));
+}
+
+boolean isGyrOsc(String addrPattern) {
+  return addrPattern.substring(0, 7).equals("/gyrosc");
+}
+
+Device getOrCreateDevice(String deviceId, String inPrefix, int firstArg) {
   if (devs.get(deviceId) == null) {
-    devs.put(deviceId, new Device(deviceId, inPrefix, outPrefix, new HashMap<SensorType, SensorDisplay>(){{
+    devs.put(deviceId, new Device(deviceId, inPrefix, outPrefix, firstArg, new HashMap<SensorType, SensorDisplay>(){{
       
     }}));
   }
@@ -103,7 +114,9 @@ void openFolder(File folder) {
       String fileName = file.getName();
       if (fileName.substring(fileName.length()-3).toLowerCase().equals("csv")) {
         String deviceId = fileName.substring(0, fileName.lastIndexOf('_'));
-        getOrCreateDevice(deviceId).openFile(file);
+        Table table = loadTable(file.getPath(), "tsv");
+        String addrPattern = table.getString(0, 0);
+        getOrCreateDevice(deviceId, getOscPrefix(addrPattern), isGyrOsc(addrPattern) ? 0 : 1).openFile(file);
       }
     }
     syncPlayback();

@@ -1,13 +1,17 @@
 public class EulerDisplay extends VectorDisplay {
   
-  EulerDisplay(float x, float y, float w, float h, int histLen) {
-    super(x, y, w, h, histLen);
+  EulerDisplay(int firstArg, float x, float y, float w, float h, int histLen) {
+    super(firstArg, x, y, w, h, histLen);
     type = SensorType.EULER;
     supportBatch = true;
   }
   
+  EulerDisplay(int firstArg) {
+    this(firstArg, width/2, 0, width/2, height, 500);
+  }
+  
   EulerDisplay() {
-    this(width/2, 0, width/2, height, 500);
+    this(1);
   }
   
   void draw(float w, float h) {

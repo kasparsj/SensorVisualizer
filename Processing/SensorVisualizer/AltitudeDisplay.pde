@@ -1,15 +1,19 @@
 public class AltitudeDisplay extends SensorDisplay<Float> {
   
-  AltitudeDisplay(float x, float y, float w, float h, int avgLen, int histLen) {
-    super(x, y, w, h);
+  AltitudeDisplay(int firstArg, float x, float y, float w, float h, int avgLen, int histLen) {
+    super(firstArg, x, y, w, h);
     type = SensorType.ALTITUDE;
     addr = "/altitude";
     enableHistory(histLen);
     enableAverage(avgLen);
   }
   
+  AltitudeDisplay(int firstArg) {
+    this(firstArg, 0, height/2, width/4, height/2, 0, 50);
+  }
+  
   AltitudeDisplay() {
-    this(0, height/2, width/4, height/2, 0, 50);
+    this(1);
   }
   
   void updateAvg() {

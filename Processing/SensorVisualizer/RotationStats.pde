@@ -4,8 +4,8 @@ abstract class RotationStats extends SensorDisplay<Quaternion> {
   PVector[] yx;
   PVector[] zy;
   
-  RotationStats(float x, float y, float w, float h, int histLen) {
-    super(x, y, w, h);
+  RotationStats(int firstArg, float x, float y, float w, float h, int histLen) {
+    super(firstArg, x, y, w, h);
     numArgs = 4;
     enableHistory(histLen);
   }
@@ -52,7 +52,12 @@ abstract class RotationStats extends SensorDisplay<Quaternion> {
   
   
   Quaternion parse(OscMessage msg, int i) {
-    return new Quaternion(msg.get(1+i*4).floatValue(), msg.get(2+i*4).floatValue(), msg.get(3+i*4).floatValue(), msg.get(4+i*4).floatValue());
+    return new Quaternion(
+      msg.get(firstArg+i*4).floatValue(), 
+      msg.get(firstArg+1+i*4).floatValue(), 
+      msg.get(firstArg+2+i*4).floatValue(), 
+      msg.get(firstArg+3+i*4).floatValue()
+    );
   }
   
   Quaternion parse(TableRow row) {

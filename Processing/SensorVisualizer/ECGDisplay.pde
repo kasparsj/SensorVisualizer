@@ -4,16 +4,20 @@ public class ECGDisplay extends SensorDisplay<Float> {
   float h;
   JKalman kalman;
   
-  ECGDisplay(float x, float y, float w, float h, int histLen) {
-    super(x, y, w, h);
+  ECGDisplay(int firstArg, float x, float y, float w, float h, int histLen) {
+    super(firstArg, x, y, w, h);
     type = SensorType.ECG;
     addr = "/ecg";
     supportBatch = true;
     enableHistory(histLen);
   }
   
+  ECGDisplay(int firstArg) {
+    this(firstArg, width/4, height/2, width/4, height/2, 500);
+  }
+  
   ECGDisplay() {
-    this(width/4, height/2, width/4, height/2, 500);
+    this(1);
   }
   
   ECGDisplay setFilterType(FilterType ft) {

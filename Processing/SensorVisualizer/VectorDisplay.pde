@@ -12,8 +12,8 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
   float magDeltaSumCoeff;
   JKalman kalman;
   
-  VectorDisplay(float x, float y, float w, float h, int histLen) {
-    super(x, y, w, h);
+  VectorDisplay(int firstArg, float x, float y, float w, float h, int histLen) {
+    super(firstArg, x, y, w, h);
     numArgs = 3;
     enableHistory(histLen);
   }
@@ -110,11 +110,11 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
   
   PVector parse(OscMessage msg, int i) {
     PVector vec;
-    if (msg.typetag().charAt(1+i*3) == 'i') {
-      vec = new PVector(msg.get(1+i*3).intValue(), msg.get(2+i*3).intValue(), msg.get(3+i*3).intValue());
+    if (msg.typetag().charAt(firstArg+i*3) == 'i') {
+      vec = new PVector(msg.get(firstArg+i*3).intValue(), msg.get(firstArg+1+i*3).intValue(), msg.get(firstArg+2+i*3).intValue());
     }
     else {
-      vec = new PVector(msg.get(1+i*3).floatValue(), msg.get(2+i*3).floatValue(), msg.get(3+i*3).floatValue());
+      vec = new PVector(msg.get(firstArg+i*3).floatValue(), msg.get(firstArg+1+i*3).floatValue(), msg.get(firstArg+2+i*3).floatValue());
     }
     if (msg.addrPattern().substring(msg.addrPattern().length()-4).equals("_deg")) {
       vec.x = radians(vec.x);
