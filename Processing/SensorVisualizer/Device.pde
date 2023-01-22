@@ -122,6 +122,8 @@ public class Device {
           sensor = getOrCreateSensor(SensorType.ACC);
           break;
         case "/gyro":
+        case "/gyro_deg":
+        case "/gyro_rad":
           sensor = getOrCreateSensor(SensorType.GYRO);
           break;
         case "/mag":

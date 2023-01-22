@@ -330,7 +330,7 @@ void BMM150::i2c_read(short address, uint8_t *buffer, short length)
     Wire.write(address);
     Wire.endTransmission();
 
-    Wire.beginTransmission(BMM150_I2C_Address);
+    //Wire.beginTransmission(BMM150_I2C_Address);
     Wire.requestFrom(BMM150_I2C_Address, length);
     
     if(Wire.available() == length)
@@ -341,7 +341,7 @@ void BMM150::i2c_read(short address, uint8_t *buffer, short length)
         }
     }
     
-    Wire.endTransmission();
+    //Wire.endTransmission();
 }
 
 
@@ -351,7 +351,7 @@ void BMM150::i2c_read(short address, int8_t *buffer, short length)
     Wire.write(address);
     Wire.endTransmission();
 
-    Wire.beginTransmission(BMM150_I2C_Address);
+    //Wire.beginTransmission(BMM150_I2C_Address);
     Wire.requestFrom(BMM150_I2C_Address, length);
     
     if(Wire.available() == length)
@@ -362,7 +362,7 @@ void BMM150::i2c_read(short address, int8_t *buffer, short length)
         }
     }
     
-    Wire.endTransmission();
+    //Wire.endTransmission();
 }
 
 uint8_t BMM150::i2c_read(short address)
@@ -373,11 +373,11 @@ uint8_t BMM150::i2c_read(short address)
     Wire.write(address);
     Wire.endTransmission();
 
-    Wire.beginTransmission(BMM150_I2C_Address);
+    //Wire.beginTransmission(BMM150_I2C_Address);
     Wire.requestFrom(BMM150_I2C_Address, 1);
     byte = Wire.read();
     
-    Wire.endTransmission();
+    //Wire.endTransmission();
     return byte;
 }
 

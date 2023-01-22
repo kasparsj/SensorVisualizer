@@ -15,11 +15,14 @@ public class QuatDisplay extends RotationStats {
   }
   
   void draw(float w, float h) {
-    Quaternion quat;
+    Quaternion quat = null;
     if (value == null || device.fusion != null) {
-      quat = (new Quaternion()).fromEuler(device.getEulerAngles());
-      if (!(device.isPlaying && device.isPaused)) {
-        updateHist(quat, null);
+      PVector euler = device.getEulerAngles();
+      if (euler != null) {
+        quat = (new Quaternion()).fromEuler(euler);
+        if (!(device.isPlaying && device.isPaused)) {
+          updateHist(quat, null);
+        }
       }
     }
     else {

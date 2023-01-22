@@ -9,21 +9,23 @@
 #include <ArduinoOSCWiFi.h>
 
 #define DEVICE_ID "m5StickC"
-#define ENV_HAT_ENABLED 0
+#define ENV_HAT_ENABLED 1
 #define OSC_PREFIX "/polar"
-#define sampleFreq  25.0f // todo: find a way to change this, looks like this over the maximum
+#define sampleFreq  60.0f // todo: find a way to change this, looks like this over the maximum
 
-// #define SSID "toplap-ka"
-// #define PASSWORD "toplap-ka"
+#define SSID "toplap-ka"
+#define PASSWORD "toplap-ka"
 
 // #define SSID "toplap"
-// #define PASSWORD "karlsruhe"
+// #define PASSWORD ""
 
-#define SSID "Insternet"
-#define EAP_IDENTITY "kaspars"
+// #define SSID "Insternet"
+// #define EAP_IDENTITY "kaspars"
+// #define EAP_PASSWORD "KHD.Tj7.Uov"
 
 // const char* oscAddress = "100.123.26.44";
-const char* oscAddress = "192.168.62.155";
+//const char* oscAddress = "192.168.62.155";
+const char* oscAddress = "192.168.1.131";
 const int oscPort = 57121;
 String oscPrefix = String(OSC_PREFIX);
 
@@ -78,8 +80,8 @@ void setup() {
 void setupWifi() {
   M5.Lcd.print("CONNECTING WIFI ");
   M5.Lcd.print(SSID);
-  WiFi.disconnect(true);
   WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
 
 #ifdef EAP_IDENTITY
   esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY));
@@ -87,9 +89,10 @@ void setupWifi() {
   //esp_wpa2_config_t config = WPA2_CONFIG_INIT_DEFAULT();
   //esp_wifi_sta_wpa2_ent_enable(&config);
   esp_wifi_sta_wpa2_ent_enable();
-#endif
-
   WiFi.begin(SSID);
+#else
+  WiFi.begin(SSID, PASSWORD);  
+#endif
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     M5.Lcd.print(".");
@@ -100,12 +103,14 @@ void setupWifi() {
 }
 
 void setupEnvHat() {
+  Serial.println("Initializing BME");
   if (!bme.begin(0x76)){  
       Serial.println("BMP280 not found");
   }
   else {
     bmeInitialized = true;
   }
+  Serial.println("Initializing BMM");
   int res = bmm.initialize();
   if(res == BMM150_E_ID_NOT_CONFORM) {
     Serial.printf("BMM150 not found: %d\r\n", res);
@@ -272,6 +277,7 @@ void updateBMM() {
   if(heading > 2*PI)
     heading -= 2*PI;
   headingDegrees = heading * 180/M_PI; 
+  
   float xyHeadingDegrees = xyHeading * 180 / M_PI;
   float zxHeadingDegrees = zxHeading * 180 / M_PI;
 
@@ -298,6 +304,7 @@ void sendOSC() {
   }
   if (bmmInitialized) {
     OscWiFi.send(oscAddress, oscPort, oscPrefix + "/mag", DEVICE_ID, magX, magY, magZ);
+    OscWiFi.send(oscAddress, oscPort, oscPrefix + "/comp", DEVICE_ID, headingDegrees);
   }
 }
 
