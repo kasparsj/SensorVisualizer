@@ -4,6 +4,7 @@
 #include <Adafruit_BMP280.h>
 #include "bmm150.h"
 #include "bmm150_defs.h"
+#include "esp_wpa2.h"
 #include <WiFi.h>
 #include <ArduinoOSCWiFi.h>
 
@@ -12,9 +13,17 @@
 #define OSC_PREFIX "/polar"
 #define sampleFreq  25.0f // todo: find a way to change this, looks like this over the maximum
 
-const char* ssid     = "internats";
-const char* password = "internats";
-const char * oscAddress = "192.168.2.155";
+// #define SSID "toplap-ka"
+// #define PASSWORD "toplap-ka"
+
+// #define SSID "toplap"
+// #define PASSWORD "karlsruhe"
+
+#define SSID "Insternet"
+#define EAP_IDENTITY "kaspars"
+
+// const char* oscAddress = "100.123.26.44";
+const char* oscAddress = "192.168.62.155";
 const int oscPort = 57121;
 String oscPrefix = String(OSC_PREFIX);
 
@@ -52,12 +61,7 @@ void setup() {
   
   M5.Lcd.fillScreen(BLACK);
   M5.Lcd.setCursor(0, 0);
-  M5.Lcd.print("CONNECTING WIFI");
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      M5.Lcd.print(".");
-  }
+  setupWifi();
 
   M5.IMU.Init();
   #if ENV_HAT_ENABLED
@@ -69,6 +73,30 @@ void setup() {
 
   pinMode(BUTTON_A_PIN, INPUT);
   pinMode(BUTTON_B_PIN, INPUT);
+}
+
+void setupWifi() {
+  M5.Lcd.print("CONNECTING WIFI ");
+  M5.Lcd.print(SSID);
+  WiFi.disconnect(true);
+  WiFi.mode(WIFI_STA);
+
+#ifdef EAP_IDENTITY
+  esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY));
+  esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD));
+  //esp_wpa2_config_t config = WPA2_CONFIG_INIT_DEFAULT();
+  //esp_wifi_sta_wpa2_ent_enable(&config);
+  esp_wifi_sta_wpa2_ent_enable();
+#endif
+
+  WiFi.begin(SSID);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    M5.Lcd.print(".");
+  }
+  Serial.println("");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
 }
 
 void setupEnvHat() {
