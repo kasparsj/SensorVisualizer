@@ -67,8 +67,9 @@ public class Device {
   }
   
   void drawTab(int idx, boolean isActive) {
+    int w = 200;
     pushMatrix();
-    translate(idx * 100, height - 20);
+    translate(idx * w, height - 20);
     pushStyle();
     stroke(255);
     if (isActive) {
@@ -77,10 +78,10 @@ public class Device {
     else {
       noFill();
     }
-    rect(0, 0, 100, 20);
+    rect(0, 0, w, 20);
     fill(255);
     textAlign(CENTER);
-    text(id, 50, 13);
+    text(id, w/2, 13);
     popStyle();
     if (isRecording || isPlaying) {
       fill(isRecording ? 255 : 0, isPlaying ? (isPaused ? 127 : 255) : 0, 0);
@@ -287,10 +288,6 @@ public class Device {
       if (sensors.get(SensorType.QUAT) != null) {
         sensors.get(SensorType.QUAT).visible = false;
       }
-      return true;
-    }
-    if (key == 'y') {
-      toggleVisible(SensorType.GYRO);
       return true;
     }
     if (key == 'q') {

@@ -26,11 +26,11 @@ public class CompDisplay extends SensorDisplay<Float> {
   
     fill(255);
     text(filterType.toString(), 20, 20);
-    text("magnetic (pps: "+ups+")", w - 120, 20);
+    text("compass (pps: "+ups+")", w - 120, 20);
   
     // 2D compass
     pushMatrix();
-    translate(w/2, h/2, -100);
+    translate(w/2, h/2);
     PVector heading = PVector.fromAngle(radians(value));
     heading.normalize();
     compass2D(heading, w/2);

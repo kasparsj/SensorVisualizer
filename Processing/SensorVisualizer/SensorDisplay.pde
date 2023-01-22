@@ -281,6 +281,10 @@ abstract class SensorDisplay<T> {
       setFilterType(filterType.next());
       return true;
     }
+    if (key == 'v') {
+      device.toggleVisible(type);
+      return true;
+    }
     return false;
   }
 }

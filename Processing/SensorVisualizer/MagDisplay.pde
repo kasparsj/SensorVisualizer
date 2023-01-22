@@ -33,7 +33,7 @@ public class MagDisplay extends VectorDisplay {
   
     // 2D compass
     pushMatrix();
-    translate(w/2, h/4, -100);
+    translate(w/2, h/4);
     PVector heading = PVector.fromAngle(computeCompassHeading(val()));
     heading.normalize();
     compass2D(heading, w/2);
@@ -42,7 +42,7 @@ public class MagDisplay extends VectorDisplay {
     // 3D compass
     PVector force3 = val().normalize().mult(w / 8);
     pushMatrix();
-    translate(w/2, h/4 * 3, -100);
+    translate(w/2, h/4 * 3);
     plot3D(w/2);
     stroke(255);
     line(0, 0, 0, force3.x, force3.y, force3.z);

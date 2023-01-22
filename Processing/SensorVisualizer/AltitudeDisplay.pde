@@ -8,15 +8,20 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
     enableAverage(avgLen);
   }
   
+  AltitudeDisplay(int firstArg, boolean visible) {
+    this(firstArg, 0, height/2, width/4, height/2, 2, 50);
+    this.visible = visible;
+  }
+  
   AltitudeDisplay(int firstArg) {
-    this(firstArg, 0, height/2, width/4, height/2, 0, 50);
+    this(firstArg, 0, height/2, width/4, height/2, 2, 50);
   }
   
   AltitudeDisplay() {
     this(1);
   }
   
-  void updateAvg() {
+  void updateAvg(Float value) {
     float sum = 0;
     int count = 0;
     for (int i=(avgLen-1); i>=0; i--) {
@@ -29,20 +34,22 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
     avgValue = sum / count;
   }
 
-  //float w = width / 4;
-  //float h = height / 2;
   void draw(float w, float h) {
     if (perc[histCursor] == null) return;
 
     pushMatrix();
     pushStyle();
-    translate(0, h);
     noFill();
     stroke(64);
     rect(0, 0, w, h);
   
     fill(255);
-    text("avg/"+avgLen+" "+nf(avgValue, 0, 2)+(ups > 0 ? " ("+nf(minValue, 0, 2)+", "+nf(maxValue, 0, 2)+")" : ""), 20, 20);
+    String avgMinMax = "";
+    if (avgLen > 0) {
+      avgMinMax += "avg/"+avgLen+" "+nf(avgValue, 0, 2);
+    }
+    avgMinMax += (ups > 0 ? " ("+nf(minValue, 0, 2)+", "+nf(maxValue, 0, 2)+")" : "");
+    text(avgMinMax, 20, 20);
     text("altitude (pps: "+ups+")", w - 120, 20);
     rect(20, 30, perc[histCursor] * (w - 20), 10);
     text(nf(perc[histCursor], 0, 2), 20, 55);

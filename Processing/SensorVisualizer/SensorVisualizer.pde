@@ -27,12 +27,19 @@ void setup() {
   forwardAddr = new NetAddress("127.0.0.1", 57120);
   
   // Polar H10
-  int fa = 1;
-  devs.put("7E37D222", new Device("7E37D222", "/polar", outPrefix, fa, new HashMap<SensorType, SensorDisplay>(){{
-      put(SensorType.ACC, new AccDisplay(fa, 0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
-      put(SensorType.EULER, new EulerDisplay(fa, width/2, 0, width/2, height, 500));
-      put(SensorType.HR, new HRDisplay(fa, 0, height/2, width/4, height/2, 0, 50));
-      put(SensorType.ECG, new ECGDisplay(fa, width/4, height/2, width/4, height/2, 500));
+  devs.put("7E37D222", new Device("7E37D222", "/polar", outPrefix, 1, new HashMap<SensorType, SensorDisplay>(){{
+      put(SensorType.ACC, new AccDisplay(1, 0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
+      put(SensorType.EULER, new EulerDisplay(1, width/2, 0, width/2, height, 500));
+      put(SensorType.HR, new HRDisplay(1, 0, height/2, width/4, height/2, 0, 50));
+      put(SensorType.ECG, new ECGDisplay(1, width/4, height/2, width/4, height/2, 500));
+  }}));
+  devs.put("GyrOSC", new Device("GyrOSC", "/gyrosc", outPrefix, 0, new HashMap<SensorType, SensorDisplay>(){{
+      put(SensorType.ACC, new AccDisplay(0));
+      put(SensorType.GYRO, new AccDisplay(0));
+      put(SensorType.QUAT, new QuatDisplay(0));
+      put(SensorType.MAG, new MagDisplay(0));
+      put(SensorType.COMP, new CompDisplay(0));
+      put(SensorType.ALTITUDE, new AltitudeDisplay(0, false));
   }}));
   cur = devs.keySet().iterator().next();
   
@@ -81,7 +88,7 @@ void draw() {
 
 void oscEvent(OscMessage msg) {
   if (isGyrOsc(msg.addrPattern())) {
-    String deviceId = msg.netAddress().address();// + ":" + msg.netAddress().port();
+    String deviceId = "GyrOSC";
     getOrCreateDevice(deviceId, "/gyrosc", 0).oscEvent(msg);
     
   }
