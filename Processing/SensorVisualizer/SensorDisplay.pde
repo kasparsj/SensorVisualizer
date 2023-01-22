@@ -171,19 +171,19 @@ abstract class SensorDisplay<T> {
   abstract void draw(float w, float h);
   
   final void oscEvent(OscMessage msg) {
+    int numValues = 1;
     if (supportBatch) {
       int msgArgs = msg.typetag().length();
       if ((msgArgs-firstArg) % numArgs == 0) {
-        int numValues = (msgArgs-firstArg) / numArgs;
-        for (int i=0; i<numValues; i++) {
-          update(parse(msg, i));
-        }
+        numValues = (msgArgs-firstArg) / numArgs;
       }
     }
-    else {
-      update(parse(msg, 0));
+    ArrayList<T> values = new ArrayList<T>();
+    for (int i=0; i<numValues; i++) {
+      update(parse(msg, i));
+      values.add(value);
     }
-    forward(msg);
+    forward(values);
   }
   
   final void playEvent(TableRow row) {
@@ -191,30 +191,47 @@ abstract class SensorDisplay<T> {
     forward();
   }
   
-  void forward(OscMessage msg) {
+  void forward(ArrayList<T> values) {
     if (addr != null && addr.length() > 0) {
-      OscMessage fw = new OscMessage(device.outPrefix + addr);
-      fw.add(device.id);
-      if (value instanceof Number) {
-        fw.add((float) value);
-        fw.add((float) minValue);
-        fw.add((float) maxValue);
-        if (histLen > 0) {
-          fw.add(perc[histCursor]);
+      if (values.size() == 1) {
+        OscMessage fw = new OscMessage(device.outPrefix + addr);
+        fw.add(device.id);
+        if (values.get(0) instanceof Number) {
+          fw.add((float) value);
+          fw.add((float) minValue);
+          fw.add((float) maxValue);
+          if (histLen > 0) {
+            fw.add(perc[histCursor]);
+          }
+          if (avgLen > 0) {
+            fw.add((float) avgValue);
+          }
         }
-        if (avgLen > 0) {
-          fw.add((float) avgValue);
+        else if (values.get(0) instanceof String) {
+          fw.add((String) value);
         }
+        oscP5.send(fw, forwardAddr);
       }
-      else if (value instanceof String) {
-        fw.add((String) value);
+      else {
+        OscMessage fw = new OscMessage(device.outPrefix + addr + "/batch");
+        fw.add(device.id);
+        for (int i=0; i<values.size(); i++) {
+          if (values.get(i) instanceof Number) {
+            fw.add((float) values.get(i));
+          }
+          else if (values.get(i) instanceof String) {
+            fw.add((String) values.get(i));
+          }
+        }
+        oscP5.send(fw, forwardAddr);
       }
-      oscP5.send(fw, forwardAddr);
     }
   }
   
   void forward() {
-    forward(null);
+    ArrayList<T> values = new ArrayList<T>();
+    values.add(value);
+    forward(values);
   }
   
   final void record(OscMessage msg) {

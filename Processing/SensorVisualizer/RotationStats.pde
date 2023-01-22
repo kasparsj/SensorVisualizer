@@ -64,7 +64,7 @@ abstract class RotationStats extends SensorDisplay<Quaternion> {
     return new Quaternion(row.getFloat(1), row.getFloat(2), row.getFloat(3), row.getFloat(4));
   }
   
-  void forward(OscMessage msg) {
+  void forward(ArrayList<Quaternion> values) {
   if (addr != null && addr.length() > 0) {
       OscMessage fw = new OscMessage(outPrefix + addr);
       fw.add(device.id);

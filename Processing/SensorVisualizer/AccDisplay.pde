@@ -163,11 +163,10 @@ public class AccDisplay extends VectorDisplay {
     popMatrix();
   }
   
-  void forward(OscMessage msg) {
-    int numValues = msg != null ? (msg.typetag().length()-firstArg) / numArgs : 1;
-    calcVelocity(numValues);
+  void forward(ArrayList<PVector> values) {
+    calcVelocity(values.size());
     
-    super.forward(msg);
+    super.forward(values);
   }
   
   void calcVelocity(int numValues) {

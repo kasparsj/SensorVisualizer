@@ -136,7 +136,7 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
     return vec;
   }
   
-  void forward(OscMessage msg) {
+  void forward(ArrayList<PVector> values) {
     if (addr != null && addr.length() > 0) {
       OscMessage fw = new OscMessage(outPrefix + addr);
       fw.add(device.id);
