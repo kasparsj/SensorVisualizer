@@ -69,6 +69,8 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
   
   void update(PVector val) {
     super.update(val.copy());
+    minValue = new PVector(min(value.x, (minValue != null ? minValue.x : 0)), min(value.y, (minValue != null ? minValue.y : 0)), min(value.z, (minValue != null ? minValue.z : 0)));
+    maxValue = new PVector(max(value.x, (maxValue != null ? maxValue.x : 0)), max(value.y, (maxValue != null ? maxValue.y : 0)), max(value.z, (maxValue != null ? maxValue.z : 0)));
     if (mag != null) {
       mag[histCursor] = value.mag();
       if (mag[histCursor] > maxMag) {

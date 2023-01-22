@@ -35,7 +35,7 @@ void setup() {
   }}));
   devs.put("GyrOSC", new Device("GyrOSC", "/gyrosc", outPrefix, 0, new HashMap<SensorType, SensorDisplay>(){{
       put(SensorType.ACC, new AccDisplay(0));
-      put(SensorType.GYRO, new AccDisplay(0));
+      put(SensorType.GYRO, new GyroDisplay(0));
       put(SensorType.QUAT, new QuatDisplay(0));
       put(SensorType.MAG, new MagDisplay(0));
       put(SensorType.COMP, new CompDisplay(0));
@@ -304,21 +304,21 @@ void compass2D(PVector vector, float d) {
   pushStyle();
   noFill();
   stroke(255, 0, 0);
-  plot2D(x, w - 40, h, k);
+  plot2D(x, w - 40, h/2, k);
   popStyle();
   
   // y
   pushStyle();
   noFill();
   stroke(0, 255, 0);
-  plot2D(y, w - 40, h, k);
+  plot2D(y, w - 40, h/2, k);
   popStyle();
   
   // z
   pushStyle();
   noFill();
   stroke(0, 0, 255);
-  plot2D(z, w - 40, h, k);
+  plot2D(z, w - 40, h/2, k);
   popStyle();
 }
 

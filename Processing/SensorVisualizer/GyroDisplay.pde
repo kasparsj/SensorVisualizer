@@ -19,21 +19,30 @@ public class GyroDisplay extends VectorDisplay {
   void draw(float w, float h) {
     if (value == null) return;
     
-    pushMatrix();
-    pushStyle();
-  
+    pushStyle();  
     fill(255);
     text("gyroscope " + filterType + " " + nf(value.x, 0, 2) + ", " + nf(value.y, 0, 2) + ", " + nf(value.z, 0, 2) + ", mag: " + nf(mag(), 0, 2), 20, 20);
     text("(pps: "+ups+")", w - 70, 20);
+    popStyle();
 
     drawPlot3D(w, h/2);
     
     pushMatrix();
-    translate(0, h / 4 * 3);
-    drawMag(w, h / 4);
+    translate(0, h/2);
+    drawPlot2D(w, h / 4);
     popMatrix();
     
-    popStyle();
+    pushMatrix();
+    translate(0, h/2);
+    drawMag(w, h / 4);
+    popMatrix();
+  }
+  
+  void drawPlot2D(float w, float h) {
+    pushMatrix();
+    translate(20, h/2);
+    float mv = max(abs(max(maxValue.x, maxValue.y, maxValue.z)), abs(min(minValue.x, minValue.y, minValue.z)));
+    plotVectors(values, w, h, histCursor, new PVector(mv, mv, mv));
     popMatrix();
   }
   

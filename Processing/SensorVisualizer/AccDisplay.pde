@@ -19,8 +19,9 @@ public class AccDisplay extends VectorDisplay {
   GravityMethod gravityMethod;
   int prevMillis = 0;
   PVector velocity;
+  PVector maxVelocity;
   ArrayList<PVector> velocities;
-  boolean showVelocity = false;
+  Float[] speeds;
   
   AccDisplay(int firstArg, float x, float y, float w, float h, GravityMethod gm, int histLen, int deltaSumWin, float maxMag) {
     super(firstArg, x, y, w, h, histLen);
@@ -45,8 +46,10 @@ public class AccDisplay extends VectorDisplay {
     super.enableHistory(histLen);
     if (histLen > 0) {
       velocities = new ArrayList<PVector>(histLen);
+      speeds = new Float[histLen];
       for (int i=0; i<histLen; i++) {
         velocities.add(null);
+        speeds[i] = 0F;
       }
     }
     else {
@@ -94,22 +97,20 @@ public class AccDisplay extends VectorDisplay {
     popMatrix();
     
     pushMatrix();
-    translate(0, h / 4 * 3);
+    translate(0, h/2);
     drawMag(w, h / 4);
     popMatrix();
     
-    if (showVelocity) {
-      pushMatrix();
-      translate(0, h / 4 * 4);
-      drawVelocity(w, h / 4);
-      popMatrix();
-    }
+    pushMatrix();
+    translate(0, h / 4 * 3);
+    drawVelocity(w, h / 4);
+    popMatrix();
         
     popStyle();
   }
   
   void drawPlot3D(float w, float h) {
-    PVector force = value.normalize().mult(magPerc() * (w / 4));
+    PVector force = val().normalize().mult(magPerc() * (w / 4));
     pushMatrix();
     translate(w/2, h/2, 0);
     plot3D(min(w / 2, h-40));
@@ -145,22 +146,27 @@ public class AccDisplay extends VectorDisplay {
   void drawPlot2D(float w, float h) {
     pushMatrix();
     translate(20, h/2);
-    plotVectors(values, w, h, histCursor, new PVector(3000, 3000, 3000));
+    float mv = max(abs(max(maxValue.x, maxValue.y, maxValue.z)), abs(min(minValue.x, minValue.y, minValue.z)));
+    plotVectors(values, w, h, histCursor, new PVector(mv, mv, mv));
     popMatrix();
   }
   
   void drawVelocity(float w, float h) {
+    fill(255);
+    text("speed " + nf(velocity.mag(), 0, 2), 20, 20);
     pushMatrix();
-    translate(20, h);
-    plotVectors(velocities, w, h, histCursor, new PVector(1000, 1000, 1000));
+    translate(20, h/2);
+    float mv = max(maxVelocity.x, maxVelocity.y, maxVelocity.z);
+    plotVectors(velocities, w, h, histCursor, new PVector(mv, mv, mv));
+    translate(0, h/2-20);
+    plotMagnitude(speeds, w - 40, -h+20, histCursor);
     popMatrix();
   }
   
   void forward(OscMessage msg) {
-    if (showVelocity) {
-      int numValues = msg != null ? (msg.typetag().length()-1) / numArgs : 1;
-      calcVelocity(numValues);
-    }
+    int numValues = msg != null ? (msg.typetag().length()-firstArg) / numArgs : 1;
+    calcVelocity(numValues);
+    
     super.forward(msg);
   }
   
@@ -180,12 +186,12 @@ public class AccDisplay extends VectorDisplay {
           val = PVector.add(prevVal, PVector.mult(PVector.sub(val, prevVal), 0.001));
         }
         PVector dv = PVector.mult(val, (millis - prevMillis) / numValues / 1000F);
-        PVector prevVelocity = velocity == null ? new PVector(0, 0) : velocity;
+        PVector prevVelocity = velocities.get(j > 0 ? j-1 : histLen-1);
+        if (prevVelocity == null) prevVelocity = new PVector(0, 0);
         velocity = PVector.add(prevVelocity, dv);
-        velocity.x = abs(velocity.x);
-        velocity.y = abs(velocity.y);
-        velocity.z = abs(velocity.z);
-        velocities.set(j, velocity.copy());          
+        maxVelocity = new PVector(max(velocity.x, (maxVelocity != null ? maxVelocity.x : 0)), max(velocity.y, (maxVelocity != null ? maxVelocity.y : 0)), max(velocity.z, (maxVelocity != null ? maxVelocity.z : 0)));
+        velocities.set(j, velocity.copy());
+        speeds[j] = velocity.mag();
       }
     }
     prevMillis = millis;
@@ -225,10 +231,6 @@ public class AccDisplay extends VectorDisplay {
   boolean keyPressed() {
     if (key == 'g') {
       nextGravityMethod();
-      return true;
-    }
-    if (key == 'v') {
-      showVelocity = !showVelocity;
       return true;
     }
     return super.keyPressed();
