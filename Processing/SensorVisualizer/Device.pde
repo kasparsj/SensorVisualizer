@@ -9,7 +9,8 @@ enum SensorType {
   EULER,
   ALTITUDE,
   ECG,
-  HR;
+  HR,
+  COMP;
 };
 
 public class Device {
@@ -125,6 +126,9 @@ public class Device {
         case "/mag":
           sensor = getOrCreateSensor(SensorType.MAG);
           break;
+        case "/comp":
+          sensor = getOrCreateSensor(SensorType.COMP);
+          break;
         case "/euler":
         case "/euler_rad":
         case "/euler_deg":
@@ -137,6 +141,7 @@ public class Device {
           sensor = getOrCreateSensor(SensorType.ECG);
           break;
         case "/altitude":
+        case "/alt":
           sensor = getOrCreateSensor(SensorType.ALTITUDE);
           break;
         case "/quat":
@@ -201,6 +206,8 @@ public class Device {
         return new AltitudeDisplay(firstArg);
       case QUAT:
         return new QuatDisplay(firstArg);
+      case COMP:
+        return new CompDisplay(firstArg);
     }
     return null;
   }

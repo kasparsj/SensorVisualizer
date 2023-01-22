@@ -34,7 +34,7 @@ public class AccDisplay extends VectorDisplay {
   }
   
   AccDisplay(int firstArg) {
-    this(firstArg, 0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 9.81);
+    this(firstArg, 0, 0, width/4, height/2, GravityMethod.HIGHPASS, 500, 2, 9.81);
   }
   
   AccDisplay() {

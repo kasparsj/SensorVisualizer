@@ -57,7 +57,7 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
   }
   
   Float parse(OscMessage msg, int i) {
-    return msg.get(1+i).floatValue();
+    return msg.get(firstArg+i).floatValue();
   }
   
   Float parse(TableRow row) {

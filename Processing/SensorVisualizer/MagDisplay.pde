@@ -2,14 +2,15 @@ public class MagDisplay extends VectorDisplay {
   
   float magDeclination = 0;
 
-  MagDisplay(int firstArg, float x, float y, float w, float h, int histLen) {
+  MagDisplay(int firstArg, float x, float y, float w, float h, int histLen, int deltaSumWin) {
     super(firstArg, x, y, w, h, histLen);
     type = SensorType.MAG;
     addr = "/mag";
+    enableMagnitude(deltaSumWin);
   }
   
   MagDisplay(int firstArg) {
-    this(firstArg, width/2, 0, width/2, height, 500);
+    this(firstArg, 0, height/2, width/4, height/2, 500, 2);
   }
   
   MagDisplay() {
@@ -28,21 +29,21 @@ public class MagDisplay extends VectorDisplay {
   
     fill(255);
     text(filterType.toString(), 20, 20);
-    text("compass (pps: "+ups+")", w / 2 - 120, 20);
+    text("magnetic (pps: "+ups+")", w - 120, 20);
   
     // 2D compass
     pushMatrix();
-    translate(w/4, h/4, -100);
+    translate(w/2, h/4, -100);
     PVector heading = PVector.fromAngle(computeCompassHeading(val()));
     heading.normalize();
-    compass2D(heading, w/4);
+    compass2D(heading, w/2);
     popMatrix();
   
     // 3D compass
     PVector force3 = val().normalize().mult(w / 8);
     pushMatrix();
-    translate(w/4, h/4 * 3, -100);
-    plot3D(w/4);
+    translate(w/2, h/4 * 3, -100);
+    plot3D(w/2);
     stroke(255);
     line(0, 0, 0, force3.x, force3.y, force3.z);
     popMatrix();

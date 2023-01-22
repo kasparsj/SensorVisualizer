@@ -81,7 +81,7 @@ void draw() {
 
 void oscEvent(OscMessage msg) {
   if (isGyrOsc(msg.addrPattern())) {
-    String deviceId = msg.netAddress().address() + ":" + msg.netAddress().port();
+    String deviceId = msg.netAddress().address();// + ":" + msg.netAddress().port();
     getOrCreateDevice(deviceId, "/gyrosc", 0).oscEvent(msg);
     
   }

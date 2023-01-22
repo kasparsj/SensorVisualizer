@@ -104,7 +104,9 @@ abstract class SensorDisplay<T> {
         maxValue = value;
       }
     }
-    updateHist(value, val);
+    if (histLen > 0) {
+      updateHist(value, val);
+    }
     if (avgLen > 0) {
       updateAvg(value);
     }
@@ -197,7 +199,9 @@ abstract class SensorDisplay<T> {
         fw.add((float) value);
         fw.add((float) minValue);
         fw.add((float) maxValue);
-        fw.add(perc[histCursor]);
+        if (histLen > 0) {
+          fw.add(perc[histCursor]);
+        }
         if (avgLen > 0) {
           fw.add((float) avgValue);
         }
