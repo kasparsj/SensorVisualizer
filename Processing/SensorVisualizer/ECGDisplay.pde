@@ -91,4 +91,16 @@ public class ECGDisplay extends SensorDisplay<Float> {
   Float parse(TableRow row) {
     return row.getFloat(2);
   }
+  
+  void forwardBatch(ArrayList<Float> values) {
+    OscMessage fw = new OscMessage(device.outPrefix + addr + "/batch");
+    fw.add(device.id);
+    fw.add(2);
+    for (int i=0; i<values.size(); i++) {
+      Float val = values.get(i);
+      fw.add((float) val);
+      fw.add(perc((float) val));
+    }
+    oscP5.send(fw, forwardAddr);
+  }
 }

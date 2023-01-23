@@ -122,9 +122,13 @@ abstract class SensorDisplay<T> {
       values.set(nextCursor, value);
     }
     if (value instanceof Number && perc != null) {
-      perc[nextCursor] = ((float) value - (float) minValue) / ((float) maxValue - (float) minValue);
+      perc[nextCursor] = perc((float) value);
     }
     histCursor = nextCursor;
+  }
+  
+  float perc(float value) {
+    return (value - (float) minValue) / ((float) maxValue - (float) minValue);
   }
   
   void updateAvg(T value) {

@@ -1,0 +1,35 @@
+(
+SynthDef(\WhiteNoise, {
+	Out.ar(0, In.kr(~ecgBus.index) * WhiteNoise.ar!2 * 0.01);
+}).add;
+
+SynthDef(\SineDrone, {
+	arg out = 0, freq = 50, gate = 1.0, phase = 0, dur = 180, pan = 0, amp = 1.0;
+	var env, noise, sig;
+	env = EnvGen.ar(Env([0, 0.01, 1.0, 0], [0.01, 0.98, 0.01]), gate, timeScale: dur*1.25, doneAction: 2);
+	sig = SinOsc.ar(freq * [1, 2, 3, 4], phase).sum * SinOsc.ar(1/11).range(0.1, 1);
+	sig = sig * env;
+	sig = Pan2.ar(sig, pan) * amp;
+	Out.ar(out, sig * In.kr(~ecgBus.index));
+}).add;
+
+SynthDef(\SawDrone, {
+	arg out = 0, freq = 50, gate = 1.0, phase = 0, dur = 180, pan = 0, amp = 1.0;
+	var env, noise, sig;
+	env = EnvGen.ar(Env([0, 0.01, 1.0, 0], [0.01, 0.98, 0.01]), gate, timeScale: dur*1.25, doneAction: 2);
+	sig = Saw.ar(freq * [1, 2, 3, 4], phase).sum * SinOsc.ar(1/11).range(0.1, 1);
+	sig = sig * env;
+	sig = Pan2.ar(sig, pan) * amp;
+	Out.ar(out, sig * In.kr(~ecgBus.index));
+}).add;
+
+SynthDef(\PulseDrone, {
+	arg out = 0, freq = 50, gate = 1.0, phase = 0, dur = 180, pan = 0, amp = 1.0;
+	var env, noise, sig;
+	env = EnvGen.ar(Env([0, 0.01, 1.0, 0], [0.01, 0.98, 0.01]), gate, timeScale: dur*1.25, doneAction: 2);
+	sig = Splay.ar(Pulse.ar(freq * [1, 1.5, 2, 2.5, 3], SinOsc.kr(2, phase, 0.5)).sum * SinOsc.ar(1/11).range(0.1, 1));
+	sig = sig * env;
+	sig = Pan2.ar(sig, pan) * amp;
+	Out.ar(out, sig * In.kr(~ecgBus.index));
+}).add;
+)
