@@ -136,20 +136,33 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
     return vec;
   }
   
-  void forward(ArrayList<PVector> values) {
-    if (addr != null && addr.length() > 0) {
-      OscMessage fw = new OscMessage(outPrefix + addr);
-      fw.add(device.id);
-      fw.add(value.x);
-      fw.add(value.y);
-      fw.add(value.z);
-      fw.add(mag());
-      fw.add(magPerc());
-      fw.add(magDeltaSum);
-      fw.add(magDeltaSumPerc());
-      fw.add(val().heading());
-      oscP5.send(fw, forwardAddr);   
+  void forwardOne(PVector value) {
+    OscMessage fw = new OscMessage(outPrefix + addr);
+    fw.add(device.id);
+    fw.add(value.x);
+    fw.add(value.y);
+    fw.add(value.z);
+    fw.add(mag());
+    fw.add(magPerc());
+    fw.add(magDeltaSum);
+    fw.add(magDeltaSumPerc());
+    fw.add(val().heading());
+    oscP5.send(fw, forwardAddr);   
+  }
+  
+  void forwardBatch(ArrayList<PVector> values) {
+    OscMessage fw = new OscMessage(device.outPrefix + addr + "/batch");
+    fw.add(device.id);
+    fw.add(5);
+    for (int i=0; i<values.size(); i++) {
+      PVector val = values.get(i);
+      fw.add((float) val.x);
+      fw.add((float) val.y);
+      fw.add((float) val.z);
+      fw.add(val.mag());
+      fw.add(val.mag() / maxMag);
     }
+    oscP5.send(fw, forwardAddr);
   }
   
   PVector kalman(PVector val) {

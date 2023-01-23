@@ -194,36 +194,10 @@ abstract class SensorDisplay<T> {
   void forward(ArrayList<T> values) {
     if (addr != null && addr.length() > 0) {
       if (values.size() == 1) {
-        OscMessage fw = new OscMessage(device.outPrefix + addr);
-        fw.add(device.id);
-        if (values.get(0) instanceof Number) {
-          fw.add((float) value);
-          fw.add((float) minValue);
-          fw.add((float) maxValue);
-          if (histLen > 0) {
-            fw.add(perc[histCursor]);
-          }
-          if (avgLen > 0) {
-            fw.add((float) avgValue);
-          }
-        }
-        else if (values.get(0) instanceof String) {
-          fw.add((String) value);
-        }
-        oscP5.send(fw, forwardAddr);
+        forwardOne(values.get(0));
       }
       else {
-        OscMessage fw = new OscMessage(device.outPrefix + addr + "/batch");
-        fw.add(device.id);
-        for (int i=0; i<values.size(); i++) {
-          if (values.get(i) instanceof Number) {
-            fw.add((float) values.get(i));
-          }
-          else if (values.get(i) instanceof String) {
-            fw.add((String) values.get(i));
-          }
-        }
-        oscP5.send(fw, forwardAddr);
+        forwardBatch(values);
       }
     }
   }
@@ -234,6 +208,59 @@ abstract class SensorDisplay<T> {
     forward(values);
   }
   
+  void forwardOne(T value) {
+    OscMessage fw = new OscMessage(device.outPrefix + addr);
+        fw.add(device.id);
+        if (value instanceof Number) {
+          fw.add((float) value);
+          fw.add((float) minValue);
+          fw.add((float) maxValue);
+          if (histLen > 0) {
+            fw.add(perc[histCursor]);
+          }
+          if (avgLen > 0) {
+            fw.add((float) avgValue);
+          }
+        }
+        else if (value instanceof String) {
+          fw.add((String) value);
+        }
+        else if (value instanceof PVector) {
+          PVector val = (PVector) value;
+          fw.add((float) val.x);
+          fw.add((float) val.y);
+          fw.add((float) val.z);
+        }
+        oscP5.send(fw, forwardAddr);
+  }
+  
+  void forwardBatch(ArrayList<T> values) {
+    OscMessage fw = new OscMessage(device.outPrefix + addr + "/batch");
+    fw.add(device.id);
+    if (values.get(0) instanceof Number) {
+      fw.add(1);
+      for (int i=0; i<values.size(); i++) {
+        fw.add((float) values.get(i));
+      }
+    }
+    else if (values.get(0) instanceof String) {
+      fw.add(1);
+      for (int i=0; i<values.size(); i++) {
+        fw.add((String) values.get(i));
+      }
+    }
+    else if (values.get(0) instanceof PVector) {
+      fw.add(3);
+      for (int i=0; i<values.size(); i++) {
+        PVector val = (PVector) values.get(i);
+        fw.add(val.x);
+        fw.add(val.y);
+        fw.add(val.z);
+      }
+    }
+    oscP5.send(fw, forwardAddr);
+  }
+    
   final void record(OscMessage msg) {
     String typetag = msg.typetag();
     int totalArgs = typetag.length()-1;

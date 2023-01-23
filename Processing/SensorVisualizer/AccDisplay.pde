@@ -87,6 +87,8 @@ public class AccDisplay extends VectorDisplay {
     
     text("acceleration " + filterType + " " + nf(value.x, 0, 2) + ", " + nf(value.y, 0, 2) + ", " + nf(value.z, 0, 2) + ", mag: " + nf(mag(), 0, 2), 20, 20);
     text("gravity " + gravityMethod + " " + nf(gravity.x, 0, 2) + ", " + nf(gravity.y, 0, 2) + ", " + nf(gravity.z, 0, 2), 20, 40);
+    text("max " + nf(maxValue.x, 0, 2) + ", " + nf(maxValue.y, 0, 2) + ", " + nf(maxValue.z, 0, 2), 20, 60);
+    text("min " + nf(minValue.x, 0, 2) + ", " + nf(minValue.y, 0, 2) + ", " + nf(minValue.z, 0, 2), 20, 80);
     text("(pps: "+ups+")", w - 70, 20);
     
     drawPlot3D(w, h/2);
