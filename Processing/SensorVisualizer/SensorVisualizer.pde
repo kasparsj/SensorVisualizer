@@ -33,14 +33,6 @@ void setup() {
       put(SensorType.HR, new HRDisplay(1, 0, height/2, width/4, height/2, 0, 50));
       put(SensorType.ECG, new ECGDisplay(1, width/4, height/2, width/4, height/2, 500));
   }}));
-  devs.put("GyrOSC", new Device("GyrOSC", "/gyrosc", outPrefix, 0, new HashMap<SensorType, SensorDisplay>(){{
-      put(SensorType.ACC, new AccDisplay(0));
-      put(SensorType.GYRO, new GyroDisplay(0));
-      put(SensorType.QUAT, new QuatDisplay(0));
-      put(SensorType.MAG, new MagDisplay(0));
-      put(SensorType.COMP, new CompDisplay(0));
-      put(SensorType.ALTITUDE, new AltitudeDisplay(0, false));
-  }}));
   cur = devs.keySet().iterator().next();
   
   //setupGui();

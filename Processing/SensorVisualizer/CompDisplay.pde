@@ -26,7 +26,7 @@ public class CompDisplay extends SensorDisplay<Float> {
   
     fill(255);
     text("compass " + nf(value, 0, 2) + " " + filterType.toString(), 20, 20);
-    text("pps: "+ups, w - 120, 20);
+    text("(pps: "+ups+")", w - 70, 20);
   
     // 2D compass
     pushMatrix();

@@ -7,7 +7,7 @@ public class QuatDisplay extends RotationStats {
   }
   
   QuatDisplay(int firstArg) {
-    this(firstArg, width / 2, 0, width/2, height, 500);
+    this(firstArg, width/4 * 3, 0, width/4, height, 500);
   }
   
   QuatDisplay() {

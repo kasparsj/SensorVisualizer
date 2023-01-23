@@ -233,10 +233,10 @@ abstract class SensorDisplay<T> {
         fw.add(device.id);
         if (value instanceof Number) {
           fw.add((float) value);
-          fw.add((float) minValue);
-          fw.add((float) maxValue);
           if (histLen > 0) {
             fw.add(perc[histCursor]);
+            fw.add((float) minValue);
+            fw.add((float) maxValue);
           }
           if (avgLen > 0) {
             fw.add((float) avgValue);

@@ -9,12 +9,12 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
   }
   
   AltitudeDisplay(int firstArg, boolean visible) {
-    this(firstArg, 0, height/2, width/4, height/2, 2, 50);
+    this(firstArg, width/2, height/2, width/4, height/2, 2, 50);
     this.visible = visible;
   }
   
   AltitudeDisplay(int firstArg) {
-    this(firstArg, 0, height/2, width/4, height/2, 2, 50);
+    this(firstArg, true);
   }
   
   AltitudeDisplay() {
