@@ -19,6 +19,7 @@ abstract class SensorDisplay<T> {
   int firstArg = 0;
   float x = 0, y = 0, w, h;
   T value;
+  int minMaxLen = 0;
   T minValue = null;
   T maxValue = null;
   ArrayList<T> values = null;
@@ -96,15 +97,8 @@ abstract class SensorDisplay<T> {
         value = val;
         break;
     }
-    if (value instanceof Number) {
-      if (minValue == null || (float) value < (float) minValue) {
-        minValue = value;
-      }
-      if (maxValue == null || (float) value > (float) maxValue) {
-        maxValue = value;
-      }
-    }
     if (histLen > 0) {
+      updateMinMax(value);
       updateHist(value, val);
     }
     if (avgLen > 0) {
@@ -125,6 +119,28 @@ abstract class SensorDisplay<T> {
       perc[nextCursor] = perc((float) value);
     }
     histCursor = nextCursor;
+    if (minMaxLen > 0 && histCursor == (minMaxLen-1)) {
+      resetMinMax();
+    }
+  }
+  
+  void updateMinMax(T value) {
+    if (value instanceof Number) {
+      if (minValue == null || (float) value < (float) minValue) {
+        minValue = value;
+      }
+      if (maxValue == null || (float) value > (float) maxValue) {
+        maxValue = value;
+      }
+    }
+  }
+  
+  void resetMinMax() {
+    minValue = null;
+    maxValue = null;
+    for (int i=0; i<histLen; i++) {
+      updateMinMax(values.get(i));
+    }
   }
   
   float perc(float value) {
@@ -331,6 +347,10 @@ abstract class SensorDisplay<T> {
     }
     if (key == 'v') {
       device.toggleVisible(type);
+      return true;
+    }
+    if (key == 'm') {
+      resetMinMax();
       return true;
     }
     return false;

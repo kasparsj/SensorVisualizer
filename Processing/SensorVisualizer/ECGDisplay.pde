@@ -10,6 +10,7 @@ public class ECGDisplay extends SensorDisplay<Float> {
     addr = "/ecg";
     supportBatch = true;
     enableHistory(histLen);
+    minMaxLen = histLen;
   }
   
   ECGDisplay(int firstArg) {
@@ -44,7 +45,8 @@ public class ECGDisplay extends SensorDisplay<Float> {
     
     pushStyle();  
     fill(255);
-    text("ECG " + filterType + " " + nf(value, 0, 2)+(ups > 0 ? " ("+nf(minValue, 0, 2)+", "+nf(maxValue, 0, 2)+")" : ""), 20, 20);
+    text("ECG " + filterType + " " + nf(value, 0, 2), 20, 20);
+    text("min, max "+nf(minValue, 0, 2)+", "+nf(maxValue, 0, 2), 20, 40);
     text("(pps: "+ups+")", w - 70, 20);
     popStyle();
     
