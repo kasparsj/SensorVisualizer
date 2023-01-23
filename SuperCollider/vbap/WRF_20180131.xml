@@ -1,0 +1,98 @@
+<LoudspeakerSetup name="WRF__20180131">
+
+  <SpeakerGroup geometryType="Ring" layerId="0" isSubwoofer="false" name="1.Ring">
+    <Speaker width="0.45" x=" -7.4100" y="  7.7300" z="  3.5400" lsNo="1" pitch="  18.29" roll="0.0" heading="270.00"/>
+    <Speaker width="0.45" x=" -5.4700" y="  7.7300" z="  3.5400" lsNo="2" pitch="  20.50" roll="0.0" heading="270.00"/>
+    <Speaker width="0.45" x=" -3.7100" y="  7.7300" z="  3.5400" lsNo="3" pitch="  22.43" roll="0.0" heading="270.00"/>
+    <Speaker width="0.45" x=" -1.9400" y="  7.7300" z="  3.5400" lsNo="4" pitch="  23.95" roll="0.0" heading="270.00"/>
+    <Speaker width="0.45" x="  0.0000" y="  7.7300" z="  3.5400" lsNo="5" pitch="  24.61" roll="0.0" heading="270.00"/>
+    <Speaker width="0.45" x="  1.9400" y="  7.7330" z="  3.5400" lsNo="6" pitch="  23.94" roll="0.0" heading="270.00"/>
+    <Speaker width="0.45" x="  3.7200" y="  7.7300" z="  3.5400" lsNo="7" pitch="  22.42" roll="0.0" heading="270.00"/>
+    <Speaker width="0.45" x="  5.4900" y="  7.7300" z="  3.5400" lsNo="8" pitch="  20.47" roll="0.0" heading="270.00"/>
+    <Speaker width="0.45" x="  7.4500" y="  7.7300" z="  3.5400" lsNo="9" pitch="  18.25" roll="0.0" heading="270.00"/>
+    <Speaker width="0.45" x="  8.5300" y="  7.7300" z="  3.5400" lsNo="10" pitch="  17.09" roll="0.0" heading="222.18"/>
+    <Speaker width="0.45" x="  8.5300" y="  5.9300" z="  3.5400" lsNo="11" pitch="  18.82" roll="0.0" heading="180.00"/>
+    <Speaker width="0.45" x="  8.5300" y="  3.9600" z="  3.5400" lsNo="12" pitch="  20.63" roll="0.0" heading="180.00"/>
+    <Speaker width="0.45" x="  8.5300" y="  1.9900" z="  3.5400" lsNo="13" pitch="  22.01" roll="0.0" heading="180.00"/>
+    <Speaker width="0.45" x="  8.5300" y="  0.0000" z="  3.5400" lsNo="14" pitch="  22.24" roll="0.0" heading="180.00"/>
+    <Speaker width="0.45" x="  8.5300" y=" -1.9700" z="  3.5400" lsNo="15" pitch="  22.02" roll="0.0" heading="180.00"/>
+    <Speaker width="0.45" x="  8.5300" y=" -3.9400" z="  3.5400" lsNo="16" pitch="  20.54" roll="0.0" heading="180.00"/>
+    <Speaker width="0.45" x="  8.5300" y=" -5.9100" z="  3.5400" lsNo="17" pitch="  18.84" roll="0.0" heading="180.00"/>
+    <Speaker width="0.45" x="  8.5300" y=" -7.7500" z="  3.5400" lsNo="18" pitch="  17.07" roll="0.0" heading="137.74"/>
+    <Speaker width="0.45" x="  6.7700" y=" -7.7350" z="  3.5400" lsNo="19" pitch="  19.00" roll="0.0" heading=" 90.00"/>
+    <Speaker width="0.45" x="  4.8500" y=" -7.7350" z="  3.5400" lsNo="20" pitch="  21.19" roll="0.0" heading=" 90.00"/>
+    <Speaker width="0.45" x="  2.8600" y=" -7.7350" z="  3.5400" lsNo="21" pitch="  23.23" roll="0.0" heading=" 90.00"/>
+    <Speaker width="0.45" x="  0.9600" y=" -7.7300" z="  3.5400" lsNo="22" pitch="  24.44" roll="0.0" heading=" 90.00"/>
+    <Speaker width="0.45" x=" -0.9600" y=" -7.7350" z="  3.5400" lsNo="23" pitch="  24.43" roll="0.0" heading=" 90.00"/>
+    <Speaker width="0.45" x=" -2.8800" y=" -7.7350" z="  3.5400" lsNo="24" pitch="  23.21" roll="0.0" heading=" 90.00"/>
+    <Speaker width="0.45" x=" -4.8000" y=" -7.7350" z="  3.5400" lsNo="25" pitch="  21.25" roll="0.0" heading=" 90.00"/>
+    <Speaker width="0.45" x=" -6.7200" y=" -7.7350" z="  3.5400" lsNo="26" pitch="  19.06" roll="0.0" heading=" 90.00"/>
+    <Speaker width="0.45" x=" -8.4600" y=" -7.7500" z="  3.5400" lsNo="27" pitch="  17.15" roll="0.0" heading=" 42.49"/>
+    <Speaker width="0.45" x=" -8.4950" y=" -5.9200" z="  3.5400" lsNo="28" pitch="  18.87" roll="0.0" heading="  0.00"/>
+    <Speaker width="0.45" x=" -8.4950" y=" -3.9400" z="  3.5400" lsNo="29" pitch="  20.71" roll="0.0" heading="  0.00"/>
+    <Speaker width="0.45" x=" -8.4950" y=" -1.9700" z="  3.5400" lsNo="30" pitch="  22.09" roll="0.0" heading="  0.00"/>
+    <Speaker width="0.45" x=" -8.4950" y="  0.0000" z="  3.5400" lsNo="31" pitch="  22.62" roll="0.0" heading="  0.00"/>
+    <Speaker width="0.45" x=" -8.4950" y="  1.9700" z="  3.5400" lsNo="32" pitch="  22.09" roll="0.0" heading="  0.00"/>
+    <Speaker width="0.45" x=" -8.4950" y="  3.9400" z="  3.5400" lsNo="33" pitch="  20.71" roll="0.0" heading="  0.00"/>
+    <Speaker width="0.45" x=" -8.4950" y="  5.9000" z="  3.5400" lsNo="34" pitch="  18.89" roll="0.0" heading="  0.00"/>
+    <Speaker width="0.45" x=" -8.5000" y="  7.7100" z="  3.5400" lsNo="35" pitch="  17.14" roll="0.0" heading="317.79"/>
+  </SpeakerGroup>
+
+  <SpeakerGroup geometryType="Ring" layerId="1" isSubwoofer="false" name="2.Ring">
+    <Speaker width="0.45" x=" -5.3100" y="  6.5000" z="  6.0600" lsNo="1" pitch="  35.83" roll="0.0" heading="309.25"/>
+    <Speaker width="0.45" x=" -1.9000" y="  6.5000" z="  6.0600" lsNo="2" pitch="  41.82" roll="0.0" heading="286.29"/>
+    <Speaker width="0.45" x="  1.9000" y="  6.5000" z="  6.0600" lsNo="3" pitch="  41.82" roll="0.0" heading="253.71"/>
+    <Speaker width="0.45" x="  5.2300" y="  6.5000" z="  6.0600" lsNo="4" pitch="  35.99" roll="0.0" heading="231.18"/>
+    <Speaker width="0.45" x="  7.0000" y="  3.9200" z="  6.0600" lsNo="5" pitch="  37.07" roll="0.0" heading="209.25"/>
+    <Speaker width="0.45" x="  7.0000" y="  0.0000" z="  6.0600" lsNo="6" pitch="  40.88" roll="0.0" heading="180.00"/>
+    <Speaker width="0.45" x="  7.0000" y=" -3.8400" z="  6.0600" lsNo="7" pitch="  37.20" roll="0.0" heading="151.25"/>
+    <Speaker width="0.45" x="  5.2300" y=" -6.5000" z="  6.0600" lsNo="8" pitch="  35.99" roll="0.0" heading="128.82"/>
+    <Speaker width="0.45" x="  1.9000" y=" -6.5000" z="  6.0600" lsNo="9" pitch="  41.82" roll="0.0" heading="106.29"/>
+    <Speaker width="0.45" x=" -1.9000" y=" -6.5000" z="  6.0600" lsNo="10" pitch="  41.82" roll="0.0" heading=" 73.71"/>
+    <Speaker width="0.45" x=" -5.3100" y=" -6.5000" z="  6.0600" lsNo="11" pitch="  35.83" roll="0.0" heading=" 50.75"/>
+    <Speaker width="0.45" x=" -7.0000" y=" -3.8400" z="  6.0600" lsNo="12" pitch="  37.20" roll="0.0" heading=" 28.75"/>
+    <Speaker width="0.45" x=" -7.0000" y="  0.0000" z="  6.0600" lsNo="13" pitch="  40.88" roll="0.0" heading="  0.00"/>
+    <Speaker width="0.45" x=" -7.0000" y="  3.9200" z="  6.0600" lsNo="14" pitch="  37.07" roll="0.0" heading="330.75"/>
+  </SpeakerGroup>
+
+  <SpeakerGroup geometryType="Surface" layerId="2" isSubwoofer="false" name="3.Ring">
+    <Speaker width="0.45" x=" -4.3200" y="  5.0000" z="  7.8200" lsNo="1" pitch="  49.80" roll="0.0" heading=" 310.83"/>
+    <!-- <Speaker width="0.45" x="  0.0000" y="  5.0000" z="  7.8200" lsNo="2" pitch="  57.41" roll="0.0" heading=" 270.00"/> -->
+    <Speaker width="0.45" x="  4.2500" y="  5.0000" z="  7.8200" lsNo="3" pitch="  50.00" roll="0.0" heading=" 229.64"/>
+    <!-- <Speaker width="0.45" x=" -4.3200" y="  0.0000" z="  7.8200" lsNo="4" pitch="  61.48" roll="0.0" heading="  0.00"/> -->
+    <Speaker width="0.45" x="  0.0000" y="  0.0000" z="  7.8200" lsNo="5" pitch="  90.00" roll="0.0" heading="  0.00"/>
+    <!-- <Speaker width="0.45" x="  4.2500" y="  0.0000" z="  7.8200" lsNo="6" pitch="  61.48" roll="0.0" heading=" 180.00"/> -->
+    <Speaker width="0.45" x=" -4.3200" y=" -5.0000" z="  7.8200" lsNo="7" pitch="  49.80" roll="0.0" heading="  49.17"/>
+    <!-- <Speaker width="0.45" x="  0.0000" y=" -5.0000" z="  7.8200" lsNo="8" pitch="  57.41" roll="0.0" heading="  90.00"/> -->
+    <Speaker width="0.45" x="  4.2500" y=" -5.0000" z="  7.8200" lsNo="9" pitch="  50.00" roll="0.0" heading=" 130.36"/>
+  </SpeakerGroup>
+
+  <SpeakerGroup geometryType="Arbitrary" isSubwoofer="true" name="LFE">
+    <!-- <Speaker width="0.62" x=" -7.5000" y="  7.8400" z="  1.2000" lsNo="1" pitch="  0.00" roll="0.0" heading="  0.00"/> -->
+    <!-- <Speaker width="0.62" x="  7.5000" y="  7.8400" z="  1.2000" lsNo="2" pitch="  0.00" roll="0.0" heading="180.00"/> -->
+    <!-- <Speaker width="0.62" x="  6.9900" y=" -8.2400" z="  0.0000" lsNo="3" pitch="  0.00" roll="0.0" heading=" 90.00"/> -->
+    <!-- <Speaker width="0.62" x=" -6.9900" y=" -8.2400" z="  0.0000" lsNo="4" pitch="  0.00" roll="0.0" heading=" 90.00"/> -->
+  </SpeakerGroup>
+
+  <Audience name="Default">
+    <Area>
+      <Position x="  7.3000" y="  6.5500" z="  1.2000"/>
+      <Position x="  7.3000" y=" -6.5500" z="  1.2000"/>
+      <Position x=" -7.3000" y=" -6.5500" z="  1.2000"/>
+      <Position x=" -7.3000" y="  6.5500" z="  1.2000"/>
+    </Area>
+    <Center x="  0.0000" y="  0.0000" z="1.2000"/>
+    <ReferencePoint x="  0.0000" y="  0.0000"/>
+    <ReferencedSpeakerGroupList>
+      <ReferencedSpeakerGroup name="1.Ring"/>
+      <ReferencedSpeakerGroup name="2.Ring"/>
+      <ReferencedSpeakerGroup name="3.Ring"/>
+      <ReferencedSpeakerGroup name="LFE"/>
+    </ReferencedSpeakerGroupList>
+  </Audience>
+  
+  <Screen>
+    <Position x=" -6.0000" y="  9.0000" z="  0.0000"/>
+    <Position x="  6.0000" y="  9.0000" z="  0.0000"/>
+  </Screen>
+</LoudspeakerSetup>

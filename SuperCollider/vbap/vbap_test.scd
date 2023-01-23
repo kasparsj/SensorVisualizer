@@ -1,0 +1,34 @@
+(
+x = {
+	var snd, azi, ele, amp, lag, pan;
+
+	azi = MouseX.kr(-180, 180);
+	ele = MouseY.kr(0, 90);
+	amp = 1;
+	lag = 0.01;
+	snd = WhiteNoise.ar(0.1);
+	pan = VBAP.ar(~vbapList.size, snd, ~vbapBuf.bufnum, azi, ele, 20);
+	// snd = snd.collect({
+	// 	arg snd;
+	// 	snd.postln;
+	// 	snd = BPF.ar(snd);
+	// 	snd = VBAP.ar(~vbapList.size, snd, ~vbapBuf.bufnum, azi, ele, 20);
+	// 	snd.postln;
+	// });
+	Out.ar(0, pan);
+}.play;
+)
+
+x.free;
+
+(
+var time = 1;
+fork{
+	~vbapList.size.do{
+		arg i;
+		{Out.ar(i + 30, WhiteNoise.ar(0.1) * Line.kr(1, 0, time, doneAction: 2))}.play;
+		// i.postln;
+		time.wait;
+	}
+}
+)
