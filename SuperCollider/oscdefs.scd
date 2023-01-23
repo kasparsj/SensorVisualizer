@@ -34,10 +34,10 @@ OSCdef(\quat, {|msg, time, addr, recvPort|
 OSCdef(\acc, {|msg, time, addr, recvPort|
 	var data = msg[1..]; // deviceId, x, y, z, mag, magPerc, magDeltaSum, magDeltaSumPerc, heading
 	if (data[0].asString() == "7E37D222", {
-		Ndef(\motion2_mi).set(\x, data[1], \y, data[2], \z, data[3], \mag, data[5]);
+		Ndef(\motion2_mi).set(\x, data[1]/500, \y, data[2]/500, \z, data[3]/500, \mag, data[5]);
 	});
 	if (data[0].asString() == "m5StickC", {
-		Ndef(\motion3_mi).set(\x, data[1], \y, data[2], \z, data[3], \mag, data[5]);
+		Ndef(\motion3_mi).set(\x, data[1]/2, \y, data[2]/2, \z, data[3]/2, \mag, data[5]);
 	});
 }, ~prefix++"/acc");
 
@@ -77,6 +77,7 @@ Tdef(\ecg_loop, { loop {
 		var perc = val[1];
 		Ndef(\heart_sin).set(\freq, val[0]);
 		~ecgBus.setSynchronous(val[1]);
+		~visuals.send('/tex/var', 0, "time", val[1] * 2pi);
 		~ecg = ~ecg[~numEcgBatchArgs..];
 	};
 	(1.0/130).wait;

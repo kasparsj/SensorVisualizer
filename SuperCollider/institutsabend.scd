@@ -2,16 +2,16 @@
 MasterFX.clear('localhost');
 
 s.waitForBoot {
+	~hrBus.free; // 40 - 180
+	~hrBus = Bus.control(Server.default, 1);
+	~ecgBus.free; // 0 - 1
+	~ecgBus = Bus.control(Server.default, 1);
+	~onsetBus.free; // 0, 1
+	~onsetBus = Bus.control(Server.default, 4).set(0);
+	~compassBus.free; // 0 - 360
+	~compassBus = Bus.control(Server.default, 1);
 	~recordBus.free;
 	~recordBus = Bus.audio(Server.default, 7);
-	~hrBus.free;
-	~hrBus = Bus.control(Server.default, 1);
-	~ecgBus.free;
-	~ecgBus = Bus.control(Server.default, 1);
-	~onsetBus.free;
-	~onsetBus = Bus.control(Server.default, 4).set(0);
-	~compassBus.free;
-	~compassBus = Bus.control(Server.default, 1);
 
 	"synths/*.scd".loadRelative;
 	"master.scd".loadRelative;
@@ -64,8 +64,8 @@ Ndef(\heart_perc).play(0, 2, addAction: \addToTail);
 Ndef(\heart_perc2).play(0, 2, addAction: \addToTail);
 //Ndef(\motion2).play(0, 2);
 Ndef(\motion2_mi).play(0, 2);
-Ndef(\motion3).play(0, 2);
-//Ndef(\motion3_mi).play(0, 2);
+//Ndef(\motion3).play(0, 2);
+Ndef(\motion3_mi).play(0, 2);
 
 Ndef(\heart_sin).stop(5);
 Ndef(\heart_perc).stop(5);
@@ -74,3 +74,16 @@ Ndef(\motion2).stop(5);
 Ndef(\motion2_mi).stop(5);
 Ndef(\motion3).stop(5);
 Ndef(\motion3_mi).stop(5);
+
+(
+// create visuals sender
+~visuals = OSCVisuals("127.0.0.1", 33333);
+
+// initialize 1 layer
+~visuals.send('/layers', 1, "stack");
+
+// load RotStringsH shader into layer 1
+~visuals.send('/tex', 0, "shaders/100fragments/OscCircle.frag");
+)
+
+~visuals.send('/tex/color', 0, 1.0, 1.0, 1.0);

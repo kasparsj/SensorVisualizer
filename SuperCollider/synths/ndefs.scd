@@ -111,13 +111,13 @@ Ndef(\motion3, { |rec_out, hr=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pa
 Ndef(\motion3).fadeTime = ~fadeTime;
 
 Ndef(\motion3_mi, { |rec_out, hr=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pan=0|
-    var timbre = 0.1+(mag/2)+(x/2);
-    var harm = 0.1+(mag/2)+(y/2);
-    var morph = z;
+	var timbre = (x.clip(-1, 1)+2)/2;
+	var harm = (y.clip(-1, 1)+2)/2;
+    var morph = z.abs.clip(0, 1);
 	var sig = MiPlaits.ar(hr / 4, 5, harm, timbre, morph);
 	//sig = BPF.ar(sig, hr.midicps*z);
 	//sig = MiVerb.ar(sig);
-	sig = sig * LFSaw.kr(1/20, 0).range(0.1, amp);
+	sig = sig * LFSaw.kr(1/20, 0).range(0.01, mag*amp);
 	//sig = sig * Line.kr(0, 1.1, 180);
 
 	sig = Balance2.ar(sig[0], sig[1], pan, amp);
