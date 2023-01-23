@@ -9,7 +9,7 @@ public class GyroDisplay extends VectorDisplay {
   }
   
   GyroDisplay(int firstArg) {
-    this(firstArg, width/4, 0, width/4, height/2, 500, 2);
+    this(firstArg, width/2, 0, width/4, height/2, 500, 2);
   }
   
   GyroDisplay() {

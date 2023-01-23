@@ -1,9 +1,9 @@
 (
-SynthDef(\WhiteNoise, {
+SynthDef(\ecg_WhiteNoise, {
 	Out.ar(0, In.kr(~ecgBus.index) * WhiteNoise.ar!2 * 0.01);
 }).add;
 
-SynthDef(\SineDrone, {
+SynthDef(\ecg_SineDrone, {
 	arg out = 0, freq = 50, gate = 1.0, phase = 0, dur = 180, pan = 0, amp = 1.0;
 	var env, noise, sig;
 	env = EnvGen.ar(Env([0, 0.01, 1.0, 0], [0.01, 0.98, 0.01]), gate, timeScale: dur*1.25, doneAction: 2);
@@ -13,7 +13,7 @@ SynthDef(\SineDrone, {
 	Out.ar(out, sig * In.kr(~ecgBus.index));
 }).add;
 
-SynthDef(\SawDrone, {
+SynthDef(\ecg_SawDrone, {
 	arg out = 0, freq = 50, gate = 1.0, phase = 0, dur = 180, pan = 0, amp = 1.0;
 	var env, noise, sig;
 	env = EnvGen.ar(Env([0, 0.01, 1.0, 0], [0.01, 0.98, 0.01]), gate, timeScale: dur*1.25, doneAction: 2);
@@ -23,7 +23,7 @@ SynthDef(\SawDrone, {
 	Out.ar(out, sig * In.kr(~ecgBus.index));
 }).add;
 
-SynthDef(\PulseDrone, {
+SynthDef(\ecg_PulseDrone, {
 	arg out = 0, freq = 50, gate = 1.0, phase = 0, dur = 180, pan = 0, amp = 1.0;
 	var env, noise, sig;
 	env = EnvGen.ar(Env([0, 0.01, 1.0, 0], [0.01, 0.98, 0.01]), gate, timeScale: dur*1.25, doneAction: 2);

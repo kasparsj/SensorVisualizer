@@ -26,7 +26,9 @@ OSCdef(\quat, {|msg, time, addr, recvPort|
 	if (data[0].asString() == "7E37D222", {
 		Ndef(\motion2_mi).set(\pan, 0.2-data[11]);
 	});
-	if (data[0].asString() == "m5StickC", {
+	//if (data[0].asString() == "m5StickC", {
+	if (data[0].asString() == "GyrOSC", {
+		Ndef(\motion3).set(\pan, data[11]*2);
 		Ndef(\motion3_mi).set(\pan, data[11]*2);
 	});
 }, ~prefix++"/quat");
@@ -34,10 +36,16 @@ OSCdef(\quat, {|msg, time, addr, recvPort|
 OSCdef(\acc, {|msg, time, addr, recvPort|
 	var data = msg[1..]; // deviceId, x, y, z, mag, magPerc, magDeltaSum, magDeltaSumPerc, heading
 	if (data[0].asString() == "7E37D222", {
-		Ndef(\motion2_mi).set(\x, data[1]/500, \y, data[2]/500, \z, data[3]/500, \mag, data[5]);
+		~chestAccBus.setn(data[1..6]);
+		//Ndef(\motion2_mi).set(\x, data[1]/500, \y, data[2]/500, \z, data[3]/500, \mag, data[5]);
 	});
 	if (data[0].asString() == "m5StickC", {
-		Ndef(\motion3_mi).set(\x, data[1]/2, \y, data[2]/2, \z, data[3]/2, \mag, data[5]);
+		~lhAccBus.setn(data[1..6]);
+	});
+	if (data[0].asString() == "GyrOSC", {
+		//Ndef(\motion3).set(\x, data[1]/5, \y, data[2]/5, \z, data[3]/5, \mag, data[5]);
+		//Ndef(\motion3_mi).set(\x, data[1]/2, \y, data[2]/2, \z, data[3]/2, \mag, data[5]);
+		~rhAccBus.setn(data[1..6]);
 	});
 }, ~prefix++"/acc");
 
@@ -58,7 +66,7 @@ OSCdef(\mag, {|msg, time, addr, recvPort|
 }, ~prefix++"/mag");
 
 OSCdef(\compass, {|msg, time, addr, recvPort|
-	if (msg[1].asString == "GyOSC") {
+	if (msg[1].asString == "GyrOSC") {
 		~compassBus.set(msg[2]);
 	};
 }, ~prefix++"/comp");
@@ -86,8 +94,9 @@ Tdef(\ecg_loop, { loop {
 Tdef(\acc_loop, { loop {
 	if (~acc.size > 0) {
 		var val = ~acc[0..(~numAccBatchArgs-1)];
-		Ndef(\motion2).set(\x, val[0], \y, val[1], \z, val[2], \mag, val[4]);
-		Ndef(\motion2_mi).set(\x, val[0]/500, \y, val[1]/500, \z, val[2]/500, \mag, val[4]);
+		~chestAccBus.setnSynchronous(val);
+		// Ndef(\motion2).set(\x, val[0], \y, val[1], \z, val[2], \mag, val[4]);
+		// Ndef(\motion2_mi).set(\x, val[0]/500, \y, val[1]/500, \z, val[2]/500, \mag, val[4]);
 		~acc = ~acc[~numAccBatchArgs..];
 	};
 	(1.0/200).wait;

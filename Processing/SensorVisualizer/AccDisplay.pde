@@ -22,6 +22,7 @@ public class AccDisplay extends VectorDisplay {
   PVector maxVelocity;
   ArrayList<PVector> velocities;
   Float[] speeds;
+  PVector position;
   
   AccDisplay(int firstArg, float x, float y, float w, float h, GravityMethod gm, int histLen, int deltaSumWin, float maxMag) {
     super(firstArg, x, y, w, h, histLen);
@@ -35,7 +36,7 @@ public class AccDisplay extends VectorDisplay {
   }
   
   AccDisplay(int firstArg) {
-    this(firstArg, 0, 0, width/4, height/2, GravityMethod.HIGHPASS, 500, 2, 9.81);
+    this(firstArg, 0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 9.81);
   }
   
   AccDisplay() {
@@ -47,6 +48,7 @@ public class AccDisplay extends VectorDisplay {
     if (histLen > 0) {
       velocities = new ArrayList<PVector>(histLen);
       speeds = new Float[histLen];
+      position = new PVector();
       for (int i=0; i<histLen; i++) {
         velocities.add(null);
         speeds[i] = 0F;
@@ -91,21 +93,26 @@ public class AccDisplay extends VectorDisplay {
     text("min " + nf(minValue.x, 0, 2) + ", " + nf(minValue.y, 0, 2) + ", " + nf(minValue.z, 0, 2), 20, 80);
     text("(pps: "+ups+")", w - 70, 20);
     
-    drawPlot3D(w, h/2);
+    drawPlot3D(w/2, h/2);
     
     pushMatrix();
     translate(0, h/2);
-    drawPlot2D(w, h / 4);
+    drawPlot2D(w/2, h / 4);
     popMatrix();
     
     pushMatrix();
     translate(0, h/2);
-    drawMag(w, h / 4);
+    drawMag(w/2, h / 4);
     popMatrix();
     
     pushMatrix();
     translate(0, h / 4 * 3);
-    drawVelocity(w, h / 4);
+    drawVelocity(w/2, h / 4);
+    popMatrix();
+    
+    pushMatrix();
+    translate(w/2, 0);
+    drawPosition(w/2, h);
     popMatrix();
         
     popStyle();
@@ -165,6 +172,16 @@ public class AccDisplay extends VectorDisplay {
     popMatrix();
   }
   
+  void drawPosition(float w, float h) {
+    text("pos " + nf(position.x, 0, 2) + ", " + nf(position.y, 0, 2) + ", " + nf(position.z, 0, 2), 20, 20);
+    pushMatrix();
+    translate(w/2, h/2);
+    translate(position.x*3000F, position.y*3000F);
+    fill(255);
+    circle(0, 0, 10);
+    popMatrix();
+  }
+  
   void forward(ArrayList<PVector> values) {
     calcVelocity(values.size());
     
@@ -180,19 +197,28 @@ public class AccDisplay extends VectorDisplay {
         int j = i > histCursor ? histLen - (i - histCursor) : histCursor - i;
         PVector val = vals.get(j);
         // when raw - add back gravity
-        if (gravityMethod != GravityMethod.NONE && useRaw) val = PVector.add(val, gravity);
+        //if (gravityMethod != GravityMethod.NONE && useRaw) val = PVector.add(val, gravity);
         if (useRaw) {
           PVector prevVal = vals.get(j > 0 ? j-1 : histLen-1);
           if (prevVal == null) prevVal = new PVector(0, 0);
           val = PVector.add(prevVal, PVector.mult(PVector.sub(val, prevVal), 0.001));
         }
-        PVector dv = PVector.mult(val, (millis - prevMillis) / numValues / 1000F);
+        float interval = (millis - prevMillis) / numValues / 1000F;
+        PVector dv = PVector.mult(val, interval);
         PVector prevVelocity = velocities.get(j > 0 ? j-1 : histLen-1);
         if (prevVelocity == null) prevVelocity = new PVector(0, 0);
         velocity = PVector.add(prevVelocity, dv);
+        velocity.mult(0.9);
+        float speed = velocity.mag();
+        if (speed < 0.01) {
+          velocity = new PVector(0, 0, 0);
+          speed = 0;
+        }
         maxVelocity = new PVector(max(velocity.x, (maxVelocity != null ? maxVelocity.x : 0)), max(velocity.y, (maxVelocity != null ? maxVelocity.y : 0)), max(velocity.z, (maxVelocity != null ? maxVelocity.z : 0)));
         velocities.set(j, velocity.copy());
-        speeds[j] = velocity.mag();
+        speeds[j] = speed;
+        position.add(PVector.mult(velocity, interval));
+        position.mult(0.999);
       }
     }
     prevMillis = millis;

@@ -51,7 +51,7 @@ ProxyChain.add(*[
 ~phi8Master = MasterFX(Server.default, 2, ~filterKeys);
 ~phi8Master.add(\lpf, 0.2);
 ~phi8Master.add(\moogVcf, 0.25);
-~phi8Master.add(\feedback, 1);
+//~phi8Master.add(\feedback, 1);
 ~phi8Master.add(\gverb, 0.1);
 //~phi8Master.add(\tanh, 1);
 //~phi8Master.add(\limiter, 1);
