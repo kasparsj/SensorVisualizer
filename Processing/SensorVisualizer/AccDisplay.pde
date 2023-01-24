@@ -192,18 +192,18 @@ public class AccDisplay extends VectorDisplay {
   void calcVelocity(int numValues) {
     int millis = millis();
     if (velocities != null) {
-      boolean useRaw = true;
+      boolean useRaw = false;
       ArrayList<PVector> vals = useRaw ? rawValues : values; 
       for (int i=(numValues-1); i>=0; i--) {
         int j = i > histCursor ? histLen - (i - histCursor) : histCursor - i;
         PVector val = vals.get(j);
         // when raw - add back gravity
         //if (gravityMethod != GravityMethod.NONE && useRaw) val = PVector.add(val, gravity);
-        if (useRaw) {
-          PVector prevVal = vals.get(j > 0 ? j-1 : histLen-1);
-          if (prevVal == null) prevVal = new PVector(0, 0);
-          val = PVector.add(prevVal, PVector.mult(PVector.sub(val, prevVal), 0.001));
-        }
+        //if (useRaw) {
+        //  PVector prevVal = vals.get(j > 0 ? j-1 : histLen-1);
+        //  if (prevVal == null) prevVal = new PVector(0, 0);
+        //  val = PVector.add(prevVal, PVector.mult(PVector.sub(val, prevVal), 0.001));
+        //}
         float interval = (millis - prevMillis) / numValues / 1000F;
         PVector dv = PVector.mult(val, interval);
         PVector prevVelocity = velocities.get(j > 0 ? j-1 : histLen-1);
@@ -216,8 +216,9 @@ public class AccDisplay extends VectorDisplay {
           speed = 0;
         }
         maxVelocity = new PVector(max(velocity.x, (maxVelocity != null ? maxVelocity.x : 0)), max(velocity.y, (maxVelocity != null ? maxVelocity.y : 0)), max(velocity.z, (maxVelocity != null ? maxVelocity.z : 0)));
+        float speedPerc = speed / maxVelocity.mag();
         velocities.set(j, velocity.copy());
-        speeds[j] = speed;
+        speeds[j] = speedPerc;
         position.add(PVector.mult(velocity, interval));
         position.mult(0.999);
       }
