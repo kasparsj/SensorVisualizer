@@ -2,51 +2,25 @@
 MasterFX.clear('localhost');
 
 s.waitForBoot {
-	~hrBus.free; // 40 - 180
-	~hrBus = Bus.control(Server.default, 1);
-	~ecgBus.free; // 0 - 1
-	~ecgBus = Bus.control(Server.default, 1);
-	~ecgNormBus.free; // 0 - 1
-	~ecgNormBus = Bus.control(Server.default, 1);
-	~onsetBus.free; // 0, 1
-	~onsetBus = Bus.control(Server.default, 4).set(0);
-	~compassBus.free; // 0 - 360
-	~compassBus = Bus.control(Server.default, 1);
-	~compNormBus.free; // 0 - 1 (180 degrees)
-	~compNormBus = Bus.control(Server.default, 1);
-	~chestAccBus.free;
-	~chestAccBus = Bus.control(Server.default, 5);
-	~chestAccNormBus.free;
-	~chestAccNormBus = Bus.control(Server.default, 4);
-	~rhAccBus.free;
-	~rhAccBus = Bus.control(Server.default, 5);
-	~rhAccNormBus.free;
-	~rhAccNormBus = Bus.control(Server.default, 4);
-	~lhAccBus.free;
-	~lhAccBus = Bus.control(Server.default, 5);
-	~lhAccNormBus.free;
-	~lhAccNormBus = Bus.control(Server.default, 4);
-	~breathBus.free;
-	~breathBus = Bus.control(Server.default, 1);
-	~recordBus.free;
-	~recordBus = Bus.audio(Server.default, 7);
+	"../config.scd".loadRelative;
 
-	//if (s.options.device == "MADIface USB (23727305)") {
-	if (s.options.device == "Fireface UFX+ (23779252)") {
+	if (s.options.device == "MADIface USB (23727305)") {
+	// if (s.options.device == "Fireface UFX+ (23779252)") {
+		"../vbap/vbap_setup.scd".loadRelative;
 		~chan = 43;
 		~subs = 60;
 	} {
-		"synths/*.scd".loadRelative;
+		"../synths/*.scd".loadRelative;
 		~chan = 0;
 		~subs = 0;
 	};
 
-	"master.scd".loadRelative;
+	"../master.scd".loadRelative;
 
 	s.sync;
 
-	"visuals.scd".loadRelative;
-	"oscdefs.scd".loadRelative;
+	"../oscdefs.scd".loadRelative;
+	"visuals/visuals.scd".loadRelative;
 
 	"loaded!!!".postln;
 };
@@ -56,22 +30,6 @@ s.waitForBoot {
 RedMst.clear;
 RedMst.clock = TempoClock(60/60);
 RedMst.quant = 1;
-
-RedTrk2(\fadein0, Task({
-	~visuals.send('/layer/bri', 0, "line(1, 45)");
-}));
-
-RedTrk2(\fadeout0, Task({
-	~visuals.send('/layer/bri', 0, "line(1, 0, 10)");
-}));
-
-RedTrk2(\fadein1, Task({
-	~visuals.send('/layer/bri', 1, "line(1, 45)");
-}));
-
-RedTrk2(\fadeout1, Task({
-	~visuals.send('/layer/bri', 1, "line(1, 0, 10)");
-}));
 
 RedTrk2(\heart_spawn, Pdef(\heartSpawn, Pseq([
 	Pfindur(300, Pspawn(Pbind(
@@ -192,14 +150,16 @@ RedTrk2(\stop_rh_onsets, Task({
 	inf, [\start_rh_onsets],
 ]);
 
+"visuals/fade_tracks.scd".loadRelative;
+
 // todo: use RedSeq instead
 ~video = VideoOSC(NetAddr("127.0.0.1", 133333));
 ~sound = SoundTrack(~video, ~score.beats, \beats);
-~sound.play(loop: false);
 )
 
-~sound.stop;
+~sound.play(loop: false);
 ~sound.nextSection;
+~sound.stop;
 
 // Ndef(\motion2).play(~chan, 2);
 // Ndef(\motion2).xset(\amp, 0.5);

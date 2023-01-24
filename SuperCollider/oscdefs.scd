@@ -1,10 +1,4 @@
 (
-r = nil;
-~record = false;
-~prefix = "/out";
-~numEcgBatchArgs = 2;
-~numAccBatchArgs = 5;
-
 OSCdef(\ecg, {|msg, time, addr, recvPort|
 	// deviceId, value, minValue, maxValue, percValue, avgValue
 	~ecgBus.set(msg[2]);
