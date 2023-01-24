@@ -154,7 +154,7 @@ Ndef(\breath).fadeTime = ~fadeTime;
 
 Ndef(\rh_onsets, { |amp=1.0|
 	var acc = In.kr(~rhAccBus.index, 5);
-	var comp = In.kr(~compassBus.index);
+	var compNorm = In.kr(~compNormBus.index);
 	// var harm = LFNoise2.kr(0.3,0.25,0.25);
 	// var timbre = LFNoise1.kr(0.4,0.5,0.5);
 	var x = acc[0]/2;
@@ -168,7 +168,6 @@ Ndef(\rh_onsets, { |amp=1.0|
 	var chain = FFT(LocalBuf(128), acc[4]);
 	var trigger = Onsets.kr(chain, 0.75, \rcomplex, 0.01, 0.1, 1);
 	//var trigger = Onsets.kr(chain, 0.75);
-	var compNorm = ((comp + 40).clip(0, 180) / 180) - 0.2;
 	var out = 10 + (25 * compNorm);
 	var sig = MiPlaits.ar(80-(mag*80), 5, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
 	//var sig = MiPlaits.ar(80-(mag*80), compNorm*15, harm, timbre, 0, trigger, decay: dec, mul: 0.75);

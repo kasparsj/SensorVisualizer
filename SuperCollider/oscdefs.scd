@@ -67,7 +67,15 @@ OSCdef(\mag, {|msg, time, addr, recvPort|
 
 OSCdef(\compass, {|msg, time, addr, recvPort|
 	if (msg[1].asString == "GyrOSC") {
+		var compNorm;
 		~compassBus.set(msg[2]);
+		if (msg[2] > 250) {
+			compNorm = (msg[2] - 340).clip(0, 20) / 180;
+		} {
+			compNorm = (msg[2] + 20).clip(0, 180) / 180;
+		};
+		~compNormBus.set(compNorm);
+		compNorm.postln;
 	};
 }, ~prefix++"/comp");
 

@@ -90,8 +90,10 @@ public class Device {
     popMatrix();
   }
   
-  void drawSensors() {
-    for (SensorDisplay sensor : sensors.values()) {
+  void drawSensors() {  
+    Map<SensorType, SensorDisplay> copy = new HashMap<SensorType, SensorDisplay>();
+    copy.putAll(sensors);        
+    for (SensorDisplay sensor : copy.values()) {
       if (sensor.visible) {
         sensor.draw();
       }

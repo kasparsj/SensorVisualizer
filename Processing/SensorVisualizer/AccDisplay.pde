@@ -176,7 +176,8 @@ public class AccDisplay extends VectorDisplay {
     text("pos " + nf(position.x, 0, 2) + ", " + nf(position.y, 0, 2) + ", " + nf(position.z, 0, 2), 20, 20);
     pushMatrix();
     translate(w/2, h/2);
-    translate(position.x*3000F, position.y*3000F);
+    //translate(position.x*3000F, position.y*3000F);
+    translate(position.x, position.y);
     fill(255);
     circle(0, 0, 10);
     popMatrix();

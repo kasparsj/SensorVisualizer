@@ -10,6 +10,8 @@ s.waitForBoot {
 	~onsetBus = Bus.control(Server.default, 4).set(0);
 	~compassBus.free; // 0 - 360
 	~compassBus = Bus.control(Server.default, 1);
+	~compNormBus.free; // 0 - 1 (180 degrees)
+	~compNormBus = Bus.control(Server.default, 1);
 	~chestAccBus.free;
 	~chestAccBus = Bus.control(Server.default, 5);
 	~rhAccBus.free;
