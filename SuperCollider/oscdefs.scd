@@ -21,17 +21,17 @@ OSCdef(\hr, {|msg, time, addr, recvPort|
 	~hrBus.set(msg[2]);
 }, ~prefix++"/hr");
 
-OSCdef(\quat, {|msg, time, addr, recvPort|
-	var data = msg[1..]; // deviceId, x, y, z, w, xz.x, xz.y, xz.mag, xz.heading, yz.x, yx.y, yx.mag, yx.heading, zy.x, zy.y, zy.mag, zy.heading
-	if (data[0].asString() == "7E37D222", {
-		Ndef(\motion2_mi).set(\pan, 0.2-data[11]);
-	});
-	//if (data[0].asString() == "m5StickC", {
-	if (data[0].asString() == "GyrOSC", {
-		Ndef(\motion3).set(\pan, data[11]*2);
-		Ndef(\motion3_mi).set(\pan, data[11]*2);
-	});
-}, ~prefix++"/quat");
+// OSCdef(\quat, {|msg, time, addr, recvPort|
+// 	var data = msg[1..]; // deviceId, x, y, z, w, xz.x, xz.y, xz.mag, xz.heading, yz.x, yx.y, yx.mag, yx.heading, zy.x, zy.y, zy.mag, zy.heading
+// 	if (data[0].asString() == "7E37D222", {
+// 		Ndef(\motion2_mi).set(\pan, 0.2-data[11]); // yx.mag
+// 	});
+// 	//if (data[0].asString() == "m5StickC", {
+// 	if (data[0].asString() == "GyrOSC", {
+// 		Ndef(\motion3).set(\pan, data[11]*2);
+// 		Ndef(\motion3_mi).set(\pan, data[11]*2);
+// 	});
+// }, ~prefix++"/quat");
 
 OSCdef(\acc, {|msg, time, addr, recvPort|
 	var data = msg[1..]; // deviceId, x, y, z, mag, magPerc, magDeltaSum, magDeltaSumPerc, heading
@@ -54,13 +54,13 @@ OSCdef(\acc_batch, {|msg, time, addr, recvPort|
 	});
 }, ~prefix++"/acc/batch");
 
-OSCdef(\gyro, {|msg, time, addr, recvPort|
-	//msg.postln;
-}, ~prefix++"/gyro");
-
-OSCdef(\mag, {|msg, time, addr, recvPort|
-	//msg.postln;
-}, ~prefix++"/mag");
+// OSCdef(\gyro, {|msg, time, addr, recvPort|
+// 	//msg.postln;
+// }, ~prefix++"/gyro");
+//
+// OSCdef(\mag, {|msg, time, addr, recvPort|
+// 	//msg.postln;
+// }, ~prefix++"/mag");
 
 OSCdef(\compass, {|msg, time, addr, recvPort|
 	if (msg[1].asString == "GyrOSC") {

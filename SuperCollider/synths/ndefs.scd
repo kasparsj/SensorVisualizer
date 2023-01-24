@@ -150,6 +150,7 @@ Ndef(\motion3_mi, { |x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pan=0|
 
 Ndef(\breath, { |amp=1.0|
 	var sig = SoundIn.ar(0);
+	Out.kr(~breathBus.index, sig);
 	sig!2*amp;
 });
 

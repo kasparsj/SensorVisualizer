@@ -20,6 +20,8 @@ s.waitForBoot {
 	~rhAccBus = Bus.control(Server.default, 5);
 	~lhAccBus.free;
 	~lhAccBus = Bus.control(Server.default, 5);
+	~breathBus.free;
+	~breathBus = Bus.control(Server.default, 1);
 	~recordBus.free;
 	~recordBus = Bus.audio(Server.default, 7);
 
@@ -49,22 +51,20 @@ RedMst.clear;
 RedMst.clock = TempoClock(60/60);
 RedMst.quant = 1;
 
-// create visuals sender
-~visuals = OSCVisuals("127.0.0.1", 33333);
-
-// initialize 1 layer
-~visuals.send('/layers', 1, "stack");
-
-// load RotStringsH shader into layer 1
-~visuals.send('/tex', 0, "shaders/100fragments/OscCircle.frag");
-~visuals.send('/layer/bri', 0, 0);
-
-RedTrk2(\fadein_layer0, Task({
+RedTrk2(\fadein0, Task({
 	~visuals.send('/layer/bri', 0, "line(1, 45)");
 }));
 
-RedTrk2(\fadeout_layer0, Task({
+RedTrk2(\fadeout0, Task({
 	~visuals.send('/layer/bri', 0, "line(1, 0, 10)");
+}));
+
+RedTrk2(\fadein1, Task({
+	~visuals.send('/layer/bri', 1, "line(1, 45)");
+}));
+
+RedTrk2(\fadeout1, Task({
+	~visuals.send('/layer/bri', 1, "line(1, 0, 10)");
 }));
 
 RedTrk2(\heart_spawn, Pdef(\heartSpawn, Pseq([
@@ -177,10 +177,10 @@ RedTrk2(\stop_rh_onsets, Task({
 
 ~score = RedScore([
 	// inf, [\start_breath],
-	// inf, [\start_heart_perc2, \fadein_layer0],
+	// inf, [\start_heart_perc2, \fadein0],
 	// inf, [\start_heart_perc, \stop_heart_perc2],
 	// inf, [\start_heart_sin, \stop_heart_perc],
-	// inf, [\stop_heart_sin, \fadeout_layer0],
+	// inf, [\stop_heart_sin, \fadeout0],
 	// inf, [\stop_breath, \motion_grains],
 	// inf, [\start_motion1],
 	inf, [\start_rh_onsets],
@@ -206,7 +206,3 @@ RedTrk2(\stop_rh_onsets, Task({
 // Ndef(\motion3_mi).play(~chan, 2);
 // Ndef(\motion3_mi).xset(\amp, 0.75);
 // Ndef(\motion3_mi).stop(5);
-
-~visuals.send('/tex/color', 0, 1.0, 1.0, 1.0);
-~visuals.send('/tex/color', 0, 1.0, 0, 0);
-~visuals.send('/tex/color', 0, 0, 0, 0);
