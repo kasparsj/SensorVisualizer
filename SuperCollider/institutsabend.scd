@@ -6,6 +6,8 @@ s.waitForBoot {
 	~hrBus = Bus.control(Server.default, 1);
 	~ecgBus.free; // 0 - 1
 	~ecgBus = Bus.control(Server.default, 1);
+	~ecgNormBus.free; // 0 - 1
+	~ecgNormBus = Bus.control(Server.default, 1);
 	~onsetBus.free; // 0, 1
 	~onsetBus = Bus.control(Server.default, 4).set(0);
 	~compassBus.free; // 0 - 360
@@ -35,11 +37,7 @@ s.waitForBoot {
 
 	s.sync;
 
-	~visuals = OSCVisuals("127.0.0.1", 33333);
-	~visuals.send('/layers', 1, "stack");
-	~visuals.send('/tex', 0, "shaders/100fragments/OscCircle.frag");
-	//~visuals.send('/tex', 0, "shaders/color.frag");
-
+	"visuals.scd".loadRelative;
 	"oscdefs.scd".loadRelative;
 
 	"loaded!!!".postln;
@@ -90,10 +88,13 @@ RedTrk2(\heart_spawn, Pdef(\heartSpawn, Pseq([
 		\delta, Pwhite(32, 256, inf) * 0.25,
 		\method, \par
 )))], inf)));
+//Pdef(\heartSpawn).play
 
 RedTrk2(\heart_noise, Synth(\ecg_WhiteNoise, [\out, ~chan]).run(false));
 
 RedTrk2(\start_heart_sin, Task({
+	Ndef(\heart_sin).fadeTime = 5;
+	Ndef(\heart_sin).set(\amp, 0);
 	Ndef(\heart_sin).play(~chan, 2);
 	Ndef(\heart_sin).xset(\amp, 0.025);
 }));

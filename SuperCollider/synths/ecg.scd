@@ -1,6 +1,6 @@
 (
 SynthDef(\ecg_WhiteNoise, {
-	Out.ar(0, In.kr(~ecgBus.index) * WhiteNoise.ar!2 * 0.01);
+	Out.ar(0, In.kr(~ecgNormBus.index) * WhiteNoise.ar!2 * 0.01);
 }).add;
 
 SynthDef(\ecg_SineDrone, {
@@ -10,7 +10,7 @@ SynthDef(\ecg_SineDrone, {
 	sig = SinOsc.ar(freq * [1, 2, 3, 4], phase).sum * SinOsc.ar(1/11).range(0.1, 1);
 	sig = sig * env;
 	sig = Pan2.ar(sig, pan) * amp;
-	Out.ar(out, sig * In.kr(~ecgBus.index));
+	Out.ar(out, sig * In.kr(~ecgNormBus.index));
 }).add;
 
 SynthDef(\ecg_SawDrone, {
@@ -20,7 +20,7 @@ SynthDef(\ecg_SawDrone, {
 	sig = Saw.ar(freq * [1, 2, 3, 4], phase).sum * SinOsc.ar(1/11).range(0.1, 1);
 	sig = sig * env;
 	sig = Pan2.ar(sig, pan) * amp;
-	Out.ar(out, sig * In.kr(~ecgBus.index));
+	Out.ar(out, sig * In.kr(~ecgNormBus.index));
 }).add;
 
 SynthDef(\ecg_PulseDrone, {
@@ -30,6 +30,6 @@ SynthDef(\ecg_PulseDrone, {
 	sig = Splay.ar(Pulse.ar(freq * [1, 1.5, 2, 2.5, 3], SinOsc.kr(2, phase, 0.5)).sum * SinOsc.ar(1/11).range(0.1, 1));
 	sig = sig * env;
 	sig = Pan2.ar(sig, pan) * amp;
-	Out.ar(out, sig * In.kr(~ecgBus.index));
+	Out.ar(out, sig * In.kr(~ecgNormBus.index));
 }).add;
 )

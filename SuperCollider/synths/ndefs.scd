@@ -1,68 +1,71 @@
 (
-~fadeTime = 5;
-
-Ndef(\heart_sin, { |rec_out, onset_out, freq=440, ecg=0.0, amp=0.1, room=0.5|
-	var sig, chain, onset, noise;
+Ndef(\heart_sin, { |amp=0.1, room=0.5|
+	var sig, chain, onset, noise, ecg, ecgNorm;
+	ecg = In.kr(~ecgBus.index);
+	ecgNorm = In.kr(~ecgNormBus.index);
 	noise = LFNoise0.ar(1/20);
-	//noise = noise * Line.kr(0, 1, 90);
-	sig = SinOsc.ar(freq * (1+noise));
-	//sig = SinOsc.ar(freq);
-	sig = sig * (1-ecg);
+	sig = SinOsc.ar(ecg * (1+noise));
+	sig = sig * (1-ecgNorm);
 	chain = FFT(LocalBuf(1024), sig);
 
 	onset = Onsets.kr(chain, 0.25);
-	Out.kr(onset_out, onset);
+	Out.kr(~onsetBus.index, onset);
 
 	sig = RHPF.ar(sig, rq: 0.01);
-	sig = MiVerb.ar(sig);
+	sig = MiVerb.ar(sig, drywet: room);
 	sig = Compander.ar(sig, sig);
 
-	Out.ar(rec_out, sig*amp);
+	Out.ar(~recordBus.index, sig*amp);
 	sig*amp;
 });
-Ndef(\heart_sin).fadeTime = ~fadeTime;
 
-Ndef(\heart_perc, { |rec_out, hr=80, onset=0, ecg=0, room=0.5, amp=1.0|
-	var sig, env, mul, track;
+Ndef(\heart_perc, { |room=0.5, amp=1.0|
+	var sig, env, ecgNorm, hr, onset;
+	ecgNorm = In.kr(~ecgNormBus.index);
+	hr = In.kr(~hrBus.index);
+	onset = In.kr(~onsetBus.index);
 	env = EnvGen.ar(Env.perc, onset);
-	sig = (SinOsc.ar(hr * ecg * 5) * env * ecg * 4);
+	sig = (SinOsc.ar(hr * ecgNorm * 5) * env * ecgNorm * 4);
 	//sig = sig * Line.kr(0, 1, 90);
 	//sig = FreeVerb.ar(sig, room: room);
 
-	Out.ar(rec_out, sig*amp);
+	Out.ar(~recordBus.index+1, sig*amp);
 	sig*amp;
 });
-Ndef(\heart_perc).fadeTime = ~fadeTime;
 
 // // not working!!!
-// Ndef(\heart_perc_mi, { |rec_out, hr=80, min_hr=40, max_hr=180, onset=0, ecg=0, room=0.5, amp=1.0|
-// 	var pit = ecg.range(30, 50).round;
+// Ndef(\heart_perc_mi, { |min_hr=40, max_hr=180, room=0.5, amp=1.0|
+//  var ecgNorm = In.kr(~ecgNormBus.index);
+//  var hr = In.kr(~hrBus.index);
+//  var onset = In.kr(~onsetBus.index);
+// 	var pit = ecgNorm.range(30, 50).round;
 // 	var timb = 0.4 + ((hr-min_hr)/(max_hr-min_hr));
 // 	var color = LFNoise1.kr(0.3,0.5,0.5);
 // 	var sig = MiBraids.ar(pit, timb, color, 34, onset*2-1);
 //
-// 	Out.ar(rec_out, sig*amp);
+// 	Out.ar(~recordBus.index, sig*amp);
 // 	sig*amp;
 // });
 // Ndef(\heart_perc_mi).fadeTime = ~fadeTime;
 
-Ndef(\heart_perc2, { |rec_out, hr = 80, onset=0, ecg=0, room=0.5, amp=1.0|
-	var sig, env, fmul, mul, track;
-
+Ndef(\heart_perc2, { |room=0.5, amp=1.0|
+	var sig, env, fmul, mul, ecgNorm, hr, onset;
+	ecgNorm = In.kr(~ecgNormBus.index);
+	hr = In.kr(~hrBus.index);
+	onset = In.kr(~onsetBus.index);
 	env = EnvGen.ar(Env.perc, onset);
 
-	fmul = 1.0 - ecg;
-	mul = ecg * 3;
+	fmul = 1.0 - ecgNorm;
+	mul = ecgNorm * 3;
 	sig = (SinOsc.ar(hr * fmul) * env * mul);
 	//sig = sig * Line.kr(0, 1, 120);
 	sig = FreeVerb.ar(sig, room: room);
 
-	Out.ar(rec_out, sig*amp);
+	Out.ar(~recordBus.index+2, sig*amp);
 	sig*amp;
 });
-Ndef(\heart_perc2).fadeTime = ~fadeTime;
 
-Ndef(\motion1, { |rec_out, room=0.5, amp=1.0, pan=0|
+Ndef(\motion1, { |room=0.5, amp=1.0, pan=0|
 	var sig;
 	var hr = In.kr(~hrBus.index);
 	var acc = In.kr(~chestAccBus.index, 5);
@@ -89,12 +92,12 @@ Ndef(\motion1, { |rec_out, room=0.5, amp=1.0, pan=0|
 
 	sig = Balance2.ar(sig[0], sig[1], pan, amp*mag);
 
-	Out.ar(rec_out, sig);
+	Out.ar(~recordBus.index+3, sig);
 	sig;
 });
-Ndef(\motion1).fadeTime = ~fadeTime;
 
-Ndef(\motion2, { |rec_out, hr=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1|
+Ndef(\motion2, { |x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1|
+	var hr = In.kr(~hrBus.index);
 	var sig = 0;
 	//var fcar = ([x, y, z]+200) + (hr * [1, 2, 3, 4, 5]);
 	var fcar = ([x, y, z]-(hr*1)) * [1, 2, 3, 4, 5];
@@ -107,12 +110,12 @@ Ndef(\motion2, { |rec_out, hr=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1|
 	sig = LPF.ar([acar1, acar2]*0.1, hr*rel);
 	//sig = GVerb.ar(sig[0]) + GVerb.ar(sig[1]);
 
-	Out.ar(rec_out, sig*amp);
+	Out.ar(~recordBus.index+3, sig*amp);
 	sig*amp;
 });
-Ndef(\motion2).fadeTime = ~fadeTime;
 
-Ndef(\motion3, { |rec_out, hr=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pan=0|
+Ndef(\motion3, { |x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pan=0|
+	var hr = In.kr(~hrBus.index);
 	var sig = 0;
 	var fcar = (([x, y, z]) * 2000) + (hr * [1, 2, 3]);
 	var rel = 1+16*mag;
@@ -125,12 +128,12 @@ Ndef(\motion3, { |rec_out, hr=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pa
 	//sig = GVerb.ar(sig[0]) + GVerb.ar(sig[1]);
 
 	sig = Balance2.ar(sig[0], sig[1], pan, amp);
-	Out.ar(rec_out, sig*amp);
+	Out.ar(~recordBus.index+5, sig*amp);
 	sig;
 });
-Ndef(\motion3).fadeTime = ~fadeTime;
 
-Ndef(\motion3_mi, { |rec_out, hr=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pan=0|
+Ndef(\motion3_mi, { |x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pan=0|
+	var hr = In.kr(~hrBus.index);
 	var timbre = (x.clip(-1, 1)+1)/2;
 	var harm = (y.clip(-1, 1)+1)/2;
     var morph = z.abs.clip(0, 1);
@@ -141,16 +144,14 @@ Ndef(\motion3_mi, { |rec_out, hr=120, x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1,
 	//sig = sig * Line.kr(0, 1.1, 180);
 
 	sig = Balance2.ar(sig[0], sig[1], pan, amp);
-	Out.ar(rec_out, sig*amp);
+	Out.ar(~recordBus.index+5, sig*amp);
 	sig;
 });
-Ndef(\motion3_mi).fadeTime = ~fadeTime;
 
 Ndef(\breath, { |amp=1.0|
 	var sig = SoundIn.ar(0);
 	sig!2*amp;
 });
-Ndef(\breath).fadeTime = ~fadeTime;
 
 Ndef(\rh_onsets, { |amp=1.0|
 	var acc = In.kr(~rhAccBus.index, 5);
@@ -174,13 +175,4 @@ Ndef(\rh_onsets, { |amp=1.0|
 	//sig = sig + MiPlaits.ar(36-(mag*24), 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
 	sig;
 });
-Ndef(\breath).fadeTime = ~fadeTime;
-
-Ndef(\heart_sin).set(\rec_out, ~recordBus.index, \onset_out, ~onsetBus.index, \ecg, ~ecgBus.asMap);
-Ndef(\heart_perc).set(\rec_out, ~recordBus.index+1, \onset, ~onsetBus.asMap, \hr, ~hrBus.asMap, \ecg, ~ecgBus.asMap);
-Ndef(\heart_perc2).set(\rec_out, ~recordBus.index+2, \onset, ~onsetBus.asMap, \hr, ~hrBus.asMap, \ecg, ~ecgBus.asMap);
-Ndef(\motion1).set(\rec_out, ~recordBus.index+3);
-Ndef(\motion2).set(\rec_out, ~recordBus.index+3, \hr, ~hrBus.asMap);
-Ndef(\motion3).set(\rec_out, ~recordBus.index+5, \hr, ~hrBus.asMap);
-Ndef(\motion3_mi).set(\rec_out, ~recordBus.index+5, \hr, ~hrBus.asMap);
 )
