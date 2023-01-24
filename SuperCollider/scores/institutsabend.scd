@@ -7,6 +7,8 @@ s.waitForBoot {
 	if (s.options.device == "MADIface USB (23727305)") {
 	// if (s.options.device == "Fireface UFX+ (23779252)") {
 		"../vbap/vbap_setup.scd".loadRelative;
+		// todo: vbap synths
+		"../synths/*.scd".loadRelative;
 		~chan = 43;
 		~subs = 60;
 	} {
@@ -139,18 +141,19 @@ RedTrk2(\stop_rh_onsets, Task({
 	Ndef(\rh_onsets).stop(5);
 }));
 
-~score = RedScore([
-	// inf, [\start_breath],
-	// inf, [\start_heart_perc2, \fadein0],
-	// inf, [\start_heart_perc, \stop_heart_perc2],
-	// inf, [\start_heart_sin, \stop_heart_perc],
-	// inf, [\stop_heart_sin, \fadeout0],
-	// inf, [\stop_breath, \motion_grains],
-	// inf, [\start_motion1],
-	inf, [\start_rh_onsets],
-]);
-
 "visuals/fade_tracks.scd".loadRelative;
+
+~score = RedScore([
+	inf, [\start_heart_perc2, \fadein0],
+	inf, [\start_breath, \fadein1],
+	inf, [\start_heart_perc, \stop_heart_perc2],
+	inf, [\start_heart_sin, \stop_heart_perc],
+	inf, [\stop_heart_sin, \fadeout0, \fadeout1],
+	inf, [\stop_breath, \motion_grains, \fadein2, \fadein3, \fadein4],
+	inf, [\start_rh_onsets, \fadein5, \fadein6, \fadein7],
+	inf, [\stop_rh_onsets],
+	inf, [\start_motion1, \fadein8, \fadein9, \fadein10],
+]);
 
 // todo: use RedSeq instead
 ~video = VideoOSC(NetAddr("127.0.0.1", 133333));
