@@ -37,7 +37,7 @@ OSCdef(\acc, {|msg, time, addr, recvPort|
 	});
 	if (msg[1].asString() == "m5StickC", {
 		var lhAcc = msg[2..6];
-		var lhAccNorm = (lhAcc[0..2]/5).clip(-1, 1) ++ lhAcc[4];
+		var lhAccNorm = (lhAcc[0..2]/3).clip(-1, 1) ++ lhAcc[4];
 		~lhAccBus.setn(lhAcc);
 		~lhAccNormBus.setn(lhAccNorm);
 	});

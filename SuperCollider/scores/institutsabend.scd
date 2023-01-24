@@ -6,15 +6,15 @@ s.waitForBoot {
 
 	if (s.options.device == "MADIface USB (23727305)") {
 	// if (s.options.device == "Fireface UFX+ (23779252)") {
+		~chan = 43;
+		~subs = 60;
 		"../vbap/vbap_setup.scd".loadRelative;
 		// todo: vbap synths
 		"../synths/*.scd".loadRelative;
-		~chan = 43;
-		~subs = 60;
 	} {
-		"../synths/*.scd".loadRelative;
 		~chan = 0;
 		~subs = 0;
+		"../synths/*.scd".loadRelative;
 	};
 
 	"../master.scd".loadRelative;
@@ -64,6 +64,7 @@ RedTrk2(\start_heart_sin, Task({
 	Ndef(\heart_sin).play(~chan, 2);
 	Ndef(\heart_sin).xset(\amp, 0.025);
 }));
+//Ndef(\heart_sin).xset(\amp, 0.015);
 
 RedTrk2(\stop_heart_sin, Task({
 	Ndef(\heart_sin).stop(10);
@@ -86,6 +87,7 @@ RedTrk2(\start_heart_perc2, Task({
 	Ndef(\heart_perc2).play(~subs, 2, addAction: \addToTail);
 	Ndef(\heart_perc2).xset(\amp, 0.4);
 }));
+//Ndef(\heart_perc2).xset(\amp, 0.1);
 
 RedTrk2(\stop_heart_perc2, Task({
 	Ndef(\heart_perc2).stop(5);
@@ -95,7 +97,7 @@ RedTrk2(\start_breath, Task({
 	Ndef(\breath).fadeTime = 10;
 	Ndef(\breath).set(\amp, 0);
 	Ndef(\breath).play(~chan, 2);
-	Ndef(\breath).xset(\amp, 0.5);
+	Ndef(\breath).xset(\amp, 1.0);
 }));
 
 RedTrk2(\stop_breath, Task({
@@ -106,7 +108,8 @@ RedTrk2(\motion_grains, Pdef(\motionGrains, Pspawn(Pbind(
 	\pattern, Pfunc {
 		var instruments = [\motion1];
 		var dur = rrand(0.1, 1.0);
-		var pan = [-1, 1].scramble;
+		//var pan = [-1, 1].scramble;
+		var pan = rrand(-1.0, 1.0);
 		Pbind(
 			\instrument, instruments.choose,
 			\dur, Pseq([dur], 1),
@@ -118,6 +121,8 @@ RedTrk2(\motion_grains, Pdef(\motionGrains, Pspawn(Pbind(
 	\delta, Pwhite(32, 128, inf) * 0.0025,
 	\method, \par
 ))));
+//Pdef(\motionGrains).play;
+//Pdef(\motionGrains).stop;
 
 RedTrk2(\start_motion1, Task({
 	Ndef(\motion1).fadeTime = 8;
@@ -141,18 +146,31 @@ RedTrk2(\stop_rh_onsets, Task({
 	Ndef(\rh_onsets).stop(5);
 }));
 
+RedTrk2(\start_lh_onsets, Task({
+	Ndef(\lh_onsets).fadeTime = 8;
+	Ndef(\lh_onsets).set(\amp, 0);
+	Ndef(\lh_onsets).play(~chan, 2);
+	Ndef(\lh_onsets).xset(\amp, 1.0);
+}));
+
+RedTrk2(\stop_lh_onsets, Task({
+	Ndef(\lh_onsets).stop(5);
+}));
+
 "visuals/fade_tracks.scd".loadRelative;
 
 ~score = RedScore([
 	inf, [\start_heart_perc2, \fadein0],
 	inf, [\start_breath, \fadein1],
-	inf, [\start_heart_perc, \stop_heart_perc2],
+	inf, [\start_heart_perc],
 	inf, [\start_heart_sin, \stop_heart_perc],
-	inf, [\stop_heart_sin, \fadeout0, \fadeout1],
-	inf, [\stop_breath, \motion_grains, \fadein2, \fadein3, \fadein4],
-	inf, [\start_rh_onsets, \fadein5, \fadein6, \fadein7],
-	inf, [\stop_rh_onsets],
-	inf, [\start_motion1, \fadein8, \fadein9, \fadein10],
+	inf, [\start_heart_perc2, \stop_heart_sin, \stop_breath, \fadeout0, \fadeout1],
+	inf, [\motion_grains, \fadein2, \fadein3, \fadein4],
+	inf, [\motion_grains, \start_rh_onsets, \fadein5, \fadein6, \fadein7],
+	inf, [\motion_grains, \start_lh_onsets, \fadein8, \fadein9, \fadein10],
+	inf, [\motion_grains, \stop_rh_onsets, \stop_lh_onsets, \fadeout8, \fadeout9, \fadeout10],
+	inf, [\stop_heart_perc2],
+	//inf, [\start_motion1],
 ]);
 
 // todo: use RedSeq instead

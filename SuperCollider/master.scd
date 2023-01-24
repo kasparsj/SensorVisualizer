@@ -55,4 +55,5 @@ ProxyChain.add(*[
 ~phi8Master.add(\gverb, 0.1);
 //~phi8Master.add(\tanh, 1);
 //~phi8Master.add(\limiter, 1);
+//~phi8Master.gui;
 )

@@ -1,6 +1,6 @@
 (
 Ndef(\heart_sin, { |amp=0.1, room=0.5|
-	var sig, chain, onset, noise, ecg, ecgNorm;
+	var sig, chain, onset, noise, ecg, ecgNorm, vbap;
 	ecg = In.kr(~ecgBus.index);
 	ecgNorm = In.kr(~ecgNormBus.index);
 	noise = LFNoise0.ar(1/20);
@@ -16,11 +16,14 @@ Ndef(\heart_sin, { |amp=0.1, room=0.5|
 	sig = Compander.ar(sig, sig);
 
 	Out.ar(~recordBus.index, sig*amp);
-	sig*amp;
+	//Out.ar(9 + (25 * LFNoise2.kr(1/4)).round, sig*amp);
+	//vbap = VBAP.ar(~vbapList.size, sig*amp, ~vbapBuf.bufnum, LFNoise2.kr(1/3)*180, 30, 20);
+	//Out.ar(0, vbap);
+	sig*amp
 });
 
-Ndef(\heart_perc, { |room=0.5, amp=1.0|
-	var sig, env, ecgNorm, hr, onset;
+Ndef(\heart_perc, { |room=0.5, amp=0.25|
+	var sig, env, ecgNorm, hr, onset, vbap;
 	ecgNorm = In.kr(~ecgNormBus.index);
 	hr = In.kr(~hrBus.index);
 	onset = In.kr(~onsetBus.index);
@@ -30,6 +33,9 @@ Ndef(\heart_perc, { |room=0.5, amp=1.0|
 	//sig = FreeVerb.ar(sig, room: room);
 
 	Out.ar(~recordBus.index+1, sig*amp);
+	//Out.ar(9 + (25 * LFNoise2.kr(1/4)).round, sig*amp);
+	//vbap = VBAP.ar(~vbapList.size, sig*amp, ~vbapBuf.bufnum, LFNoise2.kr(1/3)*180, 30, 20);
+	//Out.ar(0, vbap);
 	sig*amp;
 });
 
@@ -150,7 +156,7 @@ Ndef(\breath, { |amp=1.0|
 	sig!2*amp;
 });
 
-Ndef(\rh_onsets, { |amp=1.0|
+Ndef(\rh_onsets, { |amp=0|
 	var acc = In.kr(~rhAccNormBus.index, 4);
 	var compNorm = In.kr(~compNormBus.index);
 	// var harm = LFNoise2.kr(0.3,0.25,0.25);
@@ -163,9 +169,30 @@ Ndef(\rh_onsets, { |amp=1.0|
 	var trigger = Onsets.kr(chain, 0.75, \rcomplex, 0.01, 0.1, 1);
 	//var trigger = Onsets.kr(chain, 0.75);
 	var out = 10 + (25 * compNorm);
-	var sig = MiPlaits.ar(80-(acc[3]*80), 5, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
+	var sig = MiPlaits.ar(80-(acc[3]*80), 6, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
 	//var sig = MiPlaits.ar(80-(acc[3]*80), compNorm*15, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
 	//sig = sig + MiPlaits.ar(36-(acc[3]*24), 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
-	sig;
+	Out.ar(9 + (25 * compNorm).round, sig*amp);
+	sig*amp*0;
+});
+
+Ndef(\lh_onsets, { |amp=0|
+	var acc = In.kr(~lhAccNormBus.index, 4);
+	var compNorm = In.kr(~compNormBus.index);
+	// var harm = LFNoise2.kr(0.3,0.25,0.25);
+	// var timbre = LFNoise1.kr(0.4,0.5,0.5);
+	var timbre = (acc[0]+1)/2;
+	var harm = (acc[1]+1)/2;
+	//var dec = LFNoise2.kr(0.2).range(0.01,0.8);
+	var dec = acc[3];
+	var chain = FFT(LocalBuf(128), acc[3]);
+	var trigger = Onsets.kr(chain, 0.75, \rcomplex, 0.01, 0.1, 1);
+	//var trigger = Onsets.kr(chain, 0.75);
+	var out = 10 + (25 * compNorm);
+	// var sig = MiPlaits.ar(80-(acc[3]*80), 6, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
+	var sig = MiPlaits.ar(80-(acc[3]*80), compNorm*15, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
+	// sig = sig + MiPlaits.ar(36-(acc[3]*24), 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
+	Out.ar(9 + (25 * compNorm).round, sig*amp);
+	sig*amp*0;
 });
 )

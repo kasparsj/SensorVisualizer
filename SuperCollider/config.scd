@@ -33,4 +33,7 @@ r = nil;
 ~breathBus = Bus.control(Server.default, 1);
 ~recordBus.free;
 ~recordBus = Bus.audio(Server.default, 7);
+// ~scale = Scale.minorPentatonic;
+~scale = Scale.majorPentatonic;
+// ~scale = Scale.phrygian;
 )
