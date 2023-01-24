@@ -68,29 +68,25 @@ Ndef(\heart_perc2, { |room=0.5, amp=1.0|
 Ndef(\motion1, { |room=0.5, amp=1.0, pan=0|
 	var sig;
 	var hr = In.kr(~hrBus.index);
-	var acc = In.kr(~chestAccBus.index, 5);
-	var x = acc[0]/500;
-	var y = acc[1]/500;
-	var z = acc[2]/500;
-	var mag = acc[4];
-	var timb = (x.clip(-1, 1)+1)/2;
-	var color = (y.clip(-1, 1)+1)/2;
+	var acc = In.kr(~chestAccNormBus.index, 4);
+	var timb = (acc[0]+1)/2;
+	var color = (acc[1]+1)/2;
 
 	// sig = MiBraids.ar(hr/2, timb.clip(0, 1), color.clip(0, 1), 28+(hr/6).floor, resamp: 0, ws: z.abs.clip(0, 1));
 	//sig = MiBraids.ar(12+(timb*60), timb.clip(0, 1), color.clip(0, 1), 28+(hr/6).floor, resamp: 0);
 	// sig = MiBraids.ar(hr, timb.clip(0, 1), color.clip(0, 1), 28+(hr/12).floor, resamp: 1, ws: z.abs.clip(0, 1));
 
-	sig = MiPlaits.ar(12+(color*12), (7-(hr/16).floor).clip(0, 15), color, timb, z.abs.clip(0, 1));
+	sig = MiPlaits.ar(12+(color*12), (7-(hr/16).floor).clip(0, 15), color, timb, (acc[3]+1)/2);
 	// sig = MiPlaits.ar(24+(color*12), 2, color, timb, z.abs.clip(0, 1));
 
 	// sig = BPF.ar(sig, hr.midicps*z); // do NOT
 	sig = MiVerb.ar(sig);
 
 	// try this out:
-	//sig = sig * LFSaw.kr(1/20, 1).range(0.01, mag*amp);
+	//sig = sig * LFSaw.kr(1/20, 1).range(0.01, acc[3]*amp);
 	//sig = sig * Line.kr(0, 1.1, 180);
 
-	sig = Balance2.ar(sig[0], sig[1], pan, amp*mag);
+	sig = Balance2.ar(sig[0], sig[1], pan, amp*acc[3]);
 
 	Out.ar(~recordBus.index+3, sig);
 	sig;
@@ -155,25 +151,21 @@ Ndef(\breath, { |amp=1.0|
 });
 
 Ndef(\rh_onsets, { |amp=1.0|
-	var acc = In.kr(~rhAccBus.index, 5);
+	var acc = In.kr(~rhAccNormBus.index, 4);
 	var compNorm = In.kr(~compNormBus.index);
 	// var harm = LFNoise2.kr(0.3,0.25,0.25);
 	// var timbre = LFNoise1.kr(0.4,0.5,0.5);
-	var x = acc[0]/2;
-	var y = acc[1]/2;
-	var z = acc[2]/2;
-	var mag = acc[4];
-	var timbre = (x.clip(-1, 1)+1)/2;
-	var harm = (y.clip(-1, 1)+1)/2;
+	var timbre = (acc[0]+1)/2;
+	var harm = (acc[1]+1)/2;
 	//var dec = LFNoise2.kr(0.2).range(0.01,0.8);
-	var dec = mag;
-	var chain = FFT(LocalBuf(128), acc[4]);
+	var dec = acc[3];
+	var chain = FFT(LocalBuf(128), acc[3]);
 	var trigger = Onsets.kr(chain, 0.75, \rcomplex, 0.01, 0.1, 1);
 	//var trigger = Onsets.kr(chain, 0.75);
 	var out = 10 + (25 * compNorm);
-	var sig = MiPlaits.ar(80-(mag*80), 5, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
-	//var sig = MiPlaits.ar(80-(mag*80), compNorm*15, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
-	//sig = sig + MiPlaits.ar(36-(mag*24), 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
+	var sig = MiPlaits.ar(80-(acc[3]*80), 5, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
+	//var sig = MiPlaits.ar(80-(acc[3]*80), compNorm*15, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
+	//sig = sig + MiPlaits.ar(36-(acc[3]*24), 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
 	sig;
 });
 )

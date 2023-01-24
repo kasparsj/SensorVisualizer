@@ -16,10 +16,16 @@ s.waitForBoot {
 	~compNormBus = Bus.control(Server.default, 1);
 	~chestAccBus.free;
 	~chestAccBus = Bus.control(Server.default, 5);
+	~chestAccNormBus.free;
+	~chestAccNormBus = Bus.control(Server.default, 4);
 	~rhAccBus.free;
 	~rhAccBus = Bus.control(Server.default, 5);
+	~rhAccNormBus.free;
+	~rhAccNormBus = Bus.control(Server.default, 4);
 	~lhAccBus.free;
 	~lhAccBus = Bus.control(Server.default, 5);
+	~lhAccNormBus.free;
+	~lhAccNormBus = Bus.control(Server.default, 4);
 	~breathBus.free;
 	~breathBus = Bus.control(Server.default, 1);
 	~recordBus.free;

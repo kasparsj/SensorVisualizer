@@ -34,15 +34,24 @@ OSCdef(\hr, {|msg, time, addr, recvPort|
 // }, ~prefix++"/quat");
 
 OSCdef(\acc, {|msg, time, addr, recvPort|
-	var data = msg[1..]; // deviceId, x, y, z, mag, magPerc, magDeltaSum, magDeltaSumPerc, heading
-	if (data[0].asString() == "7E37D222", {
-		~chestAccBus.setn(data[1..6]);
+	// deviceId, x, y, z, mag, magPerc, magDeltaSum, magDeltaSumPerc, heading
+	if (msg[1].asString() == "7E37D222", {
+		var chestAcc = msg[2..6];
+		var chestAccNorm = (chestAcc[0..2]/500).clip(-1, 1) ++ chestAcc[4];
+		~chestAccBus.setn(chestAcc);
+		~chestAccNormBus.setn(chestAccNorm);
 	});
-	if (data[0].asString() == "m5StickC", {
-		~lhAccBus.setn(data[1..6]);
+	if (msg[1].asString() == "m5StickC", {
+		var lhAcc = msg[2..6];
+		var lhAccNorm = (lhAcc[0..2]/5).clip(-1, 1) ++ lhAcc[4];
+		~lhAccBus.setn(lhAcc);
+		~lhAccNormBus.setn(lhAccNorm);
 	});
-	if (data[0].asString() == "GyrOSC", {
-		~rhAccBus.setn(data[1..6]);
+	if (msg[1].asString() == "GyrOSC", {
+		var rhAcc = msg[2..6];
+		var rhAccNorm = (rhAcc[0..2]/2).clip(-1, 1) ++ rhAcc[4];
+		~rhAccBus.setn(rhAcc);
+		~rhAccNormBus.setn(rhAccNorm);
 	});
 }, ~prefix++"/acc");
 
@@ -95,7 +104,9 @@ Tdef(\ecg_loop, { loop {
 Tdef(\acc_loop, { loop {
 	if (~acc.size > 0) {
 		var val = ~acc[0..(~numAccBatchArgs-1)];
+		var valNorm = (val[0..2]/500).clip(-1, 1) ++ val[4];
 		~chestAccBus.setnSynchronous(val);
+		~chestAccNormBus.setnSynchronous(valNorm);
 		~acc = ~acc[~numAccBatchArgs..];
 	};
 	(1.0/200).wait;
