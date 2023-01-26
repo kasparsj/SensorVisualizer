@@ -236,6 +236,38 @@ public class Quaternion
     return new PVector(rot.x, rot.z);
   }
   
+  Matrix4x4 toMatrix() {
+    float sqw = w * w;
+    float sqx = x * x;
+    float sqy = y * y;
+    float sqz = z * z;
+    
+    Matrix4x4 m = new Matrix4x4();
+    m.setToIdentity();
+
+    // invs (inverse square length) is only required if quaternion is not already normalised
+    float invs = 1 / (sqx + sqy + sqz + sqw);
+    m.setVal(0, 0, ( sqx - sqy - sqz + sqw) * invs); // since sqw + sqx + sqy + sqz =1/invs*invs
+    m.setVal(1, 1, (-sqx + sqy - sqz + sqw) * invs);
+    m.setVal(2, 2, (-sqx - sqy + sqz + sqw) * invs);
+    
+    float tmp1 = x * y;
+    float tmp2 = z * w;
+    m.setVal(1, 0, 2F * (tmp1 + tmp2) * invs);
+    m.setVal(0, 1, 2F * (tmp1 - tmp2) * invs);
+    
+    tmp1 = x * z;
+    tmp2 = y * w;
+    m.setVal(2, 0, 2F * (tmp1 - tmp2)*invs);
+    m.setVal(0, 2, 2F * (tmp1 + tmp2)*invs);
+    tmp1 = y * z;
+    tmp2 = x * w;
+    m.setVal(2, 1, 2F * (tmp1 + tmp2)*invs);
+    m.setVal(1, 2, 2F * (tmp1 - tmp2)*invs);
+    
+    return m;
+  }
+  
   public String toString() {
     return "[ " + x + ", " + y + ", " + z + ", " + w + " ]";
   }

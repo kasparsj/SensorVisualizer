@@ -152,13 +152,11 @@ public class QuatDisplay extends RotationStats {
     scale(4, 4, 4);
     
     if (quat != null) {
-      // this works with DMP quats
-      PVector angles;
-      angles = quat.toEuler();
-      // the order is important!
-      rotateZ(-angles.x); // roll
-      rotateX(-angles.y); // pitch
-      rotateY(angles.z); // yaw
+      Matrix4x4 m = quat.toMatrix();
+      applyMatrix(m.val(0, 0), m.val(0, 1), m.val(0, 2), m.val(0, 3),
+        m.val(1, 0), m.val(1, 1), m.val(1, 2), m.val(1, 3),
+        m.val(2, 0), m.val(2, 1), m.val(2, 2), m.val(2, 3),
+        m.val(3, 0), m.val(3, 1), m.val(3, 2), m.val(3, 3));
     }
 
     buildBoxShape();
