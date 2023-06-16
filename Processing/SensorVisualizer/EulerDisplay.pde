@@ -37,10 +37,12 @@ public class EulerDisplay extends VectorDisplay {
     PVector angles;
     if (value == null || device.fusion != null) {
       angles = device.getEulerAngles();
-      preventGimbalLock(angles);
-      if (histLen > 0) {
-        if (!(device.isPlaying && device.isPaused)) {
-          updateHist(angles, null);
+      if (angles != null) {
+        preventGimbalLock(angles);
+        if (histLen > 0) {
+          if (!(device.isPlaying && device.isPaused)) {
+            updateHist(angles, null);
+          }
         }
       }
     }
