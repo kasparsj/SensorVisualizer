@@ -1,5 +1,8 @@
 public class EulerDisplay extends VectorDisplay {
   
+  int glAngle = 70;
+  boolean glPrevent = true;
+  
   EulerDisplay(int firstArg, float x, float y, float w, float h, int histLen) {
     super(firstArg, x, y, w, h, histLen);
     type = SensorType.EULER;
@@ -14,26 +17,31 @@ public class EulerDisplay extends VectorDisplay {
     this(1);
   }
   
-  void update(PVector val) {
-    correctFlip(val);
-    super.update(val);
+  void preventGimbalLock(PVector val) {
+    if (glPrevent) {
+      if (Math.abs(val.y) > radians(glAngle)) {
+        val.y = values.get(histCursor >= 0 ? histCursor : histLen+histCursor).y;
+      }
+      if (Math.abs(val.x) > radians(glAngle)) {
+        val.x = values.get(histCursor >= 0 ? histCursor : histLen+histCursor).x;
+      }
+    }
   }
   
-  void correctFlip(PVector angles) {
-    if (value != null) {
-      angles.x = correctAngleFlip(angles.x, value.x);
-      angles.y = correctAngleFlip(angles.y, value.y);
-      angles.z = correctAngleFlip(angles.z, value.z);
-    }
+  void update(PVector val) {
+    preventGimbalLock(val);
+    super.update(val);
   }
   
   void draw(float w, float h) {
     PVector angles;
     if (value == null || device.fusion != null) {
       angles = device.getEulerAngles();
-      correctFlip(angles);
-      if (!(device.isPlaying && device.isPaused)) {
-        updateHist(angles, null);
+      preventGimbalLock(angles);
+      if (histLen > 0) {
+        if (!(device.isPlaying && device.isPaused)) {
+          updateHist(angles, null);
+        }
       }
     }
     else {
@@ -42,6 +50,8 @@ public class EulerDisplay extends VectorDisplay {
     if (angles == null) {
       return;
     }
+    
+    text("GL prevent:" + (glPrevent ? " " + glAngle : " OFF"), 20, 20);
     
     drawAngles(angles, w/3, h/4);
     
@@ -61,9 +71,9 @@ public class EulerDisplay extends VectorDisplay {
     
     pushStyle();
     fill(255);
-    text("roll "+nf(angles.x, 0, 2), 20, h);
-    text("pitch "+nf(angles.y, 0, 2), w+20, h);
-    text("yaw "+nf(angles.z, 0, 2), 2*w+20, h);
+    text("roll "+nf(angles.x, 0, 2) + " / " + nf(degrees(angles.x), 0, 1) + "°", 20, h);
+    text("pitch "+nf(angles.y, 0, 2) + " / " + nf(degrees(angles.y), 0, 1) + "°", w+20, h);
+    text("yaw "+nf(angles.z, 0, 2) + " / " + nf(degrees(angles.z), 0, 1) + "°", 2*w+20, h);
   
     // roll
     pushMatrix();
@@ -114,9 +124,9 @@ public class EulerDisplay extends VectorDisplay {
     for (int i=0; i<values.size(); i++) {
       PVector val = values.get(i);
       if (val != null) {
-        rolls[i] = values.get(i).x / TWO_PI;
-        pitches[i] = values.get(i).y / TWO_PI;
-        yaws[i] = values.get(i).z / TWO_PI;
+        rolls[i] = values.get(i).x / PI;
+        pitches[i] = values.get(i).y / PI;
+        yaws[i] = values.get(i).z / PI;
       }
       else {
         rolls[i] = 0F;
@@ -131,7 +141,7 @@ public class EulerDisplay extends VectorDisplay {
     pushStyle();
     noFill();
     stroke(255, 0, 0);
-    plot2D(rolls, w - 40, h - 40, histCursor);
+    plot2D(rolls, w - 40, h/2 - 20, histCursor);
     popStyle();
     popMatrix();
     
@@ -141,7 +151,7 @@ public class EulerDisplay extends VectorDisplay {
     pushStyle();
     noFill();
     stroke(255, 0, 0);
-    plot2D(pitches, w - 40, h - 40, histCursor);
+    plot2D(pitches, w - 40, h/2 - 20, histCursor);
     popStyle();
     popMatrix();
     
@@ -151,7 +161,7 @@ public class EulerDisplay extends VectorDisplay {
     pushStyle();
     noFill();
     stroke(255, 0, 0);
-    plot2D(yaws, w - 40, h - 40, histCursor);
+    plot2D(yaws, w - 40, h/2 - 20, histCursor);
     popStyle();
     popMatrix();
   }

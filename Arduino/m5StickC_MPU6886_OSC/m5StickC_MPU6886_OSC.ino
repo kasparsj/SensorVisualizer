@@ -7,18 +7,13 @@
 #include "esp_wpa2.h"
 #include <WiFi.h>
 #include <ArduinoOSCWiFi.h>
+#include <Adafruit_AHRS.h>
 
 #define DEVICE_ID "m5StickC"
 #define ENV_HAT_ENABLED 1
 #define OSC_PREFIX "/polar"
 #define SEND_QUAT 1
 #define sampleFreq  60.0f // todo: find a way to change this, looks like this over the maximum
-
-// #define SSID "saules gaisma"
-// #define PASSWORD "normalbabyy"
-
-// #define SSID "toplap"
-// #define PASSWORD ""
 
 #define SSID "toplap-ka"
 #define PASSWORD "toplap-ka"
@@ -27,16 +22,18 @@
 // #define EAP_IDENTITY "kaspars"
 // #define EAP_PASSWORD "KHD.Tj7.Uov"
 
-// const char* oscAddress = "100.123.26.44";
-//const char* oscAddress = "192.168.62.155";
-// const char* oscAddress = "192.168.1.114";
-const char* oscAddress = "192.168.79.155";
+const char* oscAddress = "kaspars.local";
 const int oscPort = 57121;
 String oscPrefix = String(OSC_PREFIX);
 
 // IMU
+//Adafruit_NXPSensorFusion filter; // slowest
+//Adafruit_Madgwick filter;  // faster than NXP
+Adafruit_Mahony filter;  // fastest/smalleset
+
 float accX, accY, accZ = 0;
 float gyroX, gyroY, gyroZ = 0;
+float qx, qy, qz, qw = 0;
 float pitch, roll, yaw = 0;
 float temp = 0;
 
@@ -80,6 +77,8 @@ void setup() {
 
   pinMode(BUTTON_A_PIN, INPUT);
   pinMode(BUTTON_B_PIN, INPUT);
+
+  filter.begin(sampleFreq);
 }
 
 void setupWifi() {
@@ -216,20 +215,33 @@ void loop() {
     printStatus();
     delay(100);
   }
-  else {
-    if ((ms - lastMs) >= (1000.f / sampleFreq)) {
-      handleButtons();
-      updateIMU();
-      updateENV();
-      sendOSC();
-      M5.Lcd.setCursor(0, 0);
-      M5.Lcd.println("RECORDING");
-      printIMU();
-      printENV();
-      printStatus();
-      lastMs = ms;
-    }
+  if ((ms - lastMs) < (1000.f / sampleFreq)) {
+    return;
   }
+  handleButtons();
+  updateIMU();
+  updateENV();
+  if (bmmInitialized) {
+    filter.update(gyroX, gyroY, gyroZ, accX, accY, accZ, magX, magY, magZ);
+  }
+  else {
+    filter.updateIMU(gyroX, gyroY, gyroZ, accX, accY, accZ);
+  }
+  #if (SEND_QUAT)
+    filter.getQuaternion(&qw, &qx, &qy, &qz);
+  #else
+    roll = filter.getRoll();
+    pitch = filter.getPitch();
+    yaw = filter.getYaw();
+  #endif
+
+  sendOSC();
+  M5.Lcd.setCursor(0, 0);
+  M5.Lcd.println("RECORDING");
+  printIMU();
+  printENV();
+  printStatus();
+  lastMs = ms;
 }
 
 void handleButtons() {
@@ -253,7 +265,6 @@ void handleButtons() {
 void updateIMU() {
   M5.IMU.getAccelData(&accX, &accY, &accZ);
   M5.IMU.getGyroData(&gyroX, &gyroY, &gyroZ);
-  M5.IMU.getAhrsData(&pitch, &roll, &yaw);
   M5.IMU.getTempData(&temp);
 }
 
@@ -303,26 +314,10 @@ void updateBMP() {
 void sendOSC() {
   OscWiFi.send(oscAddress, oscPort, oscPrefix + "/acc", DEVICE_ID, accX, accY, accZ);
   OscWiFi.send(oscAddress, oscPort, oscPrefix + "/gyro_deg", DEVICE_ID, gyroX, gyroY, gyroZ);
-  
-  float rollRad = roll * M_PI/180.f;
-  float pitchRad = pitch * M_PI/180.f;
-  float yawRad = yaw * M_PI/180.f;
   #if SEND_QUAT
-  float cosX2 = cos(rollRad / 2.0f);
-  float sinX2 = sin(rollRad / 2.0f);
-  float cosY2 = cos(pitchRad / 2.0f);
-  float sinY2 = sin(pitchRad / 2.0f);
-  float cosZ2 = cos(yawRad / 2.0f);
-  float sinZ2 = sin(yawRad / 2.0f);
-
-  float qw = cosX2 * cosY2 * cosZ2 + sinX2 * sinY2 * sinZ2;
-  float qx = sinX2 * cosY2 * cosZ2 - cosX2 * sinY2 * sinZ2;
-  float qy = cosX2 * sinY2 * cosZ2 + sinX2 * cosY2 * sinZ2;
-  float qz = cosX2 * cosY2 * sinZ2 - sinX2 * sinY2 * cosZ2;
-
   OscWiFi.send(oscAddress, oscPort, oscPrefix + "/quat", DEVICE_ID, qx, qy, qz, qw);
   #else
-  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/euler", DEVICE_ID, rollRad, pitchRad, yawRad);
+  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/euler_deg", DEVICE_ID, roll, pitch, yaw);
   #endif
 
   if (bmeInitialized) {

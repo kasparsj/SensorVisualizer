@@ -27,11 +27,13 @@ public class QuatDisplay extends RotationStats {
       PVector euler = device.getEulerAngles();
       if (euler != null) {
         quat = (new Quaternion()).fromEuler(euler);
-        if (prevVal() != null) {
-          quat.preventFlip(prevVal());
-        }
-        if (!(device.isPlaying && device.isPaused)) {
-          updateHist(quat, null);
+        if (histLen > 0) {
+          if (prevVal() != null) {
+            quat.preventFlip(prevVal());
+          }
+          if (!(device.isPlaying && device.isPaused)) {
+            updateHist(quat, null);
+          }
         }
       }
     }
@@ -171,5 +173,12 @@ public class QuatDisplay extends RotationStats {
 
     buildBoxShape();
     popMatrix();
+  }
+  
+  PVector getOrigEulerAngles() {
+    if (value == null) {
+      return null;
+    }
+    return value.toEuler();
   }
 }

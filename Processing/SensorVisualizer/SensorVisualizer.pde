@@ -95,7 +95,7 @@ String getOscPrefix(String addrPattern) {
 }
 
 boolean isGyrOsc(String addrPattern) {
-  return addrPattern.substring(0, 7).equals("/gyrosc");
+  return addrPattern.substring(0, min(7, addrPattern.length())).equals("/gyrosc");
 }
 
 Device getOrCreateDevice(String deviceId, String inPrefix, int firstArg) {
@@ -339,14 +339,4 @@ void compass2D(PVector vector, float d) {
 
 <T>void plotMagnitude(T[] hist, float w, float h) {
   plotMagnitude(hist, w, h, 0);
-}
-
-float correctAngleFlip(float nextAngle, float previousAngle) {
-  float difference = nextAngle - previousAngle;
-  if (difference < -PI) {
-      return nextAngle + TWO_PI;
-  } else if (difference > PI) {
-      return nextAngle - TWO_PI;
-  }
-  return nextAngle;
 }

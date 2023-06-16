@@ -178,17 +178,17 @@ public class Quaternion
   }
   
   public Quaternion fromEuler(PVector euler) {
-    float cosX2 = (float) Math.cos(euler.x / 2.0f);
-    float sinX2 = (float) Math.sin(euler.x / 2.0f);
-    float cosY2 = (float) Math.cos(euler.y / 2.0f);
-    float sinY2 = (float) Math.sin(euler.y / 2.0f);
-    float cosZ2 = (float) Math.cos(euler.z / 2.0f);
-    float sinZ2 = (float) Math.sin(euler.z / 2.0f);
+    float cosR = (float) Math.cos(euler.x / 2.0f);
+    float sinR = (float) Math.sin(euler.x / 2.0f);
+    float cosP = (float) Math.cos(euler.y / 2.0f);
+    float sinP = (float) Math.sin(euler.y / 2.0f);
+    float cosY = (float) Math.cos(euler.z / 2.0f);
+    float sinY = (float) Math.sin(euler.z / 2.0f);
 
-    w = cosX2 * cosY2 * cosZ2 + sinX2 * sinY2 * sinZ2;
-    x = sinX2 * cosY2 * cosZ2 - cosX2 * sinY2 * sinZ2;
-    y = cosX2 * sinY2 * cosZ2 + sinX2 * cosY2 * sinZ2;
-    z = cosX2 * cosY2 * sinZ2 - sinX2 * sinY2 * cosZ2;
+    w = cosR * cosP * cosY + sinR * sinP * sinY;
+    x = sinR * cosP * cosY - cosR * sinP * sinY;
+    y = cosR * sinP * cosY + sinR * cosP * sinY;
+    z = cosR * cosP * sinY - sinR * sinP * cosY;
     
     //return normalize();
     return this;

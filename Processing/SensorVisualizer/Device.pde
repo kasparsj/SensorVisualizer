@@ -106,6 +106,12 @@ public class Device {
         return fusion.getEulerAngles();
       } 
     }
+    if (hasEuler() && getEuler().value != null) {
+      return getEuler().val();
+    }
+    if (hasQuat()) {
+      return getQuat().getOrigEulerAngles();  
+    }
     if (hasAccelerometer()) {
       return getAccelerometer().getOrigEulerAngles();
     }
@@ -249,6 +255,14 @@ public class Device {
   EulerDisplay getEuler() {
     return ((EulerDisplay) sensors.get(SensorType.EULER));
   }
+  
+  boolean hasQuat() {
+    return sensors.get(SensorType.QUAT) != null;
+  }
+  
+  QuatDisplay getQuat() {
+    return ((QuatDisplay) sensors.get(SensorType.QUAT));
+  }
     
   PrintWriter getOrCreateRecorder(SensorType st) {
     PrintWriter recorder = recorders.get(st);
@@ -289,16 +303,16 @@ public class Device {
       return true;
     }
     if (key == 'e') {
-      toggleVisible(SensorType.EULER);
-      if (sensors.get(SensorType.QUAT) != null) {
-        sensors.get(SensorType.QUAT).visible = false;
+      boolean vis = toggleVisible(SensorType.EULER);
+      if (vis && hasQuat()) {
+        getQuat().visible = false;
       }
       return true;
     }
     if (key == 'q') {
-      toggleVisible(SensorType.QUAT);
-      if (sensors.get(SensorType.EULER) != null) {
-        sensors.get(SensorType.EULER).visible = false;
+      boolean vis = toggleVisible(SensorType.QUAT);
+      if (vis && hasEuler()) {
+        getEuler().visible = false;
       }
       return true;
     }
@@ -312,6 +326,12 @@ public class Device {
     }
     if (key == 'p') {
       startPlaying();
+      return true;
+    }
+    if (key == 'g') {
+      if (hasEuler()) {
+        getEuler().glPrevent = !getEuler().glPrevent;
+      }
       return true;
     }
     if (curSensor != null && curSensor.keyPressed()) {
@@ -343,7 +363,7 @@ public class Device {
     }
   }
   
-  void toggleVisible(SensorType st) {
+  boolean toggleVisible(SensorType st) {
     SensorDisplay sensor = sensors.get(st);
     if (sensor == null) {
       sensor = getOrCreateSensor(st);
@@ -351,6 +371,7 @@ public class Device {
     else {
       sensor.visible = !sensor.visible;
     }
+    return sensor.visible;
   }
   
   void toggleRecording() {
