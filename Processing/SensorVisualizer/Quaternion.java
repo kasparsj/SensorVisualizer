@@ -1,4 +1,5 @@
 import processing.core.PVector;
+import processing.core.PMatrix3D;
 
 // https://github.com/kynd/PQuaternion
 // https://behreajj.medium.com/3d-rotations-in-processing-vectors-matrices-quaternions-10e2fed5f0a3
@@ -247,36 +248,15 @@ public class Quaternion
     return new PVector(rot.x, rot.z);
   }
   
-  Matrix4x4 toMatrix() {
-    float sqw = w * w;
-    float sqx = x * x;
-    float sqy = y * y;
-    float sqz = z * z;
-    
-    Matrix4x4 m = new Matrix4x4();
-    m.setToIdentity();
-
-    // invs (inverse square length) is only required if quaternion is not already normalised
-    float invs = 1 / (sqx + sqy + sqz + sqw);
-    m.setVal(0, 0, ( sqx - sqy - sqz + sqw) * invs); // since sqw + sqx + sqy + sqz =1/invs*invs
-    m.setVal(1, 1, (-sqx + sqy - sqz + sqw) * invs);
-    m.setVal(2, 2, (-sqx - sqy + sqz + sqw) * invs);
-    
-    float tmp1 = x * y;
-    float tmp2 = z * w;
-    m.setVal(1, 0, 2F * (tmp1 + tmp2) * invs);
-    m.setVal(0, 1, 2F * (tmp1 - tmp2) * invs);
-    
-    tmp1 = x * z;
-    tmp2 = y * w;
-    m.setVal(2, 0, 2F * (tmp1 - tmp2)*invs);
-    m.setVal(0, 2, 2F * (tmp1 + tmp2)*invs);
-    tmp1 = y * z;
-    tmp2 = x * w;
-    m.setVal(2, 1, 2F * (tmp1 + tmp2)*invs);
-    m.setVal(1, 2, 2F * (tmp1 - tmp2)*invs);
-    
-    return m;
+  PMatrix3D toMatrix() {
+    normalize();
+    PMatrix3D matrix = new PMatrix3D(
+      1 - 2*y*y - 2*z*z, 2*x*y - 2*z*w, 2*x*z + 2*y*w, 0,
+      2*x*y + 2*z*w, 1 - 2*x*x - 2*z*z, 2*y*z - 2*x*w, 0,
+      2*x*z - 2*y*w, 2*y*z + 2*x*w, 1 - 2*x*x - 2*y*y, 0,
+      0, 0, 0, 1
+    );
+    return matrix;
   }
   
   public String toString() {
