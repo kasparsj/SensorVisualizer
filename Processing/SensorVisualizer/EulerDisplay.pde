@@ -1,6 +1,6 @@
 public class EulerDisplay extends VectorDisplay {
   
-  int glAngle = 70;
+  int glAngle = 65;
   boolean glPrevent = true;
   
   EulerDisplay(int firstArg, float x, float y, float w, float h, int histLen) {

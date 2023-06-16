@@ -213,7 +213,8 @@ void loop() {
     M5.Lcd.setCursor(0, 0);
     M5.Lcd.println("PAUSED");
     printStatus();
-    delay(100);
+    delay(200);
+    return;
   }
   if ((ms - lastMs) < (1000.f / sampleFreq)) {
     return;
