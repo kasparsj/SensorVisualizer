@@ -121,6 +121,7 @@ public class Device {
       switch (msg.addrPattern().substring(inPrefix.length())) {
         case "/acc":
         case "/accel":
+        case "/accelerometer":
           sensor = getOrCreateSensor(SensorType.ACC);
           break;
         case "/gyro":

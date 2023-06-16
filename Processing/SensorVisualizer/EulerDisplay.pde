@@ -14,10 +14,24 @@ public class EulerDisplay extends VectorDisplay {
     this(1);
   }
   
+  void update(PVector val) {
+    correctFlip(val);
+    super.update(val);
+  }
+  
+  void correctFlip(PVector angles) {
+    if (value != null) {
+      angles.x = correctAngleFlip(angles.x, value.x);
+      angles.y = correctAngleFlip(angles.y, value.y);
+      angles.z = correctAngleFlip(angles.z, value.z);
+    }
+  }
+  
   void draw(float w, float h) {
     PVector angles;
     if (value == null || device.fusion != null) {
       angles = device.getEulerAngles();
+      correctFlip(angles);
       if (!(device.isPlaying && device.isPaused)) {
         updateHist(angles, null);
       }
@@ -64,7 +78,7 @@ public class EulerDisplay extends VectorDisplay {
     popStyle();
     popMatrix();
       
-    // picth
+    // pitch
     pushMatrix();
     translate(w + w/2, h/2);
     pushStyle();

@@ -30,6 +30,17 @@ public class Quaternion
       return new Quaternion(x, y, z, w);
   }
   
+  public Quaternion preventFlip(Quaternion prev) {
+      double dotProduct = dot(prev);
+      if (dotProduct < 0.0) {
+          x = -x;
+          y = -y;
+          z = -z;
+          w = -w;
+      }
+      return this;
+  }
+  
   public Quaternion inverse() {
     float norm = dot();
     if (norm > 0.0) {

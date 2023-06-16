@@ -11,13 +11,17 @@
 #define DEVICE_ID "m5StickC"
 #define ENV_HAT_ENABLED 1
 #define OSC_PREFIX "/polar"
+#define SEND_QUAT 1
 #define sampleFreq  60.0f // todo: find a way to change this, looks like this over the maximum
 
-#define SSID "toplap-ka"
-#define PASSWORD "toplap-ka"
+// #define SSID "saules gaisma"
+// #define PASSWORD "normalbabyy"
 
 // #define SSID "toplap"
 // #define PASSWORD ""
+
+#define SSID "toplap-ka"
+#define PASSWORD "toplap-ka"
 
 // #define SSID "Insternet"
 // #define EAP_IDENTITY "kaspars"
@@ -25,7 +29,8 @@
 
 // const char* oscAddress = "100.123.26.44";
 //const char* oscAddress = "192.168.62.155";
-const char* oscAddress = "192.168.1.131";
+// const char* oscAddress = "192.168.1.114";
+const char* oscAddress = "192.168.79.155";
 const int oscPort = 57121;
 String oscPrefix = String(OSC_PREFIX);
 
@@ -298,7 +303,28 @@ void updateBMP() {
 void sendOSC() {
   OscWiFi.send(oscAddress, oscPort, oscPrefix + "/acc", DEVICE_ID, accX, accY, accZ);
   OscWiFi.send(oscAddress, oscPort, oscPrefix + "/gyro_deg", DEVICE_ID, gyroX, gyroY, gyroZ);
-  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/euler_deg", DEVICE_ID, roll, pitch, yaw);
+  
+  float rollRad = roll * M_PI/180.f;
+  float pitchRad = pitch * M_PI/180.f;
+  float yawRad = yaw * M_PI/180.f;
+  #if SEND_QUAT
+  float cosX2 = cos(rollRad / 2.0f);
+  float sinX2 = sin(rollRad / 2.0f);
+  float cosY2 = cos(pitchRad / 2.0f);
+  float sinY2 = sin(pitchRad / 2.0f);
+  float cosZ2 = cos(yawRad / 2.0f);
+  float sinZ2 = sin(yawRad / 2.0f);
+
+  float qw = cosX2 * cosY2 * cosZ2 + sinX2 * sinY2 * sinZ2;
+  float qx = sinX2 * cosY2 * cosZ2 - cosX2 * sinY2 * sinZ2;
+  float qy = cosX2 * sinY2 * cosZ2 + sinX2 * cosY2 * sinZ2;
+  float qz = cosX2 * cosY2 * sinZ2 - sinX2 * sinY2 * cosZ2;
+
+  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/quat", DEVICE_ID, qx, qy, qz, qw);
+  #else
+  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/euler", DEVICE_ID, rollRad, pitchRad, yawRad);
+  #endif
+
   if (bmeInitialized) {
     OscWiFi.send(oscAddress, oscPort, oscPrefix + "/altitude", DEVICE_ID, alt);
   }

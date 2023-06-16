@@ -18,7 +18,7 @@ abstract class SensorDisplay<T> {
   Device device;
   int firstArg = 0;
   float x = 0, y = 0, w, h;
-  T value;
+  T value = null;
   int minMaxLen = 0;
   T minValue = null;
   T maxValue = null;

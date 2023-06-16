@@ -340,3 +340,13 @@ void compass2D(PVector vector, float d) {
 <T>void plotMagnitude(T[] hist, float w, float h) {
   plotMagnitude(hist, w, h, 0);
 }
+
+float correctAngleFlip(float nextAngle, float previousAngle) {
+  float difference = nextAngle - previousAngle;
+  if (difference < -PI) {
+      return nextAngle + TWO_PI;
+  } else if (difference > PI) {
+      return nextAngle - TWO_PI;
+  }
+  return nextAngle;
+}
