@@ -31,17 +31,6 @@ public class Quaternion
       return new Quaternion(x, y, z, w);
   }
   
-  public Quaternion preventFlip(Quaternion prev) {
-      double dotProduct = dot(prev);
-      if (dotProduct < 0.0) {
-          x = -x;
-          y = -y;
-          z = -z;
-          w = -w;
-      }
-      return this;
-  }
-  
   public Quaternion inverse() {
     float norm = dot();
     if (norm > 0.0) {
@@ -196,26 +185,22 @@ public class Quaternion
   }
   
   public PVector toEuler(PVector euler) {
-    float sqw = w * w;
-    float sqx = x * x;
-    float sqy = y * y;
-    float sqz = z * z;
-    
-    // works but pitch is flipping, when rolling
-    //euler.x = (float) Math.atan2(2 * (y * z - w * x), 2 * (sqw + sqz) - 1); // phi - roll
-    //euler.y = (float) -Math.asin(2 * (x * z + w * y)); // theta - pitch
-    //euler.z = (float) Math.atan2(2 * (x * y - w * z), 2 * (sqw + sqx) - 1); // psi - yaw
-    
-    // works but pitch is flipping many times
-    euler.x = (float) Math.atan2(2.0 * (y * z + w * x), 1 - 2.0 * (sqx + sqy)); // roll
-    euler.y = (float) Math.asin(2.0 * (w * y - x * z)); // picth
-    euler.z = (float) Math.atan2(2.0 * (x * y + w * z), 1 - 2.0 * (sqy + sqz)); // yaw
-    
-    // this is from M5StickC
-    // it works for the box, but does not for the circles
-    //euler.x = atan2(2 * (y * z + w * x), -2 * sqx - 2 * sqy + 1);  // roll
-    //euler.y = asin(2 * (w * y - x * z));  // pitch
-    //euler.z = atan2(2 * (x * y + w * z), sqw + sqx - sqy - sqz);  // yaw
+    // roll (x-axis rotation)
+    double sinr_cosp = 2.0f * (w * x + y * z);
+    double cosr_cosp = 1.0f - 2.0f * (x * x + y * y);
+    euler.x = (float)Math.atan2(sinr_cosp, cosr_cosp);
+
+    // pitch (y-axis rotation)
+    double sinp = 2.0f * (w * y - z * x);
+    if (Math.abs(sinp) >= 1)
+        euler.y = (float)Math.copySign(Math.PI / 2, sinp); // use 90 degrees if out of range
+    else
+        euler.y = (float)Math.asin(sinp);
+
+    // yaw (z-axis rotation)
+    double siny_cosp = 2.0f * (w * z + x * y);
+    double cosy_cosp = 1.0f - 2.0f * (y * y + z * z);
+    euler.z = (float)Math.atan2(siny_cosp, cosy_cosp);
     
     return euler;
   }
@@ -235,26 +220,31 @@ public class Quaternion
   
   PVector projXZ() {
     PVector rot = mult(new PVector(0.0F, 1.0F, 0.0F));
-    return new PVector(rot.x, rot.y);
+    return new PVector(rot.x, rot.z);
   }
   
   PVector projYX() {
-    PVector rot = mult(new PVector(0.0F, 0.0F, 1.0F));
-    return new PVector(rot.x, rot.z);
+    PVector rot = mult(new PVector(1.0F, 0.0F, 0.0F));
+    return new PVector(rot.y, rot.x);
   }
   
   PVector projZY() {
-    PVector rot = mult(new PVector(1.0F, 0.0F, 0.0F));
-    return new PVector(rot.x, rot.z);
+    PVector rot = mult(new PVector(0.0F, 0.0F, 1.0F));
+    return new PVector(rot.z, rot.y);
   }
   
   PMatrix3D toMatrix() {
     normalize();
     PMatrix3D matrix = new PMatrix3D(
-      1 - 2*y*y - 2*z*z, 2*x*y - 2*z*w, 2*x*z + 2*y*w, 0,
-      2*x*y + 2*z*w, 1 - 2*x*x - 2*z*z, 2*y*z - 2*x*w, 0,
-      2*x*z - 2*y*w, 2*y*z + 2*x*w, 1 - 2*x*x - 2*y*y, 0,
+      // todo: still not correct / not like euler
+      1 - 2*y*y - 2*z*z, 2*x*z + 2*y*w, 2*x*y - 2*z*w, 0,
+      2*x*z - 2*y*w, 1 - 2*x*x - 2*y*y, 2*y*z + 2*x*w, 0,
+      2*x*y + 2*z*w, 2*y*z - 2*x*w, 1 - 2*x*x - 2*z*z, 0,
       0, 0, 0, 1
+      //1 - 2*y*y - 2*z*z, 2*x*y - 2*z*w, 2*x*z + 2*y*w, 0,
+      //2*x*y + 2*z*w, 1 - 2*x*x - 2*z*z, 2*y*z - 2*x*w, 0,
+      //2*x*z - 2*y*w, 2*y*z + 2*x*w, 1 - 2*x*x - 2*y*y, 0,
+      //0, 0, 0, 1
     );
     return matrix;
   }

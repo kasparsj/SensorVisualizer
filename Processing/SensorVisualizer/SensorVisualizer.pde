@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.*;
 
-// objects etc.
-//ControlP5 cp5;
 Map<String, Device> devs = new HashMap<String, Device>();
 String cur = "";
 
@@ -22,24 +20,28 @@ NetAddress forwardAddr;
 void setup() {
   //size(1000, 600, P3D);
   fullScreen(P3D);
-
-  oscP5 = new OscP5(this, listenPort);
-  forwardAddr = new NetAddress("127.0.0.1", 57120);
   
   // Polar H10
-  devs.put("7E37D222", new Device("7E37D222", "/polar", outPrefix, 1, new HashMap<SensorType, SensorDisplay>(){{
+  devs.put("7E37D222", new Device("7E37D222", "/sensor", outPrefix, 1, new HashMap<SensorType, SensorDisplay>(){{
       put(SensorType.ACC, new AccDisplay(1, 0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
       put(SensorType.EULER, new EulerDisplay(1, width/2, 0, width/2, height, 500));
       put(SensorType.HR, new HRDisplay(1, 0, height/2, width/4, height/2, 0, 50));
       put(SensorType.ECG, new ECGDisplay(1, width/4, height/2, width/4, height/2, 500));
   }}));
+  
+  devs.put("m5StickC", new Device("m5StickC", "/m5stickc", outPrefix, 1, new HashMap<SensorType, SensorDisplay>(){{
+      put(SensorType.ACC, new AccDisplay(1));
+      EulerDisplay euler = new EulerDisplay(1, true);
+      euler.visible = false;
+      put(SensorType.EULER, euler);
+      put(SensorType.QUAT, new QuatDisplay(1));
+      put(SensorType.GYRO, new GyroDisplay(1));
+  }}));
+  
   cur = devs.keySet().iterator().next();
   
-  //setupGui();
-}
-
-void setupGui() {
-  //cp5 = new ControlP5(this);
+  oscP5 = new OscP5(this, listenPort);
+  forwardAddr = new NetAddress("127.0.0.1", 57120);
 }
 
 void update() {

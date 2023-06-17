@@ -14,13 +14,6 @@ public class QuatDisplay extends RotationStats {
     this(1);
   }
   
-  void update(Quaternion val) {
-    if (value != null) {
-      val.preventFlip(value);
-    }
-    super.update(val);
-  }
-  
   void draw(float w, float h) {
     Quaternion quat = null;
     if (value == null || device.fusion != null) {
@@ -28,9 +21,6 @@ public class QuatDisplay extends RotationStats {
       if (euler != null) {
         quat = (new Quaternion()).fromEuler(euler);
         if (histLen > 0) {
-          if (prevVal() != null) {
-            quat.preventFlip(prevVal());
-          }
           if (!(device.isPlaying && device.isPaused)) {
             updateHist(quat, null);
           }

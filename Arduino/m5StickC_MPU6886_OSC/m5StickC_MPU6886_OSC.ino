@@ -11,9 +11,8 @@
 
 #define DEVICE_ID "m5StickC"
 #define ENV_HAT_ENABLED 1
-#define OSC_PREFIX "/polar"
+#define OSC_PREFIX "/m5stickc"
 #define SEND_QUAT 1
-#define sampleFreq  60.0f // todo: find a way to change this, looks like this over the maximum
 
 #define SSID "toplap-ka"
 #define PASSWORD "toplap-ka"
@@ -36,6 +35,7 @@ float gyroX, gyroY, gyroZ = 0;
 float qx, qy, qz, qw = 0;
 float pitch, roll, yaw = 0;
 float temp = 0;
+float speed = 0;
 
 // ENV HAT
 BMM150 bmm = BMM150();
@@ -54,7 +54,7 @@ int bValue;
 int lastBValue;
 
 // state
-bool paused = true;
+bool paused = false;
 long lastMs = 0;
 
 void setup() {
@@ -73,12 +73,27 @@ void setup() {
   #endif
   M5.Lcd.fillScreen(BLACK);
 
-  lastMs = millis();
-
   pinMode(BUTTON_A_PIN, INPUT);
   pinMode(BUTTON_B_PIN, INPUT);
 
-  filter.begin(sampleFreq);
+  initSpeed();
+  paused = true;
+}
+
+void initSpeed() {
+  int num = 10;
+  float sum = 0.f;
+  for (int i=0; i<num; i++) {
+    loop2(millis());
+    sum += speed;
+  }
+  speed = floor(sum / (float) num);
+  filter.begin(speed);
+
+  Serial.print("speed");
+  Serial.println(speed);
+
+  M5.Lcd.fillScreen(BLACK);
 }
 
 void setupWifi() {
@@ -208,40 +223,26 @@ void calibrateBmm(uint32_t timeout)
 
 void loop() {
   long ms = millis();
+  if (speed > 0 && (ms - lastMs) < (1000.f / speed)) {
+    return;
+  }
+  loop2(ms);
+}
+
+void loop2(long ms) {
+  handleButtons();
   if (paused) {
-    handleButtons();
     M5.Lcd.setCursor(0, 0);
     M5.Lcd.println("PAUSED");
-    printStatus();
+    printBattery();
     delay(200);
     return;
   }
-  if ((ms - lastMs) < (1000.f / sampleFreq)) {
-    return;
-  }
-  handleButtons();
-  updateIMU();
-  updateENV();
-  if (bmmInitialized) {
-    filter.update(gyroX, gyroY, gyroZ, accX, accY, accZ, magX, magY, magZ);
-  }
-  else {
-    filter.updateIMU(gyroX, gyroY, gyroZ, accX, accY, accZ);
-  }
-  #if (SEND_QUAT)
-    filter.getQuaternion(&qw, &qx, &qy, &qz);
-  #else
-    roll = filter.getRoll();
-    pitch = filter.getPitch();
-    yaw = filter.getYaw();
-  #endif
+  update();
+  print();
 
-  sendOSC();
-  M5.Lcd.setCursor(0, 0);
-  M5.Lcd.println("RECORDING");
-  printIMU();
-  printENV();
-  printStatus();
+  speed = floor(1000.f / (millis()-ms));
+  printSpeed();
   lastMs = ms;
 }
 
@@ -261,6 +262,26 @@ void handleButtons() {
   }
   lastAValue = aValue;
   lastBValue = bValue;
+}
+
+void update() {
+  updateIMU();
+  updateENV();
+  if (bmmInitialized) {
+    filter.update(gyroX, gyroY, gyroZ, accX, accY, accZ, magX, magY, magZ);
+  }
+  else {
+    filter.updateIMU(gyroX, gyroY, gyroZ, accX, accY, accZ);
+  }
+  #if (SEND_QUAT)
+    filter.getQuaternion(&qw, &qx, &qy, &qz);
+  #else
+    // todo: check ranges (seems like yaw is 0 - 2pi?)
+    roll = filter.getRoll();
+    pitch = filter.getPitch();
+    yaw = filter.getYaw();
+  #endif
+  sendOSC();
 }
 
 void updateIMU() {
@@ -330,6 +351,15 @@ void sendOSC() {
   }
 }
 
+void print() {
+  M5.Lcd.setCursor(0, 0);
+  M5.Lcd.println("RECORDING");
+  printIMU();
+  printENV();
+  printTemp();
+  printBattery();
+}
+
 void printIMU() {
   M5.Lcd.print("Pitch    Roll   Yaw\r\n");
   M5.Lcd.printf("%.2f   %.2f   %.2f\r\n", pitch, roll, yaw);
@@ -345,14 +375,8 @@ void printENV() {
   }
 }
 
-void printStatus() {
-  printSpeed();
-  printTemp();
-  printBattery();
-}
-
 void printSpeed() {
-  M5.Lcd.printf("Speed: %3u Hz\r\n", 1000 / (millis()-lastMs)); // 6ms / 166hz
+  M5.Lcd.printf("Speed: %.2f Hz\r\n", speed);
 }
 
 void printTemp() {

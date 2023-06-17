@@ -1,29 +1,45 @@
 public class EulerDisplay extends VectorDisplay {
   
   int glAngle = 65;
-  boolean glPrevent = true;
+  boolean glPrevent = false;
   
-  EulerDisplay(int firstArg, float x, float y, float w, float h, int histLen) {
+  EulerDisplay(int firstArg, float x, float y, float w, float h, int histLen, boolean _glPrevent) {
     super(firstArg, x, y, w, h, histLen);
     type = SensorType.EULER;
     supportBatch = true;
+    glPrevent = _glPrevent;
+  }
+  
+  EulerDisplay(int firstArg, float x, float y, float w, float h, int histLen) {
+    this(firstArg, x, y, w, h, histLen, false);
+  }
+  
+  EulerDisplay(int firstArg, boolean _glPrevent) {
+    this(firstArg, width/4 * 3, 0, width/4, height, 500, _glPrevent);
   }
   
   EulerDisplay(int firstArg) {
-    this(firstArg, width/4 * 3, 0, width/4, height, 500);
+    this(firstArg, false);
   }
   
   EulerDisplay() {
-    this(1);
+    this(1, false);
   }
   
   void preventGimbalLock(PVector val) {
     if (glPrevent) {
+      PVector prev;
       if (Math.abs(val.y) > radians(glAngle)) {
-        val.y = values.get(histCursor >= 0 ? histCursor : histLen+histCursor).y;
+        prev = values.get(histCursor >= 0 ? histCursor : histLen+histCursor);
+        if (prev != null) {
+          val.y = prev.y;
+        }
       }
       if (Math.abs(val.x) > radians(glAngle)) {
-        val.x = values.get(histCursor >= 0 ? histCursor : histLen+histCursor).x;
+        prev = values.get(histCursor >= 0 ? histCursor : histLen+histCursor);
+        if (prev != null) {
+          val.x = prev.x;
+        }
       }
     }
   }
