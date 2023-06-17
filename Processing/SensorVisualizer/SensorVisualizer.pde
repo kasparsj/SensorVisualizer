@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.*;
 
+boolean noDraw = false;
+boolean showFps = false;
 Map<String, Device> devs = new HashMap<String, Device>();
 String cur = "";
 
@@ -18,8 +20,8 @@ String outPrefix = "/out";
 NetAddress forwardAddr;
 
 void setup() {
-  //size(1000, 600, P3D);
-  fullScreen(P3D);
+  size(1792, 980, P3D);
+  //fullScreen(P3D);
   
   // Polar H10
   devs.put("7E37D222", new Device("7E37D222", "/sensor", outPrefix, 1, new HashMap<SensorType, SensorDisplay>(){{
@@ -55,36 +57,39 @@ void draw() {
 
   update();
 
-  Device dev = devs.get(cur);
-  dev.drawSensors();
+  if (!noDraw) {
+    Device dev = devs.get(cur);
+    dev.drawSensors();
+    
+    if (dev.isPlaying && dev.playMinMs > -1) {
+      long dur = (dev.playMaxMs - dev.playMinMs);
+      pushStyle();
+      fill(255);
+      textSize(12);
+      text((dev.playPos % dur) + " / " + dur + (dev.isPaused ? " paused" : ""), width/2 + 20, height - 15);
+      popStyle();
+    }
+    
+    int i=0;
+    for (Device dev1 : devs.values()) {
+      dev1.drawTab(i, dev1 == dev);
+      i++;
+    }
+  }
   
-  if (dev.isPlaying && dev.playMinMs > -1) {
-    long dur = (dev.playMaxMs - dev.playMinMs);
+  if (showFps) {
     pushStyle();
     fill(255);
     textSize(12);
-    text((dev.playPos % dur) + " / " + dur + (dev.isPaused ? " paused" : ""), width/2 + 20, height - 15);
+    text(round(frameRate)+"fps", width - 50, height - 15);
     popStyle();
   }
-  
-  int i=0;
-  for (Device dev1 : devs.values()) {
-    dev1.drawTab(i, dev1 == dev);
-    i++;
-  }
-
-  pushStyle();
-  fill(255);
-  textSize(12);
-  text(round(frameRate)+"fps", width - 50, height - 15);
-  popStyle();
 }
 
 void oscEvent(OscMessage msg) {
   if (isGyrOsc(msg.addrPattern())) {
     String deviceId = "GyrOSC";
     getOrCreateDevice(deviceId, "/gyrosc", 0).oscEvent(msg);
-    
   }
   else if (msg.typetag().charAt(0) == 's') {
     String deviceId = msg.get(0).stringValue();
@@ -156,6 +161,14 @@ void keyPressed() {
   }
   if (key == 'o') {
     selectFolder("Select a folder to process:", "openFolder");
+    return;
+  }
+  if (key == 'f') {
+    showFps = !showFps;
+    return;
+  }
+  if (key == 'n') {
+    noDraw = !noDraw;
     return;
   }
   if (keyCode == SHIFT || key == ' ') {
