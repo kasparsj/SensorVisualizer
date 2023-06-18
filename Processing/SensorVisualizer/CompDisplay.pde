@@ -1,19 +1,19 @@
 public class CompDisplay extends SensorDisplay<Float> {
-  
+
   CompDisplay(int firstArg, float x, float y, float w, float h) {
     super(firstArg, x, y, w, h);
     type = SensorType.COMP;
     addr = "/comp";
   }
-  
+
   CompDisplay(int firstArg) {
     this(firstArg, width/4, height/2, width/4, height/2);
   }
-  
+
   CompDisplay() {
     this(1);
   }
-  
+
   void draw(float w, float h) {
     if (value == null) return;
 
@@ -23,11 +23,11 @@ public class CompDisplay extends SensorDisplay<Float> {
     //noFill();
     //stroke(64);
     //rect(0, 0, w / 2, h);
-  
+
     fill(255);
     text("compass " + nf(value, 0, 2) + " " + filterType.toString(), 20, 20);
-    text("(pps: "+ups+")", w - 70, 20);
-  
+    text(ups+" hz", w - 50, 20);
+
     // 2D compass
     pushMatrix();
     translate(w/2, h/2);
@@ -35,15 +35,15 @@ public class CompDisplay extends SensorDisplay<Float> {
     heading.normalize();
     compass2D(heading, w/2);
     popMatrix();
-    
+
     popStyle();
     popMatrix();
   }
-  
+
   Float parse(OscMessage msg, int i) {
     return msg.get(firstArg+i).floatValue();
   }
-  
+
   Float parse(TableRow row) {
     return row.getFloat(2);
   }

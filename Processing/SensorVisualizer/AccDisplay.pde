@@ -4,7 +4,7 @@ enum GravityMethod {
     String toString() { return "HP"; }
   },
   ORIENT;
-  
+
   private static GravityMethod[] vals = values();
   public GravityMethod next()
   {
@@ -23,7 +23,7 @@ public class AccDisplay extends VectorDisplay {
   ArrayList<PVector> velocities;
   Float[] speeds;
   PVector position;
-  
+
   AccDisplay(int firstArg, float x, float y, float w, float h, GravityMethod gm, int histLen, int deltaSumWin, float maxMag) {
     super(firstArg, x, y, w, h, histLen);
     type = SensorType.ACC;
@@ -34,15 +34,15 @@ public class AccDisplay extends VectorDisplay {
     enableMagnitude(deltaSumWin, maxMag);
     setFilterType(FilterType.KALMAN);
   }
-  
+
   AccDisplay(int firstArg) {
     this(firstArg, 0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 9.81);
   }
-  
+
   AccDisplay() {
     this(1);
   }
-  
+
   AccDisplay enableHistory(int histLen) {
     super.enableHistory(histLen);
     if (histLen > 0) {
@@ -59,7 +59,7 @@ public class AccDisplay extends VectorDisplay {
     }
     return this;
   }
-  
+
   void update(PVector val) {
     switch (gravityMethod) {
       case ORIENT:
@@ -80,44 +80,44 @@ public class AccDisplay extends VectorDisplay {
     }
     super.update(val);
   }
-  
+
   void draw(float w, float h) {
     if (value == null) return;
-    
-    pushStyle();  
-    fill(255); 
-    
+
+    pushStyle();
+    fill(255);
+
     text("acceleration " + filterType + " " + nf(value.x, 0, 2) + ", " + nf(value.y, 0, 2) + ", " + nf(value.z, 0, 2) + ", mag: " + nf(mag(), 0, 2), 20, 20);
     text("gravity " + gravityMethod + " " + nf(gravity.x, 0, 2) + ", " + nf(gravity.y, 0, 2) + ", " + nf(gravity.z, 0, 2), 20, 40);
     text("max " + nf(maxValue.x, 0, 2) + ", " + nf(maxValue.y, 0, 2) + ", " + nf(maxValue.z, 0, 2), 20, 60);
     text("min " + nf(minValue.x, 0, 2) + ", " + nf(minValue.y, 0, 2) + ", " + nf(minValue.z, 0, 2), 20, 80);
-    text("(pps: "+ups+")", w - 70, 20);
-    
+    text(ups+" hz", w - 50, 20);
+
     drawPlot3D(w/2, h/2);
-    
+
     pushMatrix();
     translate(0, h/2);
     drawPlot2D(w/2, h / 4);
     popMatrix();
-    
+
     pushMatrix();
     translate(0, h/2);
     drawMag(w/2, h / 4);
     popMatrix();
-    
+
     pushMatrix();
     translate(0, h / 4 * 3);
     drawVelocity(w/2, h / 4);
     popMatrix();
-    
+
     pushMatrix();
     translate(w/2, 0);
     drawPosition(w/2, h);
     popMatrix();
-        
+
     popStyle();
   }
-  
+
   void drawPlot3D(float w, float h) {
     PVector force = val().normalize().mult(magPerc() * (w / 4));
     pushMatrix();
@@ -127,14 +127,14 @@ public class AccDisplay extends VectorDisplay {
     line(0, 0, 0, force.y, force.x, force.z);
     popMatrix();
   }
-  
+
   void drawMag(float w, float h) {
     pushMatrix();
-    
+
     fill(255);
     text("mag % " + nf(magPerc(), 0, 2), 20, 20);
     line(20, 5, 20 + magPerc() * (w - 40), 5);
-    
+
     //float magDeltaSumPerc = magDeltaSumPerc();
     //fill(255);
     //text("delta sum % " + deltaSumWin, 20, 120);
@@ -145,13 +145,13 @@ public class AccDisplay extends VectorDisplay {
     //rect(w/2, 130, magDeltaSumPerc * (w/2 - 40), 10);
     //fill(255);
     //text(nf(magDeltaSumPerc, 0, 2), magDeltaSumPerc >= 0 ? 27 : 20, 150);
-    
+
     translate(20, h-20);
     plotMagnitude(magPerc, w - 40, -h+20, histCursor);
-    
+
     popMatrix();
   }
-  
+
   void drawPlot2D(float w, float h) {
     pushMatrix();
     translate(20, h/2);
@@ -159,7 +159,7 @@ public class AccDisplay extends VectorDisplay {
     plotVectors(values, w, h, histCursor, new PVector(mv, mv, mv));
     popMatrix();
   }
-  
+
   void drawVelocity(float w, float h) {
     fill(255);
     text("speed " + nf(velocity.mag(), 0, 2), 20, 20);
@@ -171,7 +171,7 @@ public class AccDisplay extends VectorDisplay {
     plotMagnitude(speeds, w - 40, -h+20, histCursor);
     popMatrix();
   }
-  
+
   void drawPosition(float w, float h) {
     text("pos " + nf(position.x, 0, 2) + ", " + nf(position.y, 0, 2) + ", " + nf(position.z, 0, 2), 20, 20);
     pushMatrix();
@@ -182,18 +182,18 @@ public class AccDisplay extends VectorDisplay {
     circle(0, 0, 10);
     popMatrix();
   }
-  
+
   void forward(ArrayList<PVector> values) {
     calcVelocity(values.size());
-    
+
     super.forward(values);
   }
-  
+
   void calcVelocity(int numValues) {
     int millis = millis();
     if (velocities != null) {
       boolean useRaw = false;
-      ArrayList<PVector> vals = useRaw ? rawValues : values; 
+      ArrayList<PVector> vals = useRaw ? rawValues : values;
       for (int i=(numValues-1); i>=0; i--) {
         int j = i > histCursor ? histLen - (i - histCursor) : histCursor - i;
         PVector val = vals.get(j);
@@ -225,7 +225,7 @@ public class AccDisplay extends VectorDisplay {
     }
     prevMillis = millis;
   }
-  
+
   PVector getOrigEulerAngles() {
     PVector value = val();
     if (value == null) {
@@ -236,7 +236,7 @@ public class AccDisplay extends VectorDisplay {
     }
     return eulerAngles(value);
   }
-  
+
   Quaternion getOrientation() {
     PVector angles = getOrigEulerAngles();
     if (angles == null) {
@@ -244,7 +244,7 @@ public class AccDisplay extends VectorDisplay {
     }
     return (new Quaternion()).fromEuler(angles);
   }
-  
+
   AccDisplay setGravityMethod(GravityMethod gm) {
     gravityMethod = gm;
     if (gm == GravityMethod.NONE) {
@@ -252,11 +252,11 @@ public class AccDisplay extends VectorDisplay {
     }
     return this;
   }
-  
+
   void nextGravityMethod() {
     setGravityMethod(gravityMethod.next());
   }
-  
+
   boolean keyPressed() {
     if (key == 'g') {
       nextGravityMethod();

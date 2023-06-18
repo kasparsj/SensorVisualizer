@@ -1,31 +1,31 @@
 public class EulerDisplay extends VectorDisplay {
-  
+
   int glAngle = 65;
   boolean glPrevent = false;
-  
+
   EulerDisplay(int firstArg, float x, float y, float w, float h, int histLen, boolean _glPrevent) {
     super(firstArg, x, y, w, h, histLen);
     type = SensorType.EULER;
     supportBatch = true;
     glPrevent = _glPrevent;
   }
-  
+
   EulerDisplay(int firstArg, float x, float y, float w, float h, int histLen) {
     this(firstArg, x, y, w, h, histLen, false);
   }
-  
+
   EulerDisplay(int firstArg, boolean _glPrevent) {
     this(firstArg, width/4 * 3, 0, width/4, height, 500, _glPrevent);
   }
-  
+
   EulerDisplay(int firstArg) {
     this(firstArg, false);
   }
-  
+
   EulerDisplay() {
     this(1, false);
   }
-  
+
   void preventGimbalLock(PVector val) {
     if (glPrevent) {
       PVector prev;
@@ -43,12 +43,12 @@ public class EulerDisplay extends VectorDisplay {
       }
     }
   }
-  
+
   void update(PVector val) {
     preventGimbalLock(val);
     super.update(val);
   }
-  
+
   void draw(float w, float h) {
     PVector angles;
     if (value == null || device.fusion != null) {
@@ -68,31 +68,31 @@ public class EulerDisplay extends VectorDisplay {
     if (angles == null) {
       return;
     }
-    
+
     text("GL prevent:" + (glPrevent ? " " + glAngle : " OFF"), 20, 20);
-    
+
     drawAngles(angles, w/3, h/4);
-    
+
     pushMatrix();
     translate(0, h/4);
     drawHist(angles, w / 3, h/4);
     popMatrix();
-    
+
     pushMatrix();
     translate(0, h/2);
     drawCube(angles, w, h/2);
     popMatrix();
   }
-  
+
   void drawAngles(PVector angles, float w, float h) {
     float d = min(w, h)-20;
-    
+
     pushStyle();
     fill(255);
     text("roll "+nf(angles.x, 0, 2) + " / " + nf(degrees(angles.x), 0, 1) + "°", 20, h);
     text("pitch "+nf(angles.y, 0, 2) + " / " + nf(degrees(angles.y), 0, 1) + "°", w+20, h);
     text("yaw "+nf(angles.z, 0, 2) + " / " + nf(degrees(angles.z), 0, 1) + "°", 2*w+20, h);
-  
+
     // roll
     pushMatrix();
     translate(w/2, h/2);
@@ -105,7 +105,7 @@ public class EulerDisplay extends VectorDisplay {
     line(-d/2, 0, d/2, 0);
     popStyle();
     popMatrix();
-      
+
     // pitch
     pushMatrix();
     translate(w + w/2, h/2);
@@ -118,7 +118,7 @@ public class EulerDisplay extends VectorDisplay {
     line(-d/2, 0, d/2, 0);
     popStyle();
     popMatrix();
-  
+
     // yaw
     pushMatrix();
     translate(w + w + w/2, h/2);
@@ -131,10 +131,10 @@ public class EulerDisplay extends VectorDisplay {
     line(-d/2, 0, d/2, 0);
     popStyle();
     popMatrix();
-    
+
     popStyle();
   }
-  
+
   private void drawHist(PVector angles, float w, float h) {
     Float rolls[] = new Float[histLen];
     Float pitches[] = new Float[histLen];
@@ -152,7 +152,7 @@ public class EulerDisplay extends VectorDisplay {
         yaws[i] = 0F;
       }
     }
-    
+
     // roll hist
     pushMatrix();
     translate(20, h/2, 0);
@@ -162,7 +162,7 @@ public class EulerDisplay extends VectorDisplay {
     plot2D(rolls, w - 40, h/2 - 20, histCursor);
     popStyle();
     popMatrix();
-    
+
     // pitch hist
     pushMatrix();
     translate(w + 20, h/2, 0);
@@ -172,7 +172,7 @@ public class EulerDisplay extends VectorDisplay {
     plot2D(pitches, w - 40, h/2 - 20, histCursor);
     popStyle();
     popMatrix();
-    
+
     // yaw hist
     pushMatrix();
     translate(2*w + 20, h/2, 0);
@@ -183,25 +183,25 @@ public class EulerDisplay extends VectorDisplay {
     popStyle();
     popMatrix();
   }
-  
-  private void drawCube(PVector angles, float w, float h) {    
+
+  private void drawCube(PVector angles, float w, float h) {
     pushStyle();
     fill(255);
     text("euler " + filterType + (device.fusion != null ? " fusion: " + device.fusion.type : ""), 20, 20);
-    text("(pps: "+ups+")", w - 70, 20);
+    text(ups+" hz", w - 50, 20);
     popStyle();
-    
+
     pushMatrix();
     translate(w/2 - 50, h/2);
     scale(4, 4, 4);
-    
+
     // the order is important!
     rotateX(angles.y); // pitch
     rotateZ(-angles.x); // roll
     rotateY(angles.z); // yaw
-    
+
     buildBoxShape();
-    
+
     popMatrix();
   }
 }

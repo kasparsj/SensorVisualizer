@@ -1,5 +1,5 @@
 public class HRDisplay extends SensorDisplay<Float> {
-  
+
   HRDisplay(int firstArg, float x, float y, float w, float h, int avgLen, int histLen) {
     super(firstArg, x, y, w, h);
     type = SensorType.HR;
@@ -8,15 +8,15 @@ public class HRDisplay extends SensorDisplay<Float> {
     enableHistory(histLen);
     enableAverage(avgLen);
   }
-  
+
   HRDisplay(int firstArg) {
     this(firstArg, 0, height/2, width/4, height/2, 0, 50);
   }
-  
+
   HRDisplay() {
     this(1);
   }
-  
+
   void updateAvg() {
     float sum = 0;
     int count = 0;
@@ -35,24 +35,25 @@ public class HRDisplay extends SensorDisplay<Float> {
   void draw(float w, float h) {
     if (value == null) return;
 
-    pushStyle();  
+    pushStyle();
     fill(255);
-    text("hr (pps: "+ups+")", w - 70, 20);
+    text("hr", 20, 20);
+    text(ups+" hz", w - 50, 20);
     if (avgLen > 0) {
       text("avg/"+avgLen+" "+nf(avgValue, 0, 2), 20, 20);
       textSize(72);
       textMode(SHAPE);
       text(nf(avgValue, 0, 2), w/2-100, 70);
-    }    
+    }
     else {
       textSize(72);
       textMode(SHAPE);
       text(nf(value, 0, 2), w/2-100, 70);
     }
-    
+
     Float[] hrs = new Float[values.size()];
     for (int i=0; i<hrs.length; i++) {
-      hrs[i] = values.get(i) != null ? values.get(i) / 220F : null; 
+      hrs[i] = values.get(i) != null ? values.get(i) / 220F : null;
     }
     pushMatrix();
     translate(20, h - 20);
@@ -62,7 +63,7 @@ public class HRDisplay extends SensorDisplay<Float> {
     popMatrix();
     popStyle();
   }
-  
+
   Float parse(OscMessage msg, int i) {
     float val;
     if (msg.typetag().charAt(1+i) == 'i') {
@@ -73,7 +74,7 @@ public class HRDisplay extends SensorDisplay<Float> {
     }
     return val;
   }
-  
+
   Float parse(TableRow row) {
     return row.getFloat(2);
   }
