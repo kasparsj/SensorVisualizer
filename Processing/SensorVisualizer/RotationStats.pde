@@ -26,6 +26,14 @@ abstract class RotationStats extends SensorDisplay<Quaternion> {
     zy[histCursor] = val.projZY();
   }
   
+  void transform() {
+    if (transformType == TransformType.SQUIRCLE) {
+      xz[histCursor] = squircle(xz[histCursor]);
+      yx[histCursor] = squircle(yx[histCursor]);
+      zy[histCursor] = squircle(zy[histCursor]);
+    }
+  }
+  
   PVector projXZ() {
     return xz[histCursor] == null ? prevProjXZ() : xz[histCursor];
   }

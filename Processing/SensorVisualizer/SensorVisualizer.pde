@@ -270,15 +270,39 @@ void plot3D(float size) {
   popStyle();
 }
 
-void compass2D(PVector vector, float d) {
+void compass2D(PVector vector, float d, boolean useRect) {
   PVector mult = PVector.mult(vector, d/2);
   pushStyle();
   noFill();
   stroke(255);
+  if (useRect) {
+    rect(-d/2, -d/2, d, d);
+  }
+  else {
   ellipse(0, 0, d, d);
+  }
   stroke(255, 0, 0);
   line(0, 0, mult.x, mult.y);
   popStyle();
+}
+
+void compass2D(PVector vector, float d) {
+  compass2D(vector, d, false);
+}
+
+PVector squircle(PVector v) {
+  float sqx = v.x * v.x;
+  float sqy = v.y * v.y;
+  float sum = sqx + sqy;
+  float sq = sqrt(sum);
+  if (sqx >= sqy) {
+      float sign = Math.signum(v.x);
+      return new PVector(sign * sq, sign * sq * v.y / v.x);
+  }
+  else {
+      float sign = Math.signum(v.y);
+      return new PVector(sign * sq * v.x / v.y, sign * sq);
+  }
 }
 
 <T>void plot2D(T[] hist, float w, float h, int k) {

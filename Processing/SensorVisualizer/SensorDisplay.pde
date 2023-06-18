@@ -12,6 +12,17 @@ enum FilterType {
   }
 }
 
+enum TransformType {
+  NONE,
+  SQUIRCLE;
+  
+  private static TransformType[] vals = values();
+  public TransformType next()
+  {
+      return vals[(this.ordinal()+1) % vals.length];
+  }
+}
+
 abstract class SensorDisplay<T> {
   
   SensorType type;
@@ -32,6 +43,7 @@ abstract class SensorDisplay<T> {
   int histLen = 0;
   int histCursor = -1;
   FilterType filterType = FilterType.NONE;
+  TransformType transformType = TransformType.NONE;
   int numArgs = 1;
   boolean supportBatch; 
   boolean makePlayRegular = true;
@@ -75,6 +87,11 @@ abstract class SensorDisplay<T> {
     return this;
   }
   
+  SensorDisplay<T> setTransformType(TransformType tt) {
+    transformType = tt;
+    return this;
+  }
+  
   void updateUps() {
     ups = numUpdates;
     numUpdates = 0;
@@ -101,6 +118,7 @@ abstract class SensorDisplay<T> {
       updateMinMax(value);
       updateHist(value, val);
     }
+    transform();
     if (avgLen > 0) {
       updateAvg(value);
     }
@@ -169,6 +187,9 @@ abstract class SensorDisplay<T> {
   }
   T lowpass(T val) {
     return lowpass(val, 0.2);
+  }
+  
+  void transform() {
   }
   
   void draw() {
@@ -343,6 +364,10 @@ abstract class SensorDisplay<T> {
   boolean keyPressed() {
     if (key == 'f') {
       setFilterType(filterType.next());
+      return true;
+    }
+    if (key == 't') {
+      setTransformType(transformType.next());
       return true;
     }
     if (key == 'v') {

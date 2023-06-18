@@ -61,28 +61,25 @@ public class QuatDisplay extends RotationStats {
     text("yxProj", w/3, 20);
     text("zyProj", 2*w/3, 20);
 
-    // xzProj
     pushMatrix();
     translate(d/2, h/2);
-    compass2D(projXZ(), d);
+    compass2D(projXZ(), d, transformType == TransformType.SQUIRCLE);
     popMatrix();
 
-    // yxProj
     pushMatrix();
     translate(w/3+d/2, h/2);
-    compass2D(projYX(), d);
+    compass2D(projYX(), d, transformType == TransformType.SQUIRCLE);
     popMatrix();
 
-    // zyProj
     pushMatrix();
     translate(w/3*2+d/2, h/2);
-    compass2D(projZY(), d);
+    compass2D(projZY(), d, transformType == TransformType.SQUIRCLE);
     popMatrix();
 
     popStyle();
     popMatrix();
   }
-
+  
   private void drawProjectionHistory(float w, float h) {
     pushMatrix();
     translate(20, 0);
