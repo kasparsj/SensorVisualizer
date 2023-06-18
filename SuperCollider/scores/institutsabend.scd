@@ -6,13 +6,11 @@ s.waitForBoot {
 
 	if (s.options.device == "MADIface USB (23727305)") {
 	// if (s.options.device == "Fireface UFX+ (23779252)") {
-		~chan = 43;
+		//"../vbap/vbap_setup.scd".loadRelative;
 		~subs = 60;
-		"../vbap/vbap_setup.scd".loadRelative;
 		// todo: vbap synths
 		"../synths/*.scd".loadRelative;
 	} {
-		~chan = 0;
 		~subs = 0;
 		"../synths/*.scd".loadRelative;
 	};
@@ -22,6 +20,7 @@ s.waitForBoot {
 	s.sync;
 
 	"../oscdefs.scd".loadRelative;
+	"../pdefs.scd".loadRelative;
 	"visuals/visuals.scd".loadRelative;
 
 	"loaded!!!".postln;
@@ -47,7 +46,6 @@ RedTrk2(\heart_spawn, Pdef(\heartSpawn, Pseq([
 				\dur, Pseq([dur], 1),
 				\pan, pan,
 				\phase, Pwhite(0, 2pi, 1),
-				\out, ~chan,
 				\amp, 0.075
 			)
 		},
@@ -67,14 +65,14 @@ RedTrk2(\start_heart_sin, Task({
 //Ndef(\heart_sin).xset(\amp, 0.015);
 
 RedTrk2(\stop_heart_sin, Task({
-	Ndef(\heart_sin).stop(10);
+	Ndef(\heart_sin).stop(5);
 }));
 
 RedTrk2(\start_heart_perc, Task({
 	Ndef(\heart_perc).fadeTime = 10;
 	Ndef(\heart_perc).set(\amp, 0);
-	Ndef(\heart_perc).play(~chan, 2, addAction: \addToTail);
-	Ndef(\heart_perc).xset(\amp, 0.4);
+	Ndef(\heart_perc).play(0, 2, addAction: \addToTail);
+	Ndef(\heart_perc).xset(\amp, 0.3);
 }));
 
 RedTrk2(\stop_heart_perc, Task({
@@ -125,9 +123,9 @@ RedTrk2(\motion_grains, Pdef(\motionGrains, Pspawn(Pbind(
 //Pdef(\motionGrains).stop;
 
 RedTrk2(\start_motion1, Task({
-	Ndef(\motion1).fadeTime = 8;
+	Ndef(\motion1).fadeTime = 1;
 	Ndef(\motion1).set(\amp, 0);
-	Ndef(\motion1).play(~chan, 2);
+	Ndef(\motion1).play(0, 2);
 	Ndef(\motion1).xset(\amp, 1.0);
 }));
 
@@ -135,10 +133,21 @@ RedTrk2(\stop_motion1, Task({
 	Ndef(\motion1).stop(5);
 }));
 
+RedTrk2(\start_control1, Task({
+	Ndef(\control1).fadeTime = 10;
+	Ndef(\control1).set(\amp, 0);
+	Ndef(\control1).play(0, 2);
+	Ndef(\control1).xset(\amp, 0.5);
+}));
+
+RedTrk2(\stop_control1, Task({
+	Ndef(\control1).stop(5);
+}));
+
 RedTrk2(\start_rh_onsets, Task({
 	Ndef(\rh_onsets).fadeTime = 8;
 	Ndef(\rh_onsets).set(\amp, 0);
-	Ndef(\rh_onsets).play(~chan, 2);
+	Ndef(\rh_onsets).play(0, 2);
 	Ndef(\rh_onsets).xset(\amp, 1.0);
 }));
 
@@ -149,7 +158,7 @@ RedTrk2(\stop_rh_onsets, Task({
 RedTrk2(\start_lh_onsets, Task({
 	Ndef(\lh_onsets).fadeTime = 8;
 	Ndef(\lh_onsets).set(\amp, 0);
-	Ndef(\lh_onsets).play(~chan, 2);
+	Ndef(\lh_onsets).play(0, 2);
 	Ndef(\lh_onsets).xset(\amp, 1.0);
 }));
 
@@ -157,7 +166,15 @@ RedTrk2(\stop_lh_onsets, Task({
 	Ndef(\lh_onsets).stop(5);
 }));
 
-"visuals/fade_tracks.scd".loadRelative;
+RedTrk2(\snare, Pdef(\snare));
+
+RedTrk2(\snare2, Pdef(\snare2));
+
+RedTrk2(\snare3, Pdef(\snare3));
+
+RedTrk2(\snare_final, Pdef(\snare_final));
+
+"visuals/vis_tracks.scd".loadRelative;
 
 ~score = RedScore([
 	inf, [\start_heart_perc2, \fadein0],
@@ -182,14 +199,14 @@ RedTrk2(\stop_lh_onsets, Task({
 ~sound.nextSection;
 ~sound.stop;
 
-// Ndef(\motion2).play(~chan, 2);
+// Ndef(\motion2).play(0, 2);
 // Ndef(\motion2).xset(\amp, 0.5);
 // Ndef(\motion2).stop(5);
 //
-// Ndef(\motion3).play(~chan, 2);
+// Ndef(\motion3).play(0, 2);
 // Ndef(\motion3).xset(\amp, 1);
 // Ndef(\motion3).stop(5);
 //
-// Ndef(\motion3_mi).play(~chan, 2);
+// Ndef(\motion3_mi).play(0, 2);
 // Ndef(\motion3_mi).xset(\amp, 0.75);
 // Ndef(\motion3_mi).stop(5);

@@ -171,7 +171,7 @@ if (~breathEnabled) {
 Tdef(\visuals_loop, { loop {
 	~visuals.send('/tex/var', 0, "time", ~ecgNormBus.getSynchronous() * ~ecgMult);
 
-	if (~breathEnabled) {
+	if (~breathEnabled and: { ~showBreath }) {
 		~breathHist.frame();
 		//~visuals.send('/tex/var', 1, "time", (pi/2) + (~breathBus.getSynchronous() * 2pi));
 		~visuals.send('/tex/var/lifo', 1, "data", ~breathHist.data.last, ~breathHist.length);
