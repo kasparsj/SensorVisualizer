@@ -165,7 +165,7 @@ Tdef(\visuals_loop, { loop {
 	~visuals.send('/tex/var/lifo', 9, "data", ~lhAccHist.y.last, ~lhAccHist.length);
 	~visuals.send('/tex/var/lifo', 10, "data", ~lhAccHist.z.last, ~lhAccHist.length);
 
-	//(1.0/60).wait; // does not seem to be possible to run at this speed
+	//(1.0/60).wait; // needs a better GPU when using projector
 	(1.0/30).wait;
 } }).play;
 )

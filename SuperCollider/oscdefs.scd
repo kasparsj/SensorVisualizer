@@ -1,4 +1,8 @@
 (
+if (~prefix.isNil) {
+	"config.scd".loadRelative;
+};
+
 OSCdef(\ecg, {|msg, time, addr, recvPort|
 	// deviceId, value, minValue, maxValue, percValue, avgValue
 	~ecgBus.set(msg[2]);
@@ -28,7 +32,7 @@ OSCdef(\hr, {|msg, time, addr, recvPort|
 // }, ~prefix++"/quat");
 
 OSCdef(\acc, {|msg, time, addr, recvPort|
-	// deviceId, x, y, z, mag, magPerc, magDeltaSum, magDeltaSumPerc, heading
+	// adrr, deviceId, x, y, z, mag, magPerc, magDeltaSum, magDeltaSumPerc, heading
 	if (msg[1].asString() == "7E37D222", {
 		var chestAcc = msg[2..6];
 		var chestAccNorm = (chestAcc[0..2]/500).clip(-1, 1) ++ chestAcc[4];
@@ -56,6 +60,14 @@ OSCdef(\acc_batch, {|msg, time, addr, recvPort|
 		~acc = msg[3..];
 	});
 }, ~prefix++"/acc/batch");
+
+OSCdef(\quat, {|msg, time, addr, recvPort|
+	// addr, deviceId, x, y, z, w, xzx
+	if (msg[1].asString() == "GyrOSC", {
+		var rhQuat = msg[2..14];
+		~rhQuatBus.setn(rhQuat);
+	});
+}, ~prefix++"/quat");
 
 // OSCdef(\gyro, {|msg, time, addr, recvPort|
 // 	//msg.postln;

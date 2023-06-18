@@ -25,6 +25,8 @@ r = nil;
 ~rhAccBus = Bus.control(Server.default, 5);
 ~rhAccNormBus.free;
 ~rhAccNormBus = Bus.control(Server.default, 4);
+~rhQuatBus.free;
+~rhQuatBus = Bus.control(Server.default, 12);
 ~lhAccBus.free;
 ~lhAccBus = Bus.control(Server.default, 5);
 ~lhAccNormBus.free;

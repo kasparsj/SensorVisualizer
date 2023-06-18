@@ -1,4 +1,8 @@
 (
+if (~ecgBus.isNil) {
+	"config.scd".loadRelative;
+};
+
 Ndef(\heart_sin, { |amp=0.1, room=0.5|
 	var sig, chain, onset, noise, ecg, ecgNorm, vbap;
 	ecg = In.kr(~ecgBus.index);
@@ -149,6 +153,32 @@ Ndef(\motion3_mi, { |x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pan=0|
 	Out.ar(~recordBus.index+5, sig*amp);
 	sig;
 });
+
+Ndef(\control1, { |room=0.5, amp=1.0, pan=0|
+	var sig;
+	var hr = In.kr(~hrBus.index);
+	var quat = In.kr(~rhQuatBus.index, 16);
+	var xz = (quat[4..7]+1)/2;
+	var yx = (quat[8..11]+1)/2;
+	var zy = (quat[12..15]+1)/2;
+
+	sig = MiBraids.ar(hr.max(60), xz[0], xz[1], 12);
+	sig = sig + MiBraids.ar(hr.max(60)+4, yx[0], yx[1], 14);
+	sig = sig + MiBraids.ar(hr.max(60)+7, zy[0], zy[1], 44);
+	sig = sig / 3;
+
+	// sig = MiPlaits.ar(12+(color*12), (7-(hr/16).floor).clip(0, 15), color, timb, (acc[3]+1)/2);
+	// sig = MiPlaits.ar(24+(color*12), 2, color, timb, z.abs.clip(0, 1));
+
+	sig = MiVerb.ar(sig);
+
+	sig = Balance2.ar(sig[0], sig[1], pan, amp);
+
+	sig;
+});
+// Ndef(\control1).play(0, 2);
+// Ndef(\control1).xset(\amp, 0.5);
+// Ndef(\control1).stop;
 
 Ndef(\breath, { |amp=1.0|
 	var sig = SoundIn.ar(0);
