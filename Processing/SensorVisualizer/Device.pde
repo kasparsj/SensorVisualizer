@@ -109,7 +109,7 @@ public class Device {
     if (hasEuler() && getEuler().value != null) {
       return getEuler().val();
     }
-    if (hasQuat()) {
+    if (hasQuat() && getQuat().value != null) {
       return getQuat().getOrigEulerAngles();  
     }
     if (hasAccelerometer()) {

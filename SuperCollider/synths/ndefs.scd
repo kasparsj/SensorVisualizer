@@ -7,7 +7,7 @@ Ndef(\heart_sin, { |amp=0.1, room=0.5|
 	var sig, chain, onset, noise, ecg, ecgNorm, vbap;
 	ecg = In.kr(~ecgBus.index);
 	ecgNorm = In.kr(~ecgNormBus.index);
-	noise = LFNoise0.ar(1/20);
+	noise = LFNoise0.ar(1/10);
 	sig = SinOsc.ar(ecg * (1+noise));
 	sig = sig * (1-ecgNorm);
 	chain = FFT(LocalBuf(1024), sig);
@@ -18,7 +18,7 @@ Ndef(\heart_sin, { |amp=0.1, room=0.5|
 	sig = RHPF.ar(sig, rq: 0.01);
 	sig = MiVerb.ar(sig, drywet: room);
 	sig = Compander.ar(sig, sig);
-	sig = sig*amp;
+	sig = sig * amp;
 
 	//Out.ar(~recordBus.index, sig);
 	//Out.ar(9 + (25 * LFNoise2.kr(1/4)).round, sig);
@@ -29,6 +29,8 @@ Ndef(\heart_sin, { |amp=0.1, room=0.5|
 
 	sig;
 });
+//Ndef(\heart_sin).play(0, 2);
+//Ndef(\heart_sin).stop;
 
 Ndef(\heart_perc, { |room=0.5, amp=0.25|
 	var sig, env, ecgNorm, hr, onset, vbap;
@@ -38,10 +40,11 @@ Ndef(\heart_perc, { |room=0.5, amp=0.25|
 	env = EnvGen.ar(Env.perc, onset);
 	sig = (SinOsc.ar(hr * ecgNorm * 5) * env * ecgNorm * 4);
 	//sig = sig * Line.kr(0, 1, 90);
-	//sig = HPF.ar(sig, 400);
+	// sig = HPF.ar(sig, 400);
 	sig = FreeVerb.ar(sig, room: room)!2;
 	// sig = MiVerb.ar(sig, drywet: room);
-	sig = sig*amp;
+	sig = sig * amp;
+	sig = sig * LFNoise2.kr(1/5).range(0.7, 1.0);
 
 	// todo: fix - changed to output 2 channels
 	//Out.ar(~recordBus.index+1, sig);
@@ -56,6 +59,7 @@ Ndef(\heart_perc, { |room=0.5, amp=0.25|
 });
 //Ndef(\heart_perc).fadeTime = 1;
 //Ndef(\heart_perc).play(0, 2, addAction: \addToTail);
+//Ndef(\heart_perc).stop;
 
 // // not working!!!
 // Ndef(\heart_perc_mi, { |min_hr=40, max_hr=180, room=0.5, amp=1.0|
@@ -84,8 +88,9 @@ Ndef(\heart_perc2, { |room=0.25, amp=1.0|
 	sig = (SinOsc.ar(hr * fmul) * env * mul);
 	sig = LPF.ar(sig, 80);
 	sig = FreeVerb.ar(sig, room: room)!2;
-	//sig = MiVerb.ar(sig, drywet: room);
-	sig = sig*amp;
+	// sig = MiVerb.ar(sig, drywet: room);
+	sig = sig * amp;
+	sig = sig * LFNoise2.kr(1/5).range(0.7, 1.0);
 	//sig = sig * Line.kr(0, 1, 120);
 
 	// todo: fix - changed to output 2 channels
