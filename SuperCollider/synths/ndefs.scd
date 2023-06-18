@@ -1,6 +1,6 @@
 (
 if (~ecgBus.isNil) {
-	"config.scd".loadRelative;
+	"../config.scd".loadRelative;
 };
 
 Ndef(\heart_sin, { |amp=0.1, room=0.5|
@@ -18,12 +18,16 @@ Ndef(\heart_sin, { |amp=0.1, room=0.5|
 	sig = RHPF.ar(sig, rq: 0.01);
 	sig = MiVerb.ar(sig, drywet: room);
 	sig = Compander.ar(sig, sig);
+	sig = sig*amp;
 
-	Out.ar(~recordBus.index, sig*amp);
-	//Out.ar(9 + (25 * LFNoise2.kr(1/4)).round, sig*amp);
-	//vbap = VBAP.ar(~vbapList.size, sig*amp, ~vbapBuf.bufnum, LFNoise2.kr(1/3)*180, 30, 20);
+	//Out.ar(~recordBus.index, sig);
+	//Out.ar(9 + (25 * LFNoise2.kr(1/4)).round, sig);
+	//vbap = VBAP.ar(~vbapList.size, sig, ~vbapBuf.bufnum, LFNoise2.kr(1/3)*180, 30, 30);
 	//Out.ar(0, vbap);
-	sig*amp
+	//Out.ar(35, sig[0]);
+	//Out.ar(38, sig[1]);
+
+	sig;
 });
 
 Ndef(\heart_perc, { |room=0.5, amp=0.25|
@@ -34,14 +38,19 @@ Ndef(\heart_perc, { |room=0.5, amp=0.25|
 	env = EnvGen.ar(Env.perc, onset);
 	sig = (SinOsc.ar(hr * ecgNorm * 5) * env * ecgNorm * 4);
 	//sig = sig * Line.kr(0, 1, 90);
-	//sig = FreeVerb.ar(sig, room: room);
+	sig = FreeVerb.ar(sig, room: room);
+	sig = sig*amp;
 
-	Out.ar(~recordBus.index+1, sig*amp);
-	//Out.ar(9 + (25 * LFNoise2.kr(1/4)).round, sig*amp);
-	//vbap = VBAP.ar(~vbapList.size, sig*amp, ~vbapBuf.bufnum, LFNoise2.kr(1/3)*180, 30, 20);
+	Out.ar(~recordBus.index+1, sig);
+	//Out.ar(9 + (25 * LFNoise2.kr(1/4)).round, sig);
+	//vbap = VBAP.ar(~vbapList.size, sig, ~vbapBuf.bufnum, LFNoise2.kr(1/3)*180, 30, 30);
 	//Out.ar(0, vbap);
-	sig*amp;
+	// Out.ar(35, sig);
+	// Out.ar(38, sig);
+
+	sig;
 });
+//Ndef(\heart_perc).fadeTime = 1;
 
 // // not working!!!
 // Ndef(\heart_perc_mi, { |min_hr=40, max_hr=180, room=0.5, amp=1.0|
@@ -58,7 +67,7 @@ Ndef(\heart_perc, { |room=0.5, amp=0.25|
 // });
 // Ndef(\heart_perc_mi).fadeTime = ~fadeTime;
 
-Ndef(\heart_perc2, { |room=0.5, amp=1.0|
+Ndef(\heart_perc2, { |room=0.25, amp=1.0|
 	var sig, env, fmul, mul, ecgNorm, hr, onset;
 	ecgNorm = In.kr(~ecgNormBus.index);
 	hr = In.kr(~hrBus.index);
@@ -66,14 +75,17 @@ Ndef(\heart_perc2, { |room=0.5, amp=1.0|
 	env = EnvGen.ar(Env.perc, onset);
 
 	fmul = 1.0 - ecgNorm;
-	mul = ecgNorm * 3;
+	mul = ecgNorm*3;
 	sig = (SinOsc.ar(hr * fmul) * env * mul);
-	//sig = sig * Line.kr(0, 1, 120);
+	sig = LPF.ar(sig, 80);
 	sig = FreeVerb.ar(sig, room: room);
+	sig = sig*amp;
+	//sig = sig * Line.kr(0, 1, 120);
 
-	Out.ar(~recordBus.index+2, sig*amp);
-	sig*amp;
+	//Out.ar(~recordBus.index+2, sig);
+	sig;
 });
+//Ndef(\heart_perc2).fadeTime = 1;
 
 Ndef(\motion1, { |room=0.5, amp=1.0, pan=0|
 	var sig;
@@ -115,9 +127,10 @@ Ndef(\motion2, { |x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1|
 	//sig = BPF.ar([acar1, acar2]*0.1, hr*rel);
 	sig = LPF.ar([acar1, acar2]*0.1, hr*rel);
 	//sig = GVerb.ar(sig[0]) + GVerb.ar(sig[1]);
+	sig = sig*amp;
 
-	Out.ar(~recordBus.index+3, sig*amp);
-	sig*amp;
+	Out.ar(~recordBus.index+3, sig);
+	sig;
 });
 
 Ndef(\motion3, { |x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pan=0|
@@ -132,9 +145,10 @@ Ndef(\motion3, { |x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pan=0|
 	sig = BPF.ar([acar1, acar2]*0.1, hr*rel);
 	//sig = LPF.ar([acar1, acar2]*0.1, hr*rel);
 	//sig = GVerb.ar(sig[0]) + GVerb.ar(sig[1]);
+	sig = sig*amp;
 
-	sig = Balance2.ar(sig[0], sig[1], pan, amp);
-	Out.ar(~recordBus.index+5, sig*amp);
+	sig = Balance2.ar(sig[0], sig[1], pan);
+	Out.ar(~recordBus.index+5, sig);
 	sig;
 });
 
@@ -181,9 +195,11 @@ Ndef(\control1, { |room=0.5, amp=1.0, pan=0|
 // Ndef(\control1).stop;
 
 Ndef(\breath, { |amp=1.0|
-	var sig = SoundIn.ar(0);
+	var sig = SoundIn.ar(0)*amp;
 	Out.kr(~breathBus.index, sig);
-	sig!2*amp;
+	//Out.ar(36, sig);
+	//Out.ar(37, sig);
+	sig!2*~breathEnabled;
 });
 
 Ndef(\rh_onsets, { |amp=0|
@@ -201,7 +217,7 @@ Ndef(\rh_onsets, { |amp=0|
 	var out = 10 + (25 * compNorm);
 	var sig = MiPlaits.ar(80-(acc[3]*80), 6, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
 	//var sig = MiPlaits.ar(80-(acc[3]*80), compNorm*15, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
-	//sig = sig + MiPlaits.ar(36-(acc[3]*24), 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
+	// sig = sig + MiPlaits.ar(36-(acc[3]*24), 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
 	Out.ar(9 + (25 * compNorm).round, sig*amp);
 	sig*amp*0;
 });
