@@ -1,4 +1,8 @@
 (
+if (~visuals.isNil) {
+	"visuals.scd".loadRelative;
+};
+
 RedTrk2(\invert, Task({
 	// ~visuals.send('/tex', 0, "shaders/color.frag");
 	~visuals.send('/tex/color', 0, [0.0, 1.0, 1.0]);

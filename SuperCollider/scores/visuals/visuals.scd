@@ -1,3 +1,5 @@
+// https://github.com/kasparsj/vosc
+// Quarks.install("https://github.com/kasparsj/VisualsQuark.git");
 (
 if (~breathEnabled.isNil) {
 	"../../config.scd".loadRelative;
