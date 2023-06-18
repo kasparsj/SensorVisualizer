@@ -26,7 +26,10 @@ void setup() {
   // Polar H10
   devs.put("7E37D222", new Device("7E37D222", "/sensor", outPrefix, 1, new HashMap<SensorType, SensorDisplay>(){{
       put(SensorType.ACC, new AccDisplay(1, 0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
-      put(SensorType.EULER, new EulerDisplay(1, width/2, 0, width/2, height, 500));
+      EulerDisplay euler = new EulerDisplay(1, width/2, 0, width/2, height, 500);
+      euler.visible = false;
+      put(SensorType.EULER, euler);
+      put(SensorType.QUAT, new QuatDisplay(1, width/2, 0, width/2, height, 500));
       put(SensorType.HR, new HRDisplay(1, 0, height/2, width/4, height/2, 0, 50));
       put(SensorType.ECG, new ECGDisplay(1, width/4, height/2, width/4, height/2, 500));
   }}));

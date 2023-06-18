@@ -32,7 +32,7 @@ Adafruit_Mahony filter;  // fastest/smalleset
 
 float accX, accY, accZ = 0;
 float gyroX, gyroY, gyroZ = 0;
-float qx, qy, qz, qw = 0;
+float qw, qx, qy, qz = 0;
 float pitch, roll, yaw = 0;
 float temp = 0;
 float speed = 0;
@@ -337,7 +337,7 @@ void sendOSC() {
   OscWiFi.send(oscAddress, oscPort, oscPrefix + "/acc", DEVICE_ID, accX, accY, accZ);
   OscWiFi.send(oscAddress, oscPort, oscPrefix + "/gyro_deg", DEVICE_ID, gyroX, gyroY, gyroZ);
   #if SEND_QUAT
-  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/quat", DEVICE_ID, qx, qy, qz, qw);
+  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/quat", DEVICE_ID, qw, qx, qy, qz);
   #else
   OscWiFi.send(oscAddress, oscPort, oscPrefix + "/euler_deg", DEVICE_ID, roll, pitch, yaw);
   #endif
