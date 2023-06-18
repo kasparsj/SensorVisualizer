@@ -1,5 +1,21 @@
 (
+if (~breathEnabled.isNil) {
+	"../../config.scd".loadRelative;
+};
+
 ~ecgMult = 2pi;
+~ecgHist = (
+	data: [],
+	length: 32,
+);
+
+~ecgHist.frame = { |self|
+	var ecg = ~ecgNormBus.getSynchronous().range(-1, 1);
+	self.data = self.data.add(ecg);
+	if (self.data.size > self.length) {
+		self.data.removeAt(0);
+	};
+};
 
 ~chestAccHist = (
 	x: [],
@@ -91,8 +107,14 @@
 // ~visuals.send('/tex', 1, "shaders/100fragments/OscCircle.frag");
 ~visuals.send('/tex', 1, "shaders/scope2.frag");
 ~visuals.send('/layer/alpha', 1, 0);
-~visuals.send('/tex/var', 1, "dataSize", ~breathHist.length);
-~visuals.send('/tex/var', 1, "scale", 1.5);
+if (~breathEnabled) {
+	~visuals.send('/tex/var', 1, "dataSize", ~breathHist.length);
+	~visuals.send('/tex/var', 1, "scale", 1.5);
+} {
+	~visuals.send('/tex/var', 1, "dataSize", ~ecgHist.length);
+	~visuals.send('/tex/var', 1, "scale", 0.4);
+	~visuals.send('/tex/var', 1, "y", 0.5);
+};
 ~visuals.send('/tex/var', 1, "thickness", 3);
 ~visuals.send('/tex/color', 1, [1.0, 0, 0]);
 
@@ -145,16 +167,20 @@
 ~visuals.send('/tex/var', 10, "thickness", 2);
 
 Tdef(\visuals_loop, { loop {
-	~breathHist.frame();
+	~visuals.send('/tex/var', 0, "time", ~ecgNormBus.getSynchronous() * ~ecgMult);
+
+	if (~breathEnabled) {
+		~breathHist.frame();
+		//~visuals.send('/tex/var', 1, "time", (pi/2) + (~breathBus.getSynchronous() * 2pi));
+		~visuals.send('/tex/var/lifo', 1, "data", ~breathHist.data.last, ~breathHist.length);
+	} {
+		~ecgHist.frame();
+		~visuals.send('/tex/var/lifo', 1, "data", ~ecgHist.data.last, ~ecgHist.length);
+	};
+
 	~chestAccHist.frame();
 	~rhAccHist.frame();
 	~lhAccHist.frame();
-
-	~visuals.send('/tex/var', 0, "time", ~ecgNormBus.getSynchronous() * ~ecgMult);
-
-	//~visuals.send('/tex/var', 1, "time", (pi/2) + (~breathBus.getSynchronous() * 2pi));
-	~visuals.send('/tex/var/lifo', 1, "data", ~breathHist.data.last, ~breathHist.length);
-
 	~visuals.send('/tex/var/lifo', 2, "data", ~chestAccHist.x.last, ~chestAccHist.length);
 	~visuals.send('/tex/var/lifo', 3, "data", ~chestAccHist.y.last, ~chestAccHist.length);
 	~visuals.send('/tex/var/lifo', 4, "data", ~chestAccHist.z.last, ~chestAccHist.length);

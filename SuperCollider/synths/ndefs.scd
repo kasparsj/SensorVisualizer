@@ -214,7 +214,7 @@ Ndef(\breath, { |amp=1.0|
 	Out.kr(~breathBus.index, sig);
 	//Out.ar(36, sig);
 	//Out.ar(37, sig);
-	(sig!2)*~breathEnabled;
+	(sig!2)*~breathEnabled.asInteger;
 });
 
 Ndef(\rh_onsets, { |amp=0|

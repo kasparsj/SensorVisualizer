@@ -31,7 +31,7 @@ r = nil;
 ~lhAccBus = Bus.control(Server.default, 5);
 ~lhAccNormBus.free;
 ~lhAccNormBus = Bus.control(Server.default, 4);
-~breathEnabled = 0;
+~breathEnabled = false;
 ~breathBus.free;
 ~breathBus = Bus.control(Server.default, 1);
 ~recordBus.free;
