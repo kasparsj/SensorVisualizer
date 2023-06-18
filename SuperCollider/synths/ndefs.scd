@@ -38,10 +38,14 @@ Ndef(\heart_perc, { |room=0.5, amp=0.25|
 	env = EnvGen.ar(Env.perc, onset);
 	sig = (SinOsc.ar(hr * ecgNorm * 5) * env * ecgNorm * 4);
 	//sig = sig * Line.kr(0, 1, 90);
-	sig = FreeVerb.ar(sig, room: room);
+	//sig = HPF.ar(sig, 400);
+	sig = FreeVerb.ar(sig, room: room)!2;
+	// sig = MiVerb.ar(sig, drywet: room);
 	sig = sig*amp;
 
-	Out.ar(~recordBus.index+1, sig);
+	// todo: fix - changed to output 2 channels
+	//Out.ar(~recordBus.index+1, sig);
+
 	//Out.ar(9 + (25 * LFNoise2.kr(1/4)).round, sig);
 	//vbap = VBAP.ar(~vbapList.size, sig, ~vbapBuf.bufnum, LFNoise2.kr(1/3)*180, 30, 30);
 	//Out.ar(0, vbap);
@@ -51,6 +55,7 @@ Ndef(\heart_perc, { |room=0.5, amp=0.25|
 	sig;
 });
 //Ndef(\heart_perc).fadeTime = 1;
+//Ndef(\heart_perc).play(0, 2, addAction: \addToTail);
 
 // // not working!!!
 // Ndef(\heart_perc_mi, { |min_hr=40, max_hr=180, room=0.5, amp=1.0|
@@ -78,14 +83,18 @@ Ndef(\heart_perc2, { |room=0.25, amp=1.0|
 	mul = ecgNorm*3;
 	sig = (SinOsc.ar(hr * fmul) * env * mul);
 	sig = LPF.ar(sig, 80);
-	sig = FreeVerb.ar(sig, room: room);
+	sig = FreeVerb.ar(sig, room: room)!2;
+	//sig = MiVerb.ar(sig, drywet: room);
 	sig = sig*amp;
 	//sig = sig * Line.kr(0, 1, 120);
 
+	// todo: fix - changed to output 2 channels
 	//Out.ar(~recordBus.index+2, sig);
 	sig;
 });
 //Ndef(\heart_perc2).fadeTime = 1;
+//Ndef(\heart_perc2).play(0, 2, addAction: \addToTail);
+//Ndef(\heart_perc2).stop;
 
 Ndef(\motion1, { |room=0.5, amp=1.0, pan=0|
 	var sig;
@@ -195,11 +204,12 @@ Ndef(\control1, { |room=0.5, amp=1.0, pan=0|
 // Ndef(\control1).stop;
 
 Ndef(\breath, { |amp=1.0|
-	var sig = SoundIn.ar(0)*amp;
+	var sig = SoundIn.ar(0);
+	sig = sig*amp;
 	Out.kr(~breathBus.index, sig);
 	//Out.ar(36, sig);
 	//Out.ar(37, sig);
-	sig!2*~breathEnabled;
+	(sig!2)*~breathEnabled;
 });
 
 Ndef(\rh_onsets, { |amp=0|
