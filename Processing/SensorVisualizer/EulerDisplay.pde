@@ -6,6 +6,7 @@ public class EulerDisplay extends VectorDisplay {
   EulerDisplay(int firstArg, float x, float y, float w, float h, int histLen, boolean _glPrevent) {
     super(firstArg, x, y, w, h, histLen);
     type = SensorType.EULER;
+    addr = "/euler";
     supportBatch = true;
     glPrevent = _glPrevent;
   }

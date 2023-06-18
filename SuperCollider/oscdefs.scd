@@ -113,8 +113,22 @@ Tdef(\acc_loop, { loop {
 		var valNorm = (val[0..2]/500).clip(-1, 1) ++ val[4];
 		~chestAccBus.setnSynchronous(val);
 		~chestAccNormBus.setnSynchronous(valNorm);
+		~chestEulerBus.setnSynchronous(~eulerAngles.(val));
 		~acc = ~acc[~numAccBatchArgs..];
 	};
 	(1.0/200).wait;
 } }).play;
+
+~eulerAngles = { |value, restrictPitch = false|
+	var roll, pitch;
+	// restrict pitch or roll to -90 to 90
+	if (restrictPitch) {
+		roll = value[1].atan2(value[2]);
+		pitch = ((-1 * value[0]) / ((value[1] * value[1]) + (value[2] * value[2])).sqrt).atan;
+	} {
+		roll  = (value[1] / ((value[0] * value[0]) + (value[2] * value[2])).sqrt).atan;
+		pitch = (-1 * value[0]).atan2(value[2]);
+	};
+	[roll, pitch];
+};
 )

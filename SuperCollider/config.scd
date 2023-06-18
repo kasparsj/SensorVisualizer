@@ -21,6 +21,8 @@ r = nil;
 ~chestAccBus = Bus.control(Server.default, 5);
 ~chestAccNormBus.free;
 ~chestAccNormBus = Bus.control(Server.default, 4);
+~chestEulerBus.free;
+~chestEulerBus = Bus.control(Server.default, 2);
 ~rhAccBus.free;
 ~rhAccBus = Bus.control(Server.default, 5);
 ~rhAccNormBus.free;
