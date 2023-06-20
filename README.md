@@ -19,4 +19,6 @@ Also included are 2 Arduino examples (for [M5StickC](https://github.com/kasparsj
 
 SensorVisualizer is also fully compatible with [GyrOSC](https://apps.apple.com/de/app/gyrosc/id418751595) (iOS app) can visualize it's data.
 
+Once data is being received SensorVisualizer can be used to record and later play back sensor data.
+
 ![Polar H10](/Screenshot/polar-h10.png?raw=true "Polar H10")
