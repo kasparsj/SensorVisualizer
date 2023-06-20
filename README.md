@@ -21,4 +21,6 @@ SensorVisualizer is also fully compatible with [GyrOSC](https://apps.apple.com/d
 
 Once data is being received SensorVisualizer can be used to record and later play back sensor data.
 
+Example screenshot of SensorVisualizer visualizing data from Polar H10 sensor:
+
 ![Polar H10](/Screenshot/polar-h10.png?raw=true "Polar H10")
