@@ -4,6 +4,7 @@ import oscP5.*;
 
 import hypermedia.net.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.*;
@@ -12,6 +13,7 @@ import processing.data.JSONObject;
 
 boolean noDraw = false;
 boolean showFps = false;
+boolean showInfo = false;
 Map<String, Device> devs = new HashMap<String, Device>();
 String cur = "";
 
@@ -26,9 +28,7 @@ void setup() {
   //fullScreen(P3D);
 
   loadData();
-  
-  cur = devs.keySet().iterator().next();
-  
+    
   oscP5 = new OscP5(this, listenPort);
   forwardAddr = new NetAddress("127.0.0.1", 57120);
 }
@@ -61,6 +61,10 @@ void loadData() {
   //    put(SensorType.QUAT, new QuatDisplay(1));
   //    put(SensorType.GYRO, new GyroDisplay(1));
   //}}));
+  
+  //if (devs.size() > 0) {
+  //  cur = devs.keySet().iterator().next();
+  //}
 }
 
 void update() {
@@ -74,7 +78,11 @@ void draw() {
 
   update();
 
-  if (!noDraw) {
+  if (noDraw) {
+    return;
+  }
+  
+  if (devs.size() > 0) {
     Device dev = devs.get(cur);
     dev.drawSensors();
     
@@ -93,13 +101,67 @@ void draw() {
       i++;
     }
   }
-  
-  if (showFps) {
+  else {
     pushStyle();
     fill(255);
-    textSize(12);
-    text(round(frameRate)+"fps", width - 50, height - 15);
+    textSize(36); 
+    textAlign(CENTER);
+    text("Waiting for data on port " + listenPort, width/2, height/2);
     popStyle();
+  }
+  
+  if (showFps) {
+    drawFps();
+  }
+  
+  if (showInfo) {
+    drawInfo();
+  }
+}
+
+void drawFps() {
+  pushStyle();
+  fill(255);
+  textSize(12);
+  text(round(frameRate)+"fps", width - 50, height - 15);
+  popStyle();
+}
+
+void drawInfo() {
+  pushStyle();
+  fill(0, 127);
+  rect(0, 0, width, height);
+  fill(255);
+  List<String> keys = Arrays.asList("1 to 9", "r", "o", "space", "p", "s", "i", "f", "n");
+  List<String> infos = Arrays.asList("switch device", "start/stop recording", "open folder for playback", "play/pause", "start playing", "stop playing",  "show/hide info", "show/hide fps", "show/hide gui");
+  List<String> keys2 = Arrays.asList("u", "q", "e");
+  List<String> infos2 = Arrays.asList("set device fusion type", "show hide quat view", "show/hide euler view");
+  List<String> keys3 = Arrays.asList("f", "t", "m", "v");
+  List<String> infos3 = Arrays.asList("set filter type", "set transform type", "reset min/max", "show/hide sensor");
+  pushMatrix();
+  translate(0, 0);
+  textSize(20);
+  text("Global commands", 30, 30);
+  drawCommands(keys, infos);
+  translate(300, 0);
+  textSize(20);
+  text("Device commands", 30, 30);
+  drawCommands(keys2, infos2);
+  translate(300, 0);
+  textSize(20);
+  text("Sensor commands", 30, 30);
+  drawCommands(keys3, infos3);
+  popMatrix();
+  popStyle();
+}
+
+void drawCommands(List<String> keys, List<String> infos) {
+  for (int i=0; i<keys.size(); i++) {           
+    String key = keys.get(i);
+    String info = infos.get(i);
+    textSize(18);
+    text(key, 30, (i+2)*30);
+    text(info, 90, (i+2)*30);
   }
 }
 
@@ -127,6 +189,9 @@ Device getOrCreateDevice(String deviceId, String inPrefix, int firstArg) {
     devs.put(deviceId, new Device(deviceId, inPrefix, outPrefix, firstArg, new HashMap<SensorType, SensorDisplay>(){{
       
     }}));
+    if (cur.equals("")) {
+      cur = deviceId;
+    }
   }
   return devs.get(deviceId);
 }
@@ -168,16 +233,22 @@ void syncPlayback() {
 }
 
 void mouseClicked() {
-  devs.get(cur).mouseClicked();
+  if (devs.size() > 0) {
+    devs.get(cur).mouseClicked();
+  }
 }
 
 void keyPressed() {
-  if (key >= '1' && key <= '3' && key - '1' < devs.size()) {
+  if (key >= '1' && key <= '9' && key - '1' < devs.size()) {
     cur = (new ArrayList<String>(devs.keySet())).get(key - '1');
     return;
   }
   if (key == 'o') {
     selectFolder("Select a folder to process:", "openFolder");
+    return;
+  }
+  if (key == 'i') {
+    showInfo = !showInfo;
     return;
   }
   if (key == 'f') {
@@ -193,7 +264,7 @@ void keyPressed() {
       dev.keyPressed();
     }
   }
-  else {
+  else if (devs.size() > 0) {
     devs.get(cur).keyPressed();
   }
 }
