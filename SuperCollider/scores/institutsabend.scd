@@ -54,13 +54,13 @@ RedTrk2(\heart_spawn, Pdef(\heartSpawn, Pseq([
 )))], inf)));
 //Pdef(\heartSpawn).play
 
-RedTrk2(\heart_noise, Synth(\ecg_WhiteNoise, [\out, ~chan]).run(false));
+RedTrk2(\heart_noise, Synth(\ecg_WhiteNoise).run(false));
 
 RedTrk2(\start_heart_sin, Task({
-	Ndef(\heart_sin).fadeTime = 5;
+	Ndef(\heart_sin).fadeTime = 20;
 	Ndef(\heart_sin).set(\amp, 0);
-	Ndef(\heart_sin).play(~chan, 2);
-	Ndef(\heart_sin).xset(\amp, 0.025);
+	Ndef(\heart_sin).play(0, 2);
+	Ndef(\heart_sin).xset(\amp, 0.05);
 }));
 //Ndef(\heart_sin).xset(\amp, 0.015);
 
@@ -72,7 +72,7 @@ RedTrk2(\start_heart_perc, Task({
 	Ndef(\heart_perc).fadeTime = 10;
 	Ndef(\heart_perc).set(\amp, 0);
 	Ndef(\heart_perc).play(0, 2, addAction: \addToTail);
-	Ndef(\heart_perc).xset(\amp, 0.3);
+	Ndef(\heart_perc).xset(\amp, 0.2);
 }));
 
 RedTrk2(\stop_heart_perc, Task({
@@ -83,7 +83,7 @@ RedTrk2(\start_heart_perc2, Task({
 	Ndef(\heart_perc2).fadeTime = 30;
 	Ndef(\heart_perc2).set(\amp, 0);
 	Ndef(\heart_perc2).play(~subs, 2, addAction: \addToTail);
-	Ndef(\heart_perc2).xset(\amp, 0.4);
+	Ndef(\heart_perc2).xset(\amp, 0.1);
 }));
 //Ndef(\heart_perc2).xset(\amp, 0.1);
 
@@ -94,7 +94,7 @@ RedTrk2(\stop_heart_perc2, Task({
 RedTrk2(\start_breath, Task({
 	Ndef(\breath).fadeTime = 10;
 	Ndef(\breath).set(\amp, 0);
-	Ndef(\breath).play(~chan, 2);
+	Ndef(\breath).play(0, 2);
 	Ndef(\breath).xset(\amp, 1.0);
 }));
 
@@ -102,25 +102,32 @@ RedTrk2(\stop_breath, Task({
 	Ndef(\breath).stop(5);
 }));
 
-RedTrk2(\motion_grains, Pdef(\motionGrains, Pspawn(Pbind(
-	\pattern, Pfunc {
-		var instruments = [\motion1];
-		var dur = rrand(0.1, 1.0);
-		//var pan = [-1, 1].scramble;
-		var pan = rrand(-1.0, 1.0);
-		Pbind(
-			\instrument, instruments.choose,
-			\dur, Pseq([dur], 1),
-			\pan, pan,
-			\out, ~chan,
-			\amp, 1
-		)
-	},
-	\delta, Pwhite(32, 128, inf) * 0.0025,
-	\method, \par
-))));
-//Pdef(\motionGrains).play;
-//Pdef(\motionGrains).stop;
+RedTrk2(\quite_heart, Task({
+	Ndef(\heart_sin).fadeTime = 15;
+	Ndef(\heart_sin).set(\amp, 0);
+	Ndef(\heart_perc2).fadeTime = 15;
+	Ndef(\heart_perc2).set(\amp, 0);
+	Tdef(\quite_heart, { loop {
+		(rrand(15, 30)).wait;
+		// todo: maybe inverse of chestAcc?
+		Ndef(\heart_sin).play;
+		Ndef(\heart_sin).xset(\amp, 0.02.rand);
+		Ndef(\heart_perc2).play;
+		Ndef(\heart_perc2).xset(\amp, 0.2.rand);
+		(rrand(15, 30)).wait;
+		Ndef(\heart_sin).stop;
+		Ndef(\heart_perc2).stop;
+	} }).play;
+}));
+
+RedTrk2(\stop_heart_all, Task({
+	Tdef(\quite_heart).stop;
+	Ndef(\heart_sin).stop(0);
+	Ndef(\heart_perc2).stop(0);
+	Ndef(\breath).stop(0);
+}));
+
+RedTrk2(\motion_grains, Pdef(\motionGrains));
 
 RedTrk2(\start_motion1, Task({
 	Ndef(\motion1).fadeTime = 1;
@@ -180,14 +187,19 @@ RedTrk2(\snare_final, Pdef(\snare_final));
 	inf, [\start_heart_perc2, \fadein0],
 	inf, [\start_breath, \fadein1],
 	inf, [\start_heart_perc],
-	inf, [\start_heart_sin, \stop_heart_perc],
-	inf, [\start_heart_perc2, \stop_heart_sin, \stop_breath, \fadeout0, \fadeout1],
-	inf, [\motion_grains, \fadein2, \fadein3, \fadein4],
-	inf, [\motion_grains, \start_rh_onsets, \fadein5, \fadein6, \fadein7],
-	inf, [\motion_grains, \start_lh_onsets, \fadein8, \fadein9, \fadein10],
-	inf, [\motion_grains, \stop_rh_onsets, \stop_lh_onsets, \fadeout8, \fadeout9, \fadeout10],
-	inf, [\stop_heart_perc2],
-	//inf, [\start_motion1],
+	inf, [\start_heart_sin, \stop_heart_perc, \stop_heart_perc2],
+	inf, [/*\start_heart_perc2, */\stop_heart_sin, \stop_breath, \fadeout0, \fadeout1],
+	inf, [\invert, \snare, \motion_grains, \line1, \quite_heart],
+	3, [\snare2, \lines12, \quite_heart],
+	inf, [\motion_grains, \start_control1, \stop_heart_all],
+	3, [\snare3, \lines123, \quite_heart],
+	inf, [\start_lh_onsets],
+	3, [\snare3, \lines123, \quite_heart],
+	inf, [\stop_control1, \start_rh_onsets],
+	inf, [\snare2, \lines23, \quite_heart],
+	inf, [\start_heart_perc2, \start_heart_sin, \stop_rh_onsets, \stop_lh_onsets, \no_lines, \no_invert, \start_breath, \fadein1],
+	5, [\stop_heart_all, \nothing],
+	1, [\snare_final]
 ]);
 
 // todo: use RedSeq instead
@@ -198,6 +210,19 @@ RedTrk2(\snare_final, Pdef(\snare_final));
 ~sound.play(loop: false);
 ~sound.nextSection;
 ~sound.stop;
+
+// RedTrk2(\start_heart_perc2).play;
+// RedTrk2(\stop_heart_perc2).play;
+// RedTrk2(\start_breath).play;
+// RedTrk2(\stop_breath).play;
+// RedTrk2(\start_heart_perc).play;
+// RedTrk2(\stop_heart_perc).play;
+// RedTrk2(\start_heart_sin).play;
+// RedTrk2(\stop_heart_sin).play;
+
+//~phi8Master.add(\feedback, 1);
+//~phi8Master.remove(\feedback);
+//~phi8Master.gui;
 
 // Ndef(\motion2).play(0, 2);
 // Ndef(\motion2).xset(\amp, 0.5);

@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.*;
 
+import processing.data.JSONObject;
+
 boolean noDraw = false;
 boolean showFps = false;
 Map<String, Device> devs = new HashMap<String, Device>();
@@ -22,32 +24,43 @@ NetAddress forwardAddr;
 void setup() {
   size(1792, 980, P3D);
   //fullScreen(P3D);
-  
-  // Polar H10
-  devs.put("7E37D222", new Device("7E37D222", "/sensor", outPrefix, 1, new HashMap<SensorType, SensorDisplay>(){{
-      put(SensorType.ACC, new AccDisplay(1, 0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
-      EulerDisplay euler = new EulerDisplay(1, width/2, 0, width/2, height, 500);
-      put(SensorType.EULER, euler);
-      //QuatDisplay = new QuatDisplay(1, width/2, 0, width/2, height, 500);
-      //quat.visible = false;
-      //put(SensorType.QUAT, quat);
-      put(SensorType.HR, new HRDisplay(1, 0, height/2, width/4, height/2, 0, 50));
-      put(SensorType.ECG, new ECGDisplay(1, width/4, height/2, width/4, height/2, 500));
-  }}));
-  
-  devs.put("m5StickC", new Device("m5StickC", "/m5stickc", outPrefix, 1, new HashMap<SensorType, SensorDisplay>(){{
-      put(SensorType.ACC, new AccDisplay(1));
-      //EulerDisplay euler = new EulerDisplay(1, true);
-      //euler.visible = false;
-      //put(SensorType.EULER, euler);
-      put(SensorType.QUAT, new QuatDisplay(1));
-      put(SensorType.GYRO, new GyroDisplay(1));
-  }}));
+
+  loadData();
   
   cur = devs.keySet().iterator().next();
   
   oscP5 = new OscP5(this, listenPort);
   forwardAddr = new NetAddress("127.0.0.1", 57120);
+}
+
+void loadData() {
+  // todo: implement loading and saving device configurations
+  //JSONObject data = loadJSONObject("data.json");
+  //JSONObject devices = json.getJSONArray("devices");
+  //for (JSONObject device : devcices) {
+    
+  //}
+  
+  //// Polar H10
+  //devs.put("7E37D222", new Device("7E37D222", "/sensor", outPrefix, 1, new HashMap<SensorType, SensorDisplay>(){{
+  //    put(SensorType.ACC, new AccDisplay(1, 0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
+  //    EulerDisplay euler = new EulerDisplay(1, width/2, 0, width/2, height, 500);
+  //    put(SensorType.EULER, euler);
+  //    //QuatDisplay = new QuatDisplay(1, width/2, 0, width/2, height, 500);
+  //    //quat.visible = false;
+  //    //put(SensorType.QUAT, quat);
+  //    put(SensorType.HR, new HRDisplay(1, 0, height/2, width/4, height/2, 0, 50));
+  //    put(SensorType.ECG, new ECGDisplay(1, width/4, height/2, width/4, height/2, 500));
+  //}}));
+  
+  //devs.put("m5StickC", new Device("m5StickC", "/m5stickc", outPrefix, 1, new HashMap<SensorType, SensorDisplay>(){{
+  //    put(SensorType.ACC, new AccDisplay(1));
+  //    //EulerDisplay euler = new EulerDisplay(1, true);
+  //    //euler.visible = false;
+  //    //put(SensorType.EULER, euler);
+  //    put(SensorType.QUAT, new QuatDisplay(1));
+  //    put(SensorType.GYRO, new GyroDisplay(1));
+  //}}));
 }
 
 void update() {
@@ -283,7 +296,7 @@ void compass2D(PVector vector, float d, boolean useRect) {
     rect(-d/2, -d/2, d, d);
   }
   else {
-  ellipse(0, 0, d, d);
+    ellipse(0, 0, d, d);
   }
   stroke(255, 0, 0);
   line(0, 0, mult.x, mult.y);

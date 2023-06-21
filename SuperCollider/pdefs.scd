@@ -23,7 +23,7 @@ Pdef(\motionGrains, Pspawn(Pbind(
 Pdef(\snare, Pbind(
 	\instrument, \plaits_snare,
 	\dur, Pseq([10.0], 1),
-	\amp, 0.9,
+	\amp, 1.0,
 	\harm, 0.25,
 	\midinote, 47,
 	\revtime, 0.9,
@@ -33,7 +33,7 @@ Pdef(\snare, Pbind(
 Pdef(\snare_final, Pbind(
 	\instrument, \plaits_snare,
 	\dur, Pseq([10.0], 1),
-	\amp, 1.1,
+	\amp, 1.3,
 	\harm, 0.25,
 	\midinote, [40, 47, 54],
 	\revtime, 0.9,
@@ -43,7 +43,7 @@ Pdef(\snare_final, Pbind(
 Pdef(\snare2, Pbind(
 	\instrument, \plaits_snare,
 	\dur, 1.5,
-	\amp, 0.9,
+	\amp, 1.1,
 	\harm, 0.25,
 	//\midinote, Pseq(47+12+~scale.degrees[0..1], 1),
 	\midinote, Pseq([47, 54], 1),
@@ -54,7 +54,7 @@ Pdef(\snare2, Pbind(
 Pdef(\snare3, Pbind(
 	\instrument, \plaits_snare,
 	\dur, 1.5,
-	\amp, 0.9,
+	\amp, 1.1,
 	\harm, 0.25,
 	\midinote, Pseq([54, 61], 1),
 	\revtime, 0.7,
@@ -64,7 +64,7 @@ Pdef(\snare3, Pbind(
 Pdef(\snare4, Pbind(
 	\instrument, \plaits_snare,
 	\dur, 1.5,
-	\amp, 0.9,
+	\amp, 1.1,
 	\harm, 0.25,
 	\midinote, Pseq([47, 40], 1),
 	\revtime, 0.7,
