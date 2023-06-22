@@ -3,28 +3,24 @@ public class EulerDisplay extends VectorDisplay {
   int glAngle = 65;
   boolean glPrevent = false;
 
-  EulerDisplay(int firstArg, float x, float y, float w, float h, int histLen, boolean _glPrevent) {
-    super(firstArg, x, y, w, h, histLen);
+  EulerDisplay(float x, float y, float w, float h, int histLen, boolean _glPrevent) {
+    super(x, y, w, h, histLen);
     type = SensorType.EULER;
     addr = "/euler";
     supportBatch = true;
     glPrevent = _glPrevent;
   }
 
-  EulerDisplay(int firstArg, float x, float y, float w, float h, int histLen) {
-    this(firstArg, x, y, w, h, histLen, false);
+  EulerDisplay(float x, float y, float w, float h, int histLen) {
+    this(x, y, w, h, histLen, false);
   }
 
-  EulerDisplay(int firstArg, boolean _glPrevent) {
-    this(firstArg, width/4 * 3, 0, width/4, height, 500, _glPrevent);
-  }
-
-  EulerDisplay(int firstArg) {
-    this(firstArg, false);
+  EulerDisplay(boolean _glPrevent) {
+    this(width/4 * 3, 0, width/4, height, 500, _glPrevent);
   }
 
   EulerDisplay() {
-    this(1, false);
+    this(false);
   }
 
   void preventGimbalLock(PVector val) {

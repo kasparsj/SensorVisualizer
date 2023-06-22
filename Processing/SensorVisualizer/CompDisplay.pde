@@ -1,17 +1,13 @@
 public class CompDisplay extends SensorDisplay<Float> {
 
-  CompDisplay(int firstArg, float x, float y, float w, float h) {
-    super(firstArg, x, y, w, h);
+  CompDisplay(float x, float y, float w, float h) {
+    super(x, y, w, h);
     type = SensorType.COMP;
     addr = "/comp";
   }
 
-  CompDisplay(int firstArg) {
-    this(firstArg, width/4, height/2, width/4, height/2);
-  }
-
   CompDisplay() {
-    this(1);
+    this(width/4, height/2, width/4, height/2);
   }
 
   void draw(float w, float h) {

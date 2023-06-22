@@ -1,17 +1,13 @@
 public class QuatDisplay extends RotationStats {
 
-  QuatDisplay(int firstArg, float x, float y, float w, float h, int histLen) {
-    super(firstArg, x, y, w, h, histLen);
+  QuatDisplay(float x, float y, float w, float h, int histLen) {
+    super(x, y, w, h, histLen);
     type = SensorType.QUAT;
     addr = "/quat";
   }
 
-  QuatDisplay(int firstArg) {
-    this(firstArg, width/4 * 3, 0, width/4, height, 500);
-  }
-
   QuatDisplay() {
-    this(1);
+    this(width/4 * 3, 0, width/4, height, 500);
   }
 
   void draw(float w, float h) {

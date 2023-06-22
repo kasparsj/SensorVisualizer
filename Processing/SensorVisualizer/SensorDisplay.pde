@@ -50,8 +50,7 @@ abstract class SensorDisplay<T> {
   boolean visible = true;
   String addr;
   
-  SensorDisplay(int firstArg, float x, float y, float w, float h) {
-    this.firstArg = firstArg;
+  SensorDisplay(float x, float y, float w, float h) {
     this.x = x;
     this.y = y;
     this.w = w;

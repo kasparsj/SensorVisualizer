@@ -42,24 +42,24 @@ void loadData() {
   //}
   
   //// Polar H10
-  //devs.put("7E37D222", new Device("7E37D222", "/sensor", outPrefix, 1, new HashMap<SensorType, SensorDisplay>(){{
-  //    put(SensorType.ACC, new AccDisplay(1, 0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
-  //    EulerDisplay euler = new EulerDisplay(1, width/2, 0, width/2, height, 500);
+  //devs.put("7E37D222", new Device("7E37D222", "/sensor", outPrefix, new HashMap<SensorType, SensorDisplay>(){{
+  //    put(SensorType.ACC, new AccDisplay(0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
+  //    EulerDisplay euler = new EulerDisplay(width/2, 0, width/2, height, 500);
   //    put(SensorType.EULER, euler);
-  //    //QuatDisplay = new QuatDisplay(1, width/2, 0, width/2, height, 500);
+  //    //QuatDisplay = new QuatDisplay(width/2, 0, width/2, height, 500);
   //    //quat.visible = false;
   //    //put(SensorType.QUAT, quat);
-  //    put(SensorType.HR, new HRDisplay(1, 0, height/2, width/4, height/2, 0, 50));
-  //    put(SensorType.ECG, new ECGDisplay(1, width/4, height/2, width/4, height/2, 500));
+  //    put(SensorType.HR, new HRDisplay(0, height/2, width/4, height/2, 0, 50));
+  //    put(SensorType.ECG, new ECGDisplay(width/4, height/2, width/4, height/2, 500));
   //}}));
   
-  //devs.put("m5StickC", new Device("m5StickC", "/m5stickc", outPrefix, 1, new HashMap<SensorType, SensorDisplay>(){{
-  //    put(SensorType.ACC, new AccDisplay(1));
-  //    //EulerDisplay euler = new EulerDisplay(1, true);
+  //devs.put("m5StickC", new Device("m5StickC", "/m5stickc", outPrefix, new HashMap<SensorType, SensorDisplay>(){{
+  //    put(SensorType.ACC, new AccDisplay());
+  //    //EulerDisplay euler = new EulerDisplay(true);
   //    //euler.visible = false;
   //    //put(SensorType.EULER, euler);
-  //    put(SensorType.QUAT, new QuatDisplay(1));
-  //    put(SensorType.GYRO, new GyroDisplay(1));
+  //    put(SensorType.QUAT, new QuatDisplay());
+  //    put(SensorType.GYRO, new GyroDisplay());
   //}}));
   
   //if (devs.size() > 0) {
@@ -166,29 +166,27 @@ void drawCommands(List<String> keys, List<String> infos) {
 }
 
 void oscEvent(OscMessage msg) {
-  if (isGyrOsc(msg.addrPattern())) {
-    String deviceId = "GyrOSC";
-    getOrCreateDevice(deviceId, "/gyrosc", 0).oscEvent(msg);
-  }
-  else if (msg.typetag().charAt(0) == 's') {
-    String deviceId = msg.get(0).stringValue();
-    getOrCreateDevice(deviceId, getOscPrefix(msg.addrPattern()), 1).oscEvent(msg);
-  }
+  String prefix = getOscPrefix(msg.addrPattern());
+  String deviceId = prefix.replaceAll("^/", "");
+  String ip = msg.tcpConnection().netAddress().address();
+  getOrCreateDevice(deviceId, prefix, ip).oscEvent(msg);
 }
 
 String getOscPrefix(String addrPattern) {
-  return addrPattern.substring(0, addrPattern.indexOf("/", 1));
+  int offset = addrPattern.charAt(0) == '/' ? 1 : 0;
+  return addrPattern.substring(0, addrPattern.indexOf("/", offset));
 }
 
-boolean isGyrOsc(String addrPattern) {
-  return addrPattern.substring(0, min(7, addrPattern.length())).equals("/gyrosc");
-}
-
-Device getOrCreateDevice(String deviceId, String inPrefix, int firstArg) {
+Device getOrCreateDevice(String deviceId, String inPrefix, String ip) {
+  if (devs.get(deviceId) != null && !devs.get(deviceId).ip.equals("") && !devs.get(deviceId).ip.equals(ip)) {
+    deviceId = deviceId + "-" + ip;
+  }
   if (devs.get(deviceId) == null) {
-    devs.put(deviceId, new Device(deviceId, inPrefix, outPrefix, firstArg, new HashMap<SensorType, SensorDisplay>(){{
+    Device dev = new Device(deviceId, inPrefix, outPrefix, new HashMap<SensorType, SensorDisplay>(){{
       
-    }}));
+    }});
+    dev.ip = ip;
+    devs.put(deviceId, dev);
     if (cur.equals("")) {
       cur = deviceId;
     }
@@ -204,7 +202,7 @@ void openFolder(File folder) {
         String deviceId = fileName.substring(0, fileName.lastIndexOf('_'));
         Table table = loadTable(file.getPath(), "tsv");
         String addrPattern = table.getString(0, 0);
-        getOrCreateDevice(deviceId, getOscPrefix(addrPattern), isGyrOsc(addrPattern) ? 0 : 1).openFile(file);
+        getOrCreateDevice(deviceId, getOscPrefix(addrPattern), "").openFile(file);
       }
     }
     syncPlayback();
@@ -330,6 +328,7 @@ PVector eulerAngles(PVector value, boolean restrictPitch) {
   float roll, pitch;
 
   // restrict pitch or roll to -90 to 90
+  // todo: check EulerDisplay.glPrevent
   if (restrictPitch) {
     roll  = atan2(value.y, value.z);
     pitch = atan(-value.x / sqrt(value.y * value.y + value.z * value.z));

@@ -4,8 +4,8 @@ abstract class RotationStats extends SensorDisplay<Quaternion> {
   PVector[] yx;
   PVector[] zy;
 
-  RotationStats(int firstArg, float x, float y, float w, float h, int histLen) {
-    super(firstArg, x, y, w, h);
+  RotationStats(float x, float y, float w, float h, int histLen) {
+    super(x, y, w, h);
     numArgs = 4;
     enableHistory(histLen);
   }

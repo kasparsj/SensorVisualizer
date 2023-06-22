@@ -2,19 +2,15 @@ public class MagDisplay extends VectorDisplay {
 
   float magDeclination = 0;
 
-  MagDisplay(int firstArg, float x, float y, float w, float h, int histLen, int deltaSumWin) {
-    super(firstArg, x, y, w, h, histLen);
+  MagDisplay(float x, float y, float w, float h, int histLen, int deltaSumWin) {
+    super(x, y, w, h, histLen);
     type = SensorType.MAG;
     addr = "/mag";
     enableMagnitude(deltaSumWin);
   }
 
-  MagDisplay(int firstArg) {
-    this(firstArg, 0, height/2, width/4, height/2, 500, 2);
-  }
-
   MagDisplay() {
-    this(1);
+    this(0, height/2, width/4, height/2, 500, 2);
   }
 
   void draw(float w, float h) {

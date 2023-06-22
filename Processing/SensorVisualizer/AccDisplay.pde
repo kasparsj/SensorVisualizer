@@ -24,8 +24,8 @@ public class AccDisplay extends VectorDisplay {
   Float[] speeds;
   PVector position;
 
-  AccDisplay(int firstArg, float x, float y, float w, float h, GravityMethod gm, int histLen, int deltaSumWin, float maxMag) {
-    super(firstArg, x, y, w, h, histLen);
+  AccDisplay(float x, float y, float w, float h, GravityMethod gm, int histLen, int deltaSumWin, float maxMag) {
+    super(x, y, w, h, histLen);
     type = SensorType.ACC;
     addr = "/acc";
     supportBatch = true;
@@ -35,12 +35,8 @@ public class AccDisplay extends VectorDisplay {
     setFilterType(FilterType.KALMAN);
   }
 
-  AccDisplay(int firstArg) {
-    this(firstArg, 0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 9.81);
-  }
-
   AccDisplay() {
-    this(1);
+    this(0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 9.81);
   }
 
   AccDisplay enableHistory(int histLen) {

@@ -11,11 +11,10 @@
 
 #define DEVICE_ID "m5StickC"
 #define ENV_HAT_ENABLED 1
-#define OSC_PREFIX "/m5stickc"
 #define SEND_QUAT 1
 
-#define SSID "toplap-ka"
-#define PASSWORD "toplap-ka"
+#define SSID "MPLAB"
+#define PASSWORD ""
 
 // #define SSID "Insternet"
 // #define EAP_IDENTITY "kaspars"
@@ -23,7 +22,7 @@
 
 const char* oscAddress = "kaspars.local";
 const int oscPort = 57121;
-String oscPrefix = String(OSC_PREFIX);
+String oscPrefix = "/" + String(DEVICE_ID);
 
 // IMU
 //Adafruit_NXPSensorFusion filter; // slowest
@@ -334,20 +333,20 @@ void updateBMP() {
 }
 
 void sendOSC() {
-  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/acc", DEVICE_ID, accX, accY, accZ);
-  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/gyro_deg", DEVICE_ID, gyroX, gyroY, gyroZ);
+  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/acc", accX, accY, accZ);
+  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/gyro_deg", gyroX, gyroY, gyroZ);
   #if SEND_QUAT
-  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/quat", DEVICE_ID, qw, qx, qy, qz);
+  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/quat", qw, qx, qy, qz);
   #else
-  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/euler_deg", DEVICE_ID, roll, pitch, yaw);
+  OscWiFi.send(oscAddress, oscPort, oscPrefix + "/euler_deg", roll, pitch, yaw);
   #endif
 
   if (bmeInitialized) {
-    OscWiFi.send(oscAddress, oscPort, oscPrefix + "/altitude", DEVICE_ID, alt);
+    OscWiFi.send(oscAddress, oscPort, oscPrefix + "/altitude", alt);
   }
   if (bmmInitialized) {
-    OscWiFi.send(oscAddress, oscPort, oscPrefix + "/mag", DEVICE_ID, magX, magY, magZ);
-    OscWiFi.send(oscAddress, oscPort, oscPrefix + "/comp", DEVICE_ID, headingDegrees);
+    OscWiFi.send(oscAddress, oscPort, oscPrefix + "/mag", magX, magY, magZ);
+    OscWiFi.send(oscAddress, oscPort, oscPrefix + "/comp", headingDegrees);
   }
 }
 

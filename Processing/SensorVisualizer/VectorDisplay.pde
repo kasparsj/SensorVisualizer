@@ -12,8 +12,8 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
   float magDeltaSumCoeff;
   JKalman kalman;
   
-  VectorDisplay(int firstArg, float x, float y, float w, float h, int histLen) {
-    super(firstArg, x, y, w, h);
+  VectorDisplay(float x, float y, float w, float h, int histLen) {
+    super(x, y, w, h);
     numArgs = 3;
     enableHistory(histLen);
   }
