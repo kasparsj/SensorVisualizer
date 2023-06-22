@@ -3,15 +3,17 @@
 SensorVisualizer is a [Processing](https://processing.org/) app that visualizes sensor data, that it receives trough OSC:
 
 By default it listens to port 57121 and the following OSC addresses:
-- "/prefix/acc" (x y z)
-- "/prefix/gyro" (x y z)
-- "/prefix/mag" (x y z)
-- "/prefix/altitude" (value)
-- "/prefix/comp" (heading in radians)
-- "/prefix/ecg" (value)
-- "/prefix/hr" (heartrate)
-- "/prefix/euler" (roll pitch yaw)
-- "/prefix/quat" (w x y z)
+- "/deviceId/acc" (x y z)
+- "/deviceId/gyro" (x y z)
+- "/deviceId/mag" (x y z)
+- "/deviceId/altitude" (value)
+- "/deviceId/comp" (heading in radians)
+- "/deviceId/ecg" (value)
+- "/deviceId/hr" (heartrate)
+- "/deviceId/euler" (roll pitch yaw)
+- "/deviceId/quat" (w x y z)
+
+The "deviceId" prefix must change depending on the sending device.
 
 ## Sensor Fusion
 
