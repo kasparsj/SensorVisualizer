@@ -1,6 +1,6 @@
-[submodule "Android/Sensor2OSC"]
-	path = Android/Sensor2OSC
-	url = git@github.com:kasparsj/Sensor2OSC.git
 [submodule "Processing/libraries/JKalman"]
 	path = Processing/libraries/JKalman
 	url = git@github.com:kasparsj/JKalman.git
+[submodule "Sensor2OSC"]
+	path = Sensor2OSC
+	url = git@github.com:kasparsj/Sensor2OSC.git
