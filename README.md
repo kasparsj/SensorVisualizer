@@ -2,7 +2,7 @@
 
 SensorVisualizer is a [Processing](https://processing.org/) app that visualizes sensor data, that it receives trough OSC:
 
-It expects the incoming data on port 57121 and the following OSC addresses:
+By default it listens to port 57121 and the following OSC addresses:
 - "/prefix/acc" (x y z)
 - "/prefix/gyro" (x y z)
 - "/prefix/mag" (x y z)
