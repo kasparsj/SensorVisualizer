@@ -13,7 +13,7 @@ By default it listens to port 57121 and the following OSC addresses:
 - "/deviceId/euler" (roll pitch yaw)
 - "/deviceId/quat" (w x y z)
 
-The "deviceId" prefix must be changed depending on the sending device.
+The "deviceId" prefix must change depending on the sending device.
 
 ## Sensor Fusion
 
