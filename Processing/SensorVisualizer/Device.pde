@@ -81,6 +81,7 @@ public class Device {
     rect(0, 0, w, 20);
     fill(255);
     textAlign(CENTER);
+    textSize(12);
     text(id, w/2, 13);
     popStyle();
     if (isRecording || isPlaying) {

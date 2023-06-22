@@ -90,7 +90,7 @@ void draw() {
       long dur = (dev.playMaxMs - dev.playMinMs);
       pushStyle();
       fill(255);
-      textSize(12);
+      textSize(14);
       text((dev.playPos % dur) + " / " + dur + (dev.isPaused ? " paused" : ""), width/2 + 20, height - 15);
       popStyle();
     }
@@ -168,7 +168,7 @@ void drawCommands(List<String> keys, List<String> infos) {
 void oscEvent(OscMessage msg) {
   String prefix = getOscPrefix(msg.addrPattern());
   String deviceId = prefix.replaceAll("^/", "");
-  String ip = msg.tcpConnection().netAddress().address();
+  String ip = msg.address();
   getOrCreateDevice(deviceId, prefix, ip).oscEvent(msg);
 }
 
