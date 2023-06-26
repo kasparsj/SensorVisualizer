@@ -84,7 +84,10 @@ void draw() {
   
   if (devs.size() > 0) {
     Device dev = devs.get(cur);
+    pushStyle();
+    textSize(13);
     dev.drawSensors();
+    popStyle();
     
     if (dev.isPlaying && dev.playMinMs > -1) {
       long dur = (dev.playMaxMs - dev.playMinMs);

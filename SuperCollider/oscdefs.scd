@@ -45,7 +45,7 @@ OSCdef(\acc, {|msg, time, addr, recvPort|
 		~lhAccBus.setn(lhAcc);
 		~lhAccNormBus.setn(lhAccNorm);
 	});
-	if (msg[1].asString() == "GyrOSC", {
+	if (msg[1].asString() == "gyrosc", {
 		var rhAcc = msg[2..6];
 		var rhAccNorm = (rhAcc[0..2]/2).clip(-1, 1) ++ rhAcc[4];
 		~rhAccBus.setn(rhAcc);
@@ -63,7 +63,7 @@ OSCdef(\acc_batch, {|msg, time, addr, recvPort|
 
 OSCdef(\quat, {|msg, time, addr, recvPort|
 	// addr, deviceId, x, y, z, w, xzx
-	if (msg[1].asString() == "GyrOSC", {
+	if (msg[1].asString() == "gyrosc", {
 		var rhQuat = msg[2..14];
 		~rhQuatBus.setn(rhQuat);
 	});
