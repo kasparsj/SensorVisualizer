@@ -1,4 +1,6 @@
 (
+// requires: https://github.com/kasparsj/redMst
+
 MasterFX.clear('localhost');
 
 s.waitForBoot {
@@ -158,7 +160,7 @@ RedTrk2(\rh_onsets, RedVol(RedFn({
 	Ndef(\rh_onsets).xset(\amp, 1.0);
 }, {
 	Ndef(\rh_onsets).stop(5);
-}, { |vol|
+}), { |vol|
 	Ndef(\rh_onsets).vol = vol;
 }, 1));
 
