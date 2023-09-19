@@ -7,6 +7,7 @@ r = nil;
 ~polarId = "polar";
 ~rhId = "gyrosc";
 ~lhId = "m5StickC";
+~motionGrainsAmp = 0.5;
 
 ~hrBus.free; // 40 - 180
 ~hrBus = Bus.control(Server.default, 1);

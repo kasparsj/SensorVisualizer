@@ -56,43 +56,51 @@ RedTrk2(\heart_spawn, Pdef(\heartSpawn, Pseq([
 
 RedTrk2(\heart_noise, Synth(\ecg_WhiteNoise).run(false));
 
-RedTrk2(\heart_sin, RedTask({
+RedTrk2(\heart_sin, RedVol(RedFn({
 	Ndef(\heart_sin).fadeTime = 20;
 	Ndef(\heart_sin).set(\amp, 0);
 	Ndef(\heart_sin).play(0, 2);
-	Ndef(\heart_sin).xset(\amp, 0.05);
+	Ndef(\heart_sin).xset(\amp, 0.1);
 }, {
 	Ndef(\heart_sin).stop(5);
-}));
+}), { |vol|
+	Ndef(\heart_sin).vol = vol;
+}, 0.5));
 
-RedTrk2(\heart_perc, RedTask({
+RedTrk2(\heart_perc, RedVol(RedFn({ |vol|
 	Ndef(\heart_perc).fadeTime = 10;
 	Ndef(\heart_perc).set(\amp, 0);
 	Ndef(\heart_perc).play(0, 2, addAction: \addToTail);
 	Ndef(\heart_perc).xset(\amp, 0.2);
 }, {
 	Ndef(\heart_perc).stop(5);
-}));
+}), { |vol|
+	Ndef(\heart_perc).vol = vol;
+}, 0.5));
 
-RedTrk2(\heart_perc2, RedTask({
+RedTrk2(\heart_perc2, RedVol(RedFn({
 	Ndef(\heart_perc2).fadeTime = 30;
 	Ndef(\heart_perc2).set(\amp, 0);
 	Ndef(\heart_perc2).play(~subs, 2, addAction: \addToTail);
 	Ndef(\heart_perc2).xset(\amp, 0.1);
 }, {
 	Ndef(\heart_perc2).stop(5);
-}));
+}), { |vol|
+	Ndef(\heart_perc2).vol = vol;
+}, 1));
 
-RedTrk2(\breath, RedTask({
+RedTrk2(\breath, RedVol(RedFn({
 	Ndef(\breath).fadeTime = 10;
 	Ndef(\breath).set(\amp, 0);
 	Ndef(\breath).play(0, 2);
 	Ndef(\breath).xset(\amp, 1.0);
 }, {
 	Ndef(\breath).stop(5);
-}));
+}), { |vol|
+	Ndef(\breath).vol = vol;
+}, 1));
 
-RedTrk2(\quite_heart, RedTask({
+RedTrk2(\quite_heart, RedVol(RedFn({
 	Ndef(\heart_sin).fadeTime = 15;
 	Ndef(\heart_sin).set(\amp, 0);
 	Ndef(\heart_perc2).fadeTime = 15;
@@ -112,45 +120,58 @@ RedTrk2(\quite_heart, RedTask({
 	Tdef(\quite_heart).stop;
 	Ndef(\heart_sin).stop;
 	Ndef(\heart_perc2).stop;
+}), { |vol|
+	Ndef(\heart_sin).vol = vol;
+	Ndef(\heart_perc2).vol = vol;
+}, 1));
+
+RedTrk2(\motion_grains, RedVol(Pdef(\motionGrains), { |vol|
+	~motionGrainsAmp = vol;
 }));
 
-RedTrk2(\motion_grains, Pdef(\motionGrains));
-
-RedTrk2(\motion1, RedTask({
+RedTrk2(\motion1, RedVol(RedFn({
 	Ndef(\motion1).fadeTime = 1;
 	Ndef(\motion1).set(\amp, 0);
 	Ndef(\motion1).play(0, 2);
 	Ndef(\motion1).xset(\amp, 1.0);
 }, {
 	Ndef(\motion1).stop(5);
-}));
+}), { |vol|
+	Ndef(\motion1).vol = vol;
+}, 1));
 
-RedTrk2(\control1, RedTask({
+RedTrk2(\control1, RedVol(RedFn({
 	Ndef(\control1).fadeTime = 10;
 	Ndef(\control1).set(\amp, 0);
 	Ndef(\control1).play(0, 2);
 	Ndef(\control1).xset(\amp, 0.5);
 }, {
 	Ndef(\control1).stop(5);
-}));
+}), { |vol|
+	Ndef(\control1).vol = vol;
+}, 1));
 
-RedTrk2(\rh_onsets, RedTask({
+RedTrk2(\rh_onsets, RedVol(RedFn({
 	Ndef(\rh_onsets).fadeTime = 8;
 	Ndef(\rh_onsets).set(\amp, 0);
 	Ndef(\rh_onsets).play(0, 2);
 	Ndef(\rh_onsets).xset(\amp, 1.0);
 }, {
 	Ndef(\rh_onsets).stop(5);
-}));
+}, { |vol|
+	Ndef(\rh_onsets).vol = vol;
+}, 1));
 
-RedTrk2(\lh_onsets, RedTask({
+RedTrk2(\lh_onsets, RedVol(RedFn({
 	Ndef(\lh_onsets).fadeTime = 8;
 	Ndef(\lh_onsets).set(\amp, 0);
 	Ndef(\lh_onsets).play(0, 2);
 	Ndef(\lh_onsets).xset(\amp, 1.0);
 }, {
 	Ndef(\lh_onsets).stop(5);
-}));
+}), { |vol|
+	Ndef(\lh_onsets).vol = vol;
+}, 1));
 
 RedTrk2(\snare, Pdef(\snare));
 

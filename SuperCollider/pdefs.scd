@@ -1,4 +1,7 @@
 (
+if (~motionGrainsAmp.isNil) {
+	"config.scd".loadRelative;
+};
 Pdef(\motionGrains, Pspawn(Pbind(
 	\pattern, Pfunc {
 		var instruments = [\motion1];
@@ -9,8 +12,7 @@ Pdef(\motionGrains, Pspawn(Pbind(
 			\instrument, instruments.choose,
 			\dur, Pseq([dur], 1),
 			\pan, pan,
-			// \amp, 0.2,
-			\amp, 0.5,
+			\amp, ~motionGrainsAmp,
 		)
 	},
 	// \delta, Pwhite(32, 128, inf) * 0.00125,
