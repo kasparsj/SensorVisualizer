@@ -63,7 +63,7 @@ RedTrk2(\heart_sin, RedTask({
 	Ndef(\heart_sin).xset(\amp, 0.05);
 }, {
 	Ndef(\heart_sin).stop(5);
-});
+}));
 
 RedTrk2(\heart_perc, RedTask({
 	Ndef(\heart_perc).fadeTime = 10;
@@ -74,7 +74,7 @@ RedTrk2(\heart_perc, RedTask({
 	Ndef(\heart_perc).stop(5);
 }));
 
-RedTrk2(\perc2, RedTask({
+RedTrk2(\heart_perc2, RedTask({
 	Ndef(\heart_perc2).fadeTime = 30;
 	Ndef(\heart_perc2).set(\amp, 0);
 	Ndef(\heart_perc2).play(~subs, 2, addAction: \addToTail);
