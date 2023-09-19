@@ -77,11 +77,11 @@ public class ECGDisplay extends SensorDisplay<Float> {
 
   Float parse(OscMessage msg, int i) {
     float val;
-    if (msg.typetag().charAt(1+i) == 'i') {
-      val = (float) msg.get(1+i).intValue();
+    if (msg.typetag().charAt(i) == 'i') {
+      val = (float) msg.get(i).intValue();
     }
     else {
-      val = msg.get(1+i).floatValue();
+      val = msg.get(i).floatValue();
     }
     return val;
   }

@@ -21,11 +21,11 @@ OSCdef(\hr, {|msg, time, addr, recvPort|
 
 // OSCdef(\quat, {|msg, time, addr, recvPort|
 // 	var data = msg[1..]; // deviceId, x, y, z, w, xz.x, xz.y, xz.mag, xz.heading, yz.x, yx.y, yx.mag, yx.heading, zy.x, zy.y, zy.mag, zy.heading
-// 	if (data[0].asString() == "7E37D222", {
+// 	if (data[0].asString() == ~polarId, {
 // 		Ndef(\motion2_mi).set(\pan, 0.2-data[11]); // yx.mag
 // 	});
-// 	//if (data[0].asString() == "m5StickC", {
-// 	if (data[0].asString() == "GyrOSC", {
+// 	//if (data[0].asString() == ~lhId, {
+// 	if (data[0].asString() == ~rhId, {
 // 		Ndef(\motion3).set(\pan, data[11]*2);
 // 		Ndef(\motion3_mi).set(\pan, data[11]*2);
 // 	});
@@ -33,19 +33,19 @@ OSCdef(\hr, {|msg, time, addr, recvPort|
 
 OSCdef(\acc, {|msg, time, addr, recvPort|
 	// adrr, deviceId, x, y, z, mag, magPerc, magDeltaSum, magDeltaSumPerc, heading
-	if (msg[1].asString() == "7E37D222", {
+	if (msg[1].asString() == ~polarId, {
 		var chestAcc = msg[2..6];
 		var chestAccNorm = (chestAcc[0..2]/500).clip(-1, 1) ++ chestAcc[4];
 		~chestAccBus.setn(chestAcc);
 		~chestAccNormBus.setn(chestAccNorm);
 	});
-	if (msg[1].asString() == "m5StickC", {
+	if (msg[1].asString() == ~lhId, {
 		var lhAcc = msg[2..6];
 		var lhAccNorm = (lhAcc[0..2]/3).clip(-1, 1) ++ lhAcc[4];
 		~lhAccBus.setn(lhAcc);
 		~lhAccNormBus.setn(lhAccNorm);
 	});
-	if (msg[1].asString() == "gyrosc", {
+	if (msg[1].asString() == ~rhId, {
 		var rhAcc = msg[2..6];
 		var rhAccNorm = (rhAcc[0..2]/2).clip(-1, 1) ++ rhAcc[4];
 		~rhAccBus.setn(rhAcc);
@@ -55,7 +55,7 @@ OSCdef(\acc, {|msg, time, addr, recvPort|
 
 OSCdef(\acc_batch, {|msg, time, addr, recvPort|
 	// addr, deviceId, numArgs, arg1
-	if (msg[1].asString() == "7E37D222", {
+	if (msg[1].asString() == ~polarId, {
 		~numAccBatchArgs = msg[2].asInteger;
 		~acc = msg[3..];
 	});
@@ -63,7 +63,7 @@ OSCdef(\acc_batch, {|msg, time, addr, recvPort|
 
 OSCdef(\quat, {|msg, time, addr, recvPort|
 	// addr, deviceId, x, y, z, w, xzx
-	if (msg[1].asString() == "gyrosc", {
+	if (msg[1].asString() == ~rhId, {
 		var rhQuat = msg[2..14];
 		~rhQuatBus.setn(rhQuat);
 	});
@@ -78,7 +78,7 @@ OSCdef(\quat, {|msg, time, addr, recvPort|
 // }, ~prefix++"/mag");
 
 OSCdef(\compass, {|msg, time, addr, recvPort|
-	if (msg[1].asString == "GyrOSC") {
+	if (msg[1].asString == ~rhId) {
 		var compNorm;
 		~compassBus.set(msg[2]);
 		if (msg[2] > 250) {

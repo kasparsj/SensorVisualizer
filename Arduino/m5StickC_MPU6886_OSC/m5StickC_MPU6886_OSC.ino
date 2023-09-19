@@ -13,8 +13,8 @@
 #define ENV_HAT_ENABLED 1
 #define SEND_QUAT 1
 
-#define SSID "MPLAB"
-#define PASSWORD ""
+#define SSID "iPhone"
+#define PASSWORD "apsardze"
 
 // #define SSID "Insternet"
 // #define EAP_IDENTITY "kaspars"

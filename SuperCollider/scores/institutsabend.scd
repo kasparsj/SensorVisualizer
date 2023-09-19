@@ -56,53 +56,43 @@ RedTrk2(\heart_spawn, Pdef(\heartSpawn, Pseq([
 
 RedTrk2(\heart_noise, Synth(\ecg_WhiteNoise).run(false));
 
-RedTrk2(\start_heart_sin, Task({
+RedTrk2(\heart_sin, RedTask({
 	Ndef(\heart_sin).fadeTime = 20;
 	Ndef(\heart_sin).set(\amp, 0);
 	Ndef(\heart_sin).play(0, 2);
 	Ndef(\heart_sin).xset(\amp, 0.05);
-}));
-//Ndef(\heart_sin).xset(\amp, 0.015);
-
-RedTrk2(\stop_heart_sin, Task({
+}, {
 	Ndef(\heart_sin).stop(5);
-}));
+});
 
-RedTrk2(\start_heart_perc, Task({
+RedTrk2(\heart_perc, RedTask({
 	Ndef(\heart_perc).fadeTime = 10;
 	Ndef(\heart_perc).set(\amp, 0);
 	Ndef(\heart_perc).play(0, 2, addAction: \addToTail);
 	Ndef(\heart_perc).xset(\amp, 0.2);
+}, {
+	Ndef(\heart_perc).stop(5);
 }));
 
-RedTrk2(\stop_heart_perc, Task({
-	Ndef(\heart_perc).stop(10);
-}));
-
-RedTrk2(\start_heart_perc2, Task({
+RedTrk2(\perc2, RedTask({
 	Ndef(\heart_perc2).fadeTime = 30;
 	Ndef(\heart_perc2).set(\amp, 0);
 	Ndef(\heart_perc2).play(~subs, 2, addAction: \addToTail);
 	Ndef(\heart_perc2).xset(\amp, 0.1);
-}));
-//Ndef(\heart_perc2).xset(\amp, 0.1);
-
-RedTrk2(\stop_heart_perc2, Task({
+}, {
 	Ndef(\heart_perc2).stop(5);
 }));
 
-RedTrk2(\start_breath, Task({
+RedTrk2(\breath, RedTask({
 	Ndef(\breath).fadeTime = 10;
 	Ndef(\breath).set(\amp, 0);
 	Ndef(\breath).play(0, 2);
 	Ndef(\breath).xset(\amp, 1.0);
-}));
-
-RedTrk2(\stop_breath, Task({
+}, {
 	Ndef(\breath).stop(5);
 }));
 
-RedTrk2(\quite_heart, Task({
+RedTrk2(\quite_heart, RedTask({
 	Ndef(\heart_sin).fadeTime = 15;
 	Ndef(\heart_sin).set(\amp, 0);
 	Ndef(\heart_perc2).fadeTime = 15;
@@ -118,58 +108,47 @@ RedTrk2(\quite_heart, Task({
 		Ndef(\heart_sin).stop;
 		Ndef(\heart_perc2).stop;
 	} }).play;
-}));
-
-RedTrk2(\stop_heart_all, Task({
+}, {
 	Tdef(\quite_heart).stop;
-	Ndef(\heart_sin).stop(0);
-	Ndef(\heart_perc2).stop(0);
-	Ndef(\breath).stop(0);
+	Ndef(\heart_sin).stop;
+	Ndef(\heart_perc2).stop;
 }));
 
 RedTrk2(\motion_grains, Pdef(\motionGrains));
 
-RedTrk2(\start_motion1, Task({
+RedTrk2(\motion1, RedTask({
 	Ndef(\motion1).fadeTime = 1;
 	Ndef(\motion1).set(\amp, 0);
 	Ndef(\motion1).play(0, 2);
 	Ndef(\motion1).xset(\amp, 1.0);
-}));
-
-RedTrk2(\stop_motion1, Task({
+}, {
 	Ndef(\motion1).stop(5);
 }));
 
-RedTrk2(\start_control1, Task({
+RedTrk2(\control1, RedTask({
 	Ndef(\control1).fadeTime = 10;
 	Ndef(\control1).set(\amp, 0);
 	Ndef(\control1).play(0, 2);
 	Ndef(\control1).xset(\amp, 0.5);
-}));
-
-RedTrk2(\stop_control1, Task({
+}, {
 	Ndef(\control1).stop(5);
 }));
 
-RedTrk2(\start_rh_onsets, Task({
+RedTrk2(\rh_onsets, RedTask({
 	Ndef(\rh_onsets).fadeTime = 8;
 	Ndef(\rh_onsets).set(\amp, 0);
 	Ndef(\rh_onsets).play(0, 2);
 	Ndef(\rh_onsets).xset(\amp, 1.0);
-}));
-
-RedTrk2(\stop_rh_onsets, Task({
+}, {
 	Ndef(\rh_onsets).stop(5);
 }));
 
-RedTrk2(\start_lh_onsets, Task({
+RedTrk2(\lh_onsets, RedTask({
 	Ndef(\lh_onsets).fadeTime = 8;
 	Ndef(\lh_onsets).set(\amp, 0);
 	Ndef(\lh_onsets).play(0, 2);
 	Ndef(\lh_onsets).xset(\amp, 1.0);
-}));
-
-RedTrk2(\stop_lh_onsets, Task({
+}, {
 	Ndef(\lh_onsets).stop(5);
 }));
 
@@ -184,21 +163,21 @@ RedTrk2(\snare_final, Pdef(\snare_final));
 "visuals/vis_tracks.scd".loadRelative;
 
 ~score = RedScore([
-	inf, [\start_heart_perc2, \fadein0],
-	inf, [\start_breath, \fadein1],
-	inf, [\start_heart_perc],
-	inf, [\start_heart_sin, \stop_heart_perc, \stop_heart_perc2],
-	inf, [/*\start_heart_perc2, */\stop_heart_sin, \stop_breath, \fadeout0, \fadeout1],
-	inf, [\invert, \snare, \motion_grains, \line1, \quite_heart],
+	inf, [\heart_perc2, \fadein0],
+	inf, [\heart_perc2, \breath, \fadein1],
+	inf, [\heart_perc2, \heart_perc, \breath],
+	inf, [\heart_sin, \breath],
+	inf, [\fadeout0, \fadeout1],
+	inf, [\invert, \snare, \motion_grains, \line1, \quite_heart], // chest
 	3, [\snare2, \lines12, \quite_heart],
-	inf, [\motion_grains, \start_control1, \stop_heart_all],
+	inf, [\control1], // right hand
 	3, [\snare3, \lines123, \quite_heart],
-	inf, [\start_lh_onsets],
+	inf, [\lh_onsets, \control1], // right + left hand
 	3, [\snare3, \lines123, \quite_heart],
-	inf, [\stop_control1, \start_rh_onsets],
+	inf, [\rh_onsets, \lh_onsets], // both
 	inf, [\snare2, \lines23, \quite_heart],
-	inf, [\start_heart_perc2, \start_heart_sin, \stop_rh_onsets, \stop_lh_onsets, \no_lines, \no_invert, \start_breath, \fadein1],
-	5, [\stop_heart_all, \nothing],
+	inf, [\heart_perc2, \heart_sin, \no_lines, \no_invert, \breath, \fadein1],
+	5, [\nothing],
 	1, [\snare_final]
 ]);
 
@@ -211,14 +190,7 @@ RedTrk2(\snare_final, Pdef(\snare_final));
 ~sound.nextSection;
 ~sound.stop;
 
-// RedTrk2(\start_heart_perc2).play;
-// RedTrk2(\stop_heart_perc2).play;
-// RedTrk2(\start_breath).play;
-// RedTrk2(\stop_breath).play;
-// RedTrk2(\start_heart_perc).play;
-// RedTrk2(\stop_heart_perc).play;
-// RedTrk2(\start_heart_sin).play;
-// RedTrk2(\stop_heart_sin).play;
+RedMstGUI4()
 
 //~phi8Master.add(\feedback, 1);
 //~phi8Master.remove(\feedback);

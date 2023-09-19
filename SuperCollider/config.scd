@@ -4,6 +4,9 @@ r = nil;
 ~prefix = "/out";
 ~numEcgBatchArgs = 2;
 ~numAccBatchArgs = 5;
+~polarId = "polar";
+~rhId = "gyrosc";
+~lhId = "m5StickC";
 
 ~hrBus.free; // 40 - 180
 ~hrBus = Bus.control(Server.default, 1);
