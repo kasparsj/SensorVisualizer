@@ -15,8 +15,8 @@ Pdef(\motionGrains, Pspawn(Pbind(
 			\amp, ~motionGrainsAmp,
 		)
 	},
-	// \delta, Pwhite(32, 128, inf) * 0.00125,
-	\delta, Pwhite(32, 128, inf) * 0.0125,
+	\delta, Pwhite(32, 128, inf) * 0.00125,
+	// \delta, Pwhite(32, 128, inf) * 0.0125,
 	\method, \par
 )));
 //Pdef(\motionGrains).play;

@@ -32,6 +32,14 @@ r = nil;
 ~chestTrigBus = Bus.control(Server.default, 1);
 ~chestEulerBus.free;
 ~chestEulerBus = Bus.control(Server.default, 2);
+~chestQuatBus.free;
+~chestQuatBus = Bus.control(Server.default, 4);
+~chestProjXZBus.free;
+~chestProjXZBus = Bus.control(Server.default, 4);
+~chestProjYXBus.free;
+~chestProjYXBus = Bus.control(Server.default, 4);
+~chestProjZYBus.free;
+~chestProjZYBus = Bus.control(Server.default, 4);
 
 ~rhAccBus.free;
 ~rhAccBus = Bus.control(Server.default, 5);

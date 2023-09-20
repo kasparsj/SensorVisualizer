@@ -71,9 +71,9 @@ abstract class RotationStats extends SensorDisplay<Quaternion> {
   Quaternion parse(TableRow row) {
     return new Quaternion(row.getFloat(1), row.getFloat(2), row.getFloat(3), row.getFloat(4));
   }
-
-  void forward(ArrayList<Quaternion> values) {
-  if (addr != null && addr.length() > 0) {
+  
+  void forwardOne(Quaternion value) {
+    if (addr != null && addr.length() > 0) {
       OscMessage fw = new OscMessage(outPrefix + addr);
       fw.add(device.id);
       fw.add(value.w);
@@ -101,5 +101,9 @@ abstract class RotationStats extends SensorDisplay<Quaternion> {
 
       oscP5.send(fw, forwardAddr);
     }
+  }
+
+  void forwardBatch(ArrayList<Quaternion> values) {
+   println("RotationStats.forwardBatch not implemented!");
   }
 }
