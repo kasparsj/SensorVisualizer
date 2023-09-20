@@ -38,21 +38,21 @@ OSCdef(\acc, {|msg, time, addr, recvPort|
 		var chestAccNorm = (chestAcc[0..2]/500).clip(-1, 1) ++ chestAcc[4];
 		~chestAccBus.setn(chestAcc);
 		~chestAccNormBus.setn(chestAccNorm);
-		~chestTrigBus.set(if (chestAcc[4] > 0.01, 1, -1));
+		~chestTrigBus.set(if (chestAcc[4] > ~trigThresh, 1, 0));
 	});
 	if (msg[1].asString() == ~lhId, {
 		var lhAcc = msg[2..6];
 		var lhAccNorm = (lhAcc[0..2]/3).clip(-1, 1) ++ lhAcc[4];
 		~lhAccBus.setn(lhAcc);
 		~lhAccNormBus.setn(lhAccNorm);
-		~lhTrigBus.set(if (lhAcc[4] > 0.01, 1, -1));
+		~lhTrigBus.set(if (lhAcc[4] > ~trigThresh, 1, 0));
 	});
 	if (msg[1].asString() == ~rhId, {
 		var rhAcc = msg[2..6];
 		var rhAccNorm = (rhAcc[0..2]/2).clip(-1, 1) ++ rhAcc[4];
 		~rhAccBus.setn(rhAcc);
 		~rhAccNormBus.setn(rhAccNorm);
-		~rhTrigBus.set(if (rhAcc[4] > 0.01, 1, -1));
+		~rhTrigBus.set(if (rhAcc[4] > ~trigThresh, 1, 0));
 	});
 }, ~prefix++"/acc");
 

@@ -8,6 +8,7 @@ r = nil;
 ~rhId = "gyrosc";
 ~lhId = "m5StickC";
 ~motionGrainsAmp = 0.5;
+~trigThresh = 0.02;
 
 ~hrBus.free; // 40 - 180
 ~hrBus = Bus.control(Server.default, 1);
@@ -66,3 +67,6 @@ r = nil;
 ~root = 24;
 // ~scale = Scale.phrygian;
 )
+
+// ~scale.degrees
+// ~scale.degrees.size
