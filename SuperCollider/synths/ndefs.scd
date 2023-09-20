@@ -221,13 +221,19 @@ Ndef(\rhTrig, {
 Ndef(\rhEnv, {
 	var env = 1, trigger = 0;
 	trigger = Ndef.kr(\rhTrig);
-	//trigger = In.kr(~onsetBus.index);
+	// trigger = Impulse.kr(2);
+	// trigger = In.kr(~onsetBus.index);
 	// trigger = In.kr(~rhTrigBus.index);
 	// trigger = (In.kr(~rhTrigBus.index) - 1).abs;
-	// env = EnvGen.ar(Env.adsr, trigger);
+	env = EnvGen.ar(Env.adsr, trigger);
 	// env = EnvGen.ar(Env.perc, trigger);
 	env;
-});
+}).fadeTime_(3);
+
+// start with color only
+// add octave
+// add degree
+// add adsr env
 
 Ndef(\rhPitch, {
 	var degrees = ~scale.degrees;
@@ -241,7 +247,7 @@ Ndef(\rhPitch, {
 	pitch = ~root + degree + (octave * 12);
 	//pitch = In.kr(~hrBus.index);
 	pitch;
-});
+}).fadeTime(3);
 
 Ndef(\control1, { |room=0.5, amp=1.0, pan=0|
 	var sig;
