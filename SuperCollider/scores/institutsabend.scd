@@ -80,16 +80,18 @@ RedTrk2(\heart_perc, RedVol(RedFn({ |vol|
 	Ndef(\heart_perc).vol = vol;
 }, 0.5));
 
-RedTrk2(\heart_perc2, RedVol(RedFn({
-	Ndef(\heart_perc2).fadeTime = 30;
-	Ndef(\heart_perc2).set(\amp, 0);
-	Ndef(\heart_perc2).play(~subs, 2, addAction: \addToTail);
-	Ndef(\heart_perc2).xset(\amp, 0.1);
+RedTrk2(\heart_sub, RedVol(RedFn({
+	Ndef(\heart_sub).fadeTime = 30;
+	Ndef(\heart_sub).set(\amp, 0);
+	Ndef(\heart_sub).play(~subs, 2, addAction: \addToTail);
+	Ndef(\heart_sub).xset(\amp, 0.4);
 }, {
-	Ndef(\heart_perc2).stop(5);
+	Ndef(\heart_sub).stop(5);
 }), { |vol|
-	Ndef(\heart_perc2).vol = vol;
-}, 1));
+	Ndef(\heart_sub).vol = vol;
+}, 0.5));
+
+RedTrk2(\heart_beat, Ndef(\heart_beat));
 
 RedTrk2(\breath, RedVol(RedFn({
 	Ndef(\breath).fadeTime = 10;
@@ -105,26 +107,26 @@ RedTrk2(\breath, RedVol(RedFn({
 RedTrk2(\quite_heart, RedVol(RedFn({
 	Ndef(\heart_sin).fadeTime = 15;
 	Ndef(\heart_sin).set(\amp, 0);
-	Ndef(\heart_perc2).fadeTime = 15;
-	Ndef(\heart_perc2).set(\amp, 0);
+	Ndef(\heart_sub).fadeTime = 15;
+	Ndef(\heart_sub).set(\amp, 0);
 	Tdef(\quite_heart, { loop {
 		(rrand(15, 30)).wait;
 		// todo: maybe inverse of chestAcc?
 		Ndef(\heart_sin).play;
 		Ndef(\heart_sin).xset(\amp, 0.02.rand);
-		Ndef(\heart_perc2).play;
-		Ndef(\heart_perc2).xset(\amp, 0.2.rand);
+		Ndef(\heart_sub).play;
+		Ndef(\heart_sub).xset(\amp, 0.2.rand);
 		(rrand(15, 30)).wait;
 		Ndef(\heart_sin).stop;
-		Ndef(\heart_perc2).stop;
+		Ndef(\heart_sub).stop;
 	} }).play;
 }, {
 	Tdef(\quite_heart).stop;
 	Ndef(\heart_sin).stop;
-	Ndef(\heart_perc2).stop;
+	Ndef(\heart_sub).stop;
 }), { |vol|
 	Ndef(\heart_sin).vol = vol;
-	Ndef(\heart_perc2).vol = vol;
+	Ndef(\heart_sub).vol = vol;
 }, 1));
 
 RedTrk2(\motion_grains, RedVol(Pdef(\motionGrains), { |vol|
@@ -186,20 +188,20 @@ RedTrk2(\snare_final, Pdef(\snare_final));
 "visuals/vis_tracks.scd".loadRelative;
 
 ~score = RedScore([
-	inf, [\heart_perc2, \fadein0],
-	inf, [\heart_perc2, \breath, \fadein1],
-	inf, [\heart_perc2, \heart_perc, \breath],
+	inf, [\heart_sub, \fadein0],
+	inf, [\heart_sub, \breath, \fadein1],
+	inf, [\heart_sub, \heart_perc, \breath],
 	inf, [\heart_sin, \breath],
 	inf, [\fadeout0, \fadeout1],
 	inf, [\invert, \snare, \motion_grains, \line1, \quite_heart], // chest
 	3, [\snare2, \lines12, \quite_heart],
-	inf, [\control1], // right hand
+	inf, [\heart_beat, \control1], // right hand
 	3, [\snare3, \lines123, \quite_heart],
 	inf, [\lh_onsets, \control1], // right + left hand
 	3, [\snare3, \lines123, \quite_heart],
 	inf, [\rh_onsets, \lh_onsets], // both
 	inf, [\snare2, \lines23, \quite_heart],
-	inf, [\heart_perc2, \heart_sin, \no_lines, \no_invert, \breath, \fadein1],
+	inf, [\heart_sub, \heart_sin, \no_lines, \no_invert, \breath, \fadein1],
 	5, [\nothing],
 	1, [\snare_final]
 ]);

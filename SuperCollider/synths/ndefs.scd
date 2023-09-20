@@ -100,6 +100,33 @@ Ndef(\heart_perc2, { |room=0.25, amp=1.0|
 //Ndef(\heart_perc2).fadeTime = 1;
 //Ndef(\heart_perc2).play(0, 2, addAction: \addToTail);
 //Ndef(\heart_perc2).stop;
+Ndef(\heart_beat, { |room=0.5, amp=0.25|
+	var sig, env, ecgNorm, hr, onset, vbap;
+	var a, b, pitch, trig, engine;
+	var acc, chain;
+	ecgNorm = In.kr(~ecgNormBus.index);
+	hr = In.kr(~hrBus.index);
+	onset = In.kr(~onsetBus.index);
+	env = EnvGen.ar(Env.perc, onset);
+	pitch = 30;
+
+	acc = In.kr(~rhAccNormBus.index, 4);
+	chain = FFT(LocalBuf(128), acc[3]);
+	// var trigger = Onsets.kr(chain, 0.3+(LFNoise2.kr(1/20)*0.2), \rcomplex, 0.01, 0.1, 1);
+	onset = Onsets.kr(chain, 0.9, \rcomplex, 0.01, 0.1, 1);
+
+	a = Dseq([34, 36, Drand([34, 38], 1), 34, 36, Drand([3, 36], 1), 34, 36, Drand([42, 36], 1)], inf);
+	b = Dseq(Drand([30, 37], 4), inf);
+    engine = Demand.kr(onset, 0, a);
+	// pitch = Demand.kr(onset, 0, b);
+
+	sig = (MiBraids.ar(pitch, 0.1, 1-ecgNorm, engine, onset) * 2);
+	// sig = MiVerb.ar(sig, drywet: room);
+	sig = sig * amp;
+
+	sig;
+});
+
 
 Ndef(\motion1, { |room=0.5, amp=1.0, pan=0|
 	var sig;
@@ -182,33 +209,70 @@ Ndef(\motion3_mi, { |x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pan=0|
 	sig;
 });
 
+Ndef(\rhTrig, {
+	var trigger = 0;
+	// trigger = Impulse.kr(2);
+	//trigger = In.kr(~onsetBus.index);
+	// trigger = In.kr(~rhTrigBus.index); // when moving
+	trigger = (In.kr(~rhTrigBus.index) - 1).abs; // when not moving
+	trigger;
+});
+
+Ndef(\rhEnv, {
+	var env = 1, trigger = 0;
+	trigger = Ndef.kr(\rhTrig);
+	//trigger = In.kr(~onsetBus.index);
+	// trigger = In.kr(~rhTrigBus.index);
+	// trigger = (In.kr(~rhTrigBus.index) - 1).abs;
+	// env = EnvGen.ar(Env.adsr, trigger);
+	// env = EnvGen.ar(Env.perc, trigger);
+	env;
+});
+
+Ndef(\rhPitch, {
+	var degrees = ~scale.degrees;
+	var xz = In.kr(~rhProjXZBus.index, 4);
+	var yx = In.kr(~rhProjYXBus.index, 4);
+	var trigger = Ndef.kr(\rhTrig);
+	var degree = 0, pitch = 0, octave = 2; // 0 - 4, then hr
+	octave = (xz[1] * 4).round;
+	// degree = (xz[0] * degrees.size).round;
+	degree = Demand.kr(trigger, 0, Dseq([0, 5, 0, 7], inf));
+	pitch = ~root + degree + (octave * 12);
+	//pitch = In.kr(~hrBus.index);
+	pitch;
+});
+
 Ndef(\control1, { |room=0.5, amp=1.0, pan=0|
 	var sig;
-	var hr = In.kr(~hrBus.index);
-	var quat = In.kr(~rhQuatBus.index, 16);
-	var xz = (quat[4..7]+1)/2;
-	var yx = (quat[8..11]+1)/2;
-	var zy = (quat[12..15]+1)/2;
-	var octave = 0; // 0 -4
-	var pitch = ~root + (octave * 12);
-	pitch = hr.max(pitch);
+	var xz = In.kr(~rhProjXZBus.index, 4);
+	var yx = In.kr(~rhProjYXBus.index, 4);
+	var zy = In.kr(~rhProjZYBus.index, 4);
+	var acc = In.kr(~rhAccNormBus.index, 4);
+	var trigger = Ndef.kr(\rhTrig);
+	var env = Ndef.ar(\rhEnv);
+	var pitch = Ndef.kr(\rhPitch);
 
-	sig = MiBraids.ar(pitch, xz[0], xz[1], 12);
-	sig = sig + MiBraids.ar(pitch+4, yx[0], yx[1], 14);
-	sig = sig + MiBraids.ar(pitch+7, zy[0], zy[1], 44);
-	sig = sig / 3;
+	sig = MiBraids.ar(pitch, xz[0], xz[1], 12, trigger) * env;
+	sig = sig + MiBraids.ar(pitch+4, yx[0], yx[1], 14, trigger) * env;
+	sig = sig + MiBraids.ar(pitch+7, zy[0], zy[1], 44, trigger) * env;
 
 	// sig = MiPlaits.ar(12+(color*12), (7-(hr/16).floor).clip(0, 15), color, timb, (acc[3]+1)/2);
 	// sig = MiPlaits.ar(24+(color*12), 2, color, timb, z.abs.clip(0, 1));
 
+	sig = sig / 3 * 2;
+
 	sig = MiVerb.ar(sig);
+	// sig = MiVerb.ar(sig, acc[3] * 10);
+	// sig = (sig/3)!2;
 
 	sig = Balance2.ar(sig[0], sig[1], pan, amp);
 
 	sig;
 });
+Ndef(\control1).fadeTime = 0;
 // Ndef(\control1).play(0, 2);
-// Ndef(\control1).xset(\amp, 0.5);
+// Ndef(\control1).xset(\amp, 0.3);
 // Ndef(\control1).stop;
 
 Ndef(\breath, { |amp=0.0|

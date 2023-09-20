@@ -62,8 +62,9 @@ r = nil;
 
 ~recordBus.free;
 ~recordBus = Bus.audio(Server.default, 7);
+~scale = Scale.major;
 // ~scale = Scale.minorPentatonic;
-~scale = Scale.majorPentatonic;
+// ~scale = Scale.majorPentatonic;
 ~root = 24;
 // ~scale = Scale.phrygian;
 )
