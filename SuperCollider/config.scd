@@ -17,30 +17,48 @@ r = nil;
 ~ecgNormBus = Bus.control(Server.default, 1);
 ~onsetBus.free; // 0, 1
 ~onsetBus = Bus.control(Server.default, 4).set(0);
+
 ~compassBus.free; // 0 - 360
 ~compassBus = Bus.control(Server.default, 1);
 ~compNormBus.free; // 0 - 1 (180 degrees)
 ~compNormBus = Bus.control(Server.default, 1);
+
 ~chestAccBus.free;
 ~chestAccBus = Bus.control(Server.default, 5);
 ~chestAccNormBus.free;
 ~chestAccNormBus = Bus.control(Server.default, 4);
+~chestTrigBus.free;
+~chestTrigBus = Bus.control(Server.default, 1);
 ~chestEulerBus.free;
 ~chestEulerBus = Bus.control(Server.default, 2);
+
 ~rhAccBus.free;
 ~rhAccBus = Bus.control(Server.default, 5);
 ~rhAccNormBus.free;
 ~rhAccNormBus = Bus.control(Server.default, 4);
+~rhTrigBus.free;
+~rhTrigBus = Bus.control(Server.default, 1);
 ~rhQuatBus.free;
-~rhQuatBus = Bus.control(Server.default, 12);
+~rhQuatBus = Bus.control(Server.default, 4);
+~rhProjXZBus.free;
+~rhProjXZBus = Bus.control(Server.default, 4);
+~rhProjYXBus.free;
+~rhProjYXBus = Bus.control(Server.default, 4);
+~rhProjZYBus.free;
+~rhProjZYBus = Bus.control(Server.default, 4);
+
 ~lhAccBus.free;
 ~lhAccBus = Bus.control(Server.default, 5);
 ~lhAccNormBus.free;
 ~lhAccNormBus = Bus.control(Server.default, 4);
-~breathEnabled = true;
+~lhTrigBus.free;
+~lhTrigBus = Bus.control(Server.default, 1);
+
+~breathEnabled = false;
 ~showBreath = true;
 ~breathBus.free;
 ~breathBus = Bus.control(Server.default, 1);
+
 ~recordBus.free;
 ~recordBus = Bus.audio(Server.default, 7);
 // ~scale = Scale.minorPentatonic;

@@ -38,18 +38,21 @@ OSCdef(\acc, {|msg, time, addr, recvPort|
 		var chestAccNorm = (chestAcc[0..2]/500).clip(-1, 1) ++ chestAcc[4];
 		~chestAccBus.setn(chestAcc);
 		~chestAccNormBus.setn(chestAccNorm);
+		~chestTrigBus.set(if (chestAcc[4] > 0.01, 1, -1));
 	});
 	if (msg[1].asString() == ~lhId, {
 		var lhAcc = msg[2..6];
 		var lhAccNorm = (lhAcc[0..2]/3).clip(-1, 1) ++ lhAcc[4];
 		~lhAccBus.setn(lhAcc);
 		~lhAccNormBus.setn(lhAccNorm);
+		~lhTrigBus.set(if (lhAcc[4] > 0.01, 1, -1));
 	});
 	if (msg[1].asString() == ~rhId, {
 		var rhAcc = msg[2..6];
 		var rhAccNorm = (rhAcc[0..2]/2).clip(-1, 1) ++ rhAcc[4];
 		~rhAccBus.setn(rhAcc);
 		~rhAccNormBus.setn(rhAccNorm);
+		~rhTrigBus.set(if (rhAcc[4] > 0.01, 1, -1));
 	});
 }, ~prefix++"/acc");
 
@@ -62,10 +65,17 @@ OSCdef(\acc_batch, {|msg, time, addr, recvPort|
 }, ~prefix++"/acc/batch");
 
 OSCdef(\quat, {|msg, time, addr, recvPort|
-	// addr, deviceId, x, y, z, w, xzx
+	// addr, deviceId, w, x, y, z, xzx
 	if (msg[1].asString() == ~rhId, {
-		var rhQuat = msg[2..14];
-		~rhQuatBus.setn(rhQuat);
+		var values = msg[2..17];
+		var quat = values[0..3];
+		var projXZ = (values[4..5]+1)/2 ++ values[6..7];
+		var projYX = (values[8..9]+1)/2 ++ values[10..11];
+		var projZY = (values[12..13]+1)/2 ++ values[14..15];
+		~rhQuatBus.setn(quat);
+		~rhProjXZBus.setn(projXZ);
+		~rhProjYXBus.setn(projYX);
+		~rhProjZYBus.setn(projZY);
 	});
 }, ~prefix++"/quat");
 
