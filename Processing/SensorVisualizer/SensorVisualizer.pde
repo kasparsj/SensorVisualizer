@@ -252,7 +252,7 @@ void keyPressed() {
     showInfo = !showInfo;
     return;
   }
-  if (key == 'f') {
+  if (key == 'd') {
     showFps = !showFps;
     return;
   }
