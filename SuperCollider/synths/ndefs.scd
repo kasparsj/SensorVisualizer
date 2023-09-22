@@ -7,17 +7,18 @@ Ndef(\heart_sin, { |amp=0.1, room=0.5|
 	var sig, chain, onset, noise, ecg, ecgNorm, vbap;
 	ecg = In.kr(~ecgBus.index);
 	ecgNorm = In.kr(~ecgNormBus.index);
-	noise = LFNoise0.ar(1/10);
+	noise = LFNoise2.ar(1/10);
 	sig = SinOsc.ar(ecg * (1+noise));
 	sig = sig * (1-ecgNorm);
 	chain = FFT(LocalBuf(1024), sig);
 
 	onset = Onsets.kr(chain, 0.25);
 	Out.kr(~onsetBus.index, onset);
+	SendReply.kr(onset, '/heart_onset');
 
-	sig = RHPF.ar(sig, rq: 0.01);
+	// sig = RHPF.ar(sig, rq: 0.01);
 	sig = MiVerb.ar(sig, drywet: room);
-	sig = Compander.ar(sig, sig);
+	//sig = Compander.ar(sig, sig);
 	sig = sig * amp;
 
 	//Out.ar(~recordBus.index, sig);
@@ -29,6 +30,7 @@ Ndef(\heart_sin, { |amp=0.1, room=0.5|
 
 	sig;
 });
+Ndef(\heart_sin).fadeTime = 5;
 //Ndef(\heart_sin).play(0, 2);
 //Ndef(\heart_sin).stop;
 
@@ -40,11 +42,11 @@ Ndef(\heart_perc, { |room=0.5, amp=0.25|
 	env = EnvGen.ar(Env.perc, onset);
 	sig = (SinOsc.ar(hr * ecgNorm * 5) * env * ecgNorm * 4);
 	//sig = sig * Line.kr(0, 1, 90);
-	// sig = HPF.ar(sig, 400);
-	sig = FreeVerb.ar(sig, room: room)!2;
-	// sig = MiVerb.ar(sig, drywet: room);
+	sig = HPF.ar(sig, 400);
+	// sig = FreeVerb.ar(sig, room: room)!2;
+	sig = MiVerb.ar(sig, drywet: room);
 	sig = sig * amp;
-	sig = sig * LFNoise2.kr(1/5).range(0.7, 1.0);
+	//sig = sig * LFNoise2.kr(1/5).range(0.7, 1.0);
 
 	// todo: fix - changed to output 2 channels
 	//Out.ar(~recordBus.index+1, sig);
@@ -76,30 +78,34 @@ Ndef(\heart_perc, { |room=0.5, amp=0.25|
 // });
 // Ndef(\heart_perc_mi).fadeTime = ~fadeTime;
 
-Ndef(\heart_perc2, { |room=0.25, amp=1.0|
+Ndef(\heart_sub).fadeTime = 10;
+Ndef(\heart_sub, { |room=0.25, amp=1.0|
 	var sig, env, fmul, mul, ecgNorm, hr, onset;
 	ecgNorm = In.kr(~ecgNormBus.index);
 	hr = In.kr(~hrBus.index);
 	onset = In.kr(~onsetBus.index);
 	env = EnvGen.ar(Env.perc, onset);
 
+	// fmul = ecgNorm;
 	fmul = 1.0 - ecgNorm;
-	mul = ecgNorm*3;
-	sig = (SinOsc.ar(hr * fmul) * env * mul);
-	sig = LPF.ar(sig, 80);
-	sig = FreeVerb.ar(sig, room: room)!2;
-	// sig = MiVerb.ar(sig, drywet: room);
+	mul = ecgNorm;
+	sig = (SinOsc.ar(hr * fmul * 2) * env * mul);
+	sig = LPF.ar(sig, 60, 2);
+
+	// sig = FreeVerb.ar(sig, room: room)!2;
+	//sig = MiVerb.ar(sig, drywet: room);
 	sig = sig * amp;
-	sig = sig * LFNoise2.kr(1/5).range(0.7, 1.0);
+	//sig = sig * LFNoise2.kr(1/5).range(0.7, 1.0);
 	//sig = sig * Line.kr(0, 1, 120);
 
 	// todo: fix - changed to output 2 channels
 	//Out.ar(~recordBus.index+2, sig);
 	sig;
 });
-//Ndef(\heart_perc2).fadeTime = 1;
-//Ndef(\heart_perc2).play(0, 2, addAction: \addToTail);
-//Ndef(\heart_perc2).stop;
+//Ndef(\heart_sub).fadeTime = 1;
+//Ndef(\heart_sub).play(0, 2, addAction: \addToTail);
+//Ndef(\heart_sub).stop;
+
 Ndef(\heart_beat, { |room=0.5, amp=0.25|
 	var sig, env, ecgNorm, hr, onset, vbap;
 	var a, b, pitch, trig, engine;
@@ -210,23 +216,30 @@ Ndef(\motion3_mi, { |x=0, y=0, z=0, mag=0.5, room=0.5, amp=0.1, pan=0|
 });
 
 Ndef(\rhTrig, {
+	var acc = In.kr(~rhAccNormBus.index, 4);
+	var xz = In.kr(~rhProjXZBus.index, 4);
+	var mag = 2;
 	var trigger = 0;
 	// trigger = Impulse.kr(2);
 	//trigger = In.kr(~onsetBus.index);
 	// trigger = In.kr(~rhTrigBus.index); // when moving
-	trigger = (In.kr(~rhTrigBus.index) - 1).abs; // when not moving
+	// trigger = (In.kr(~rhTrigBus.index) - 1).abs; // when not moving
+	// mag = Latch.kr((acc[3]*100).round.min(16), Impulse.kr(2));
+	// mag = (xz[1] * 4).round * 2;
+	// trigger = 1;
+	// trigger = Impulse.kr(mag) * trigger;
 	trigger;
 });
 
 Ndef(\rhEnv, {
 	var env = 1, trigger = 0;
-	trigger = Ndef.kr(\rhTrig);
+	trigger = Ndef.kr(\rhTrig, 1);
 	// trigger = Impulse.kr(2);
 	// trigger = In.kr(~onsetBus.index);
 	// trigger = In.kr(~rhTrigBus.index);
 	// trigger = (In.kr(~rhTrigBus.index) - 1).abs;
-	env = EnvGen.ar(Env.adsr, trigger);
-	// env = EnvGen.ar(Env.perc, trigger);
+	// env = EnvGen.ar(Env.adsr, trigger);
+	// env = EnvGen.ar(Exnv.perc, trigger);
 	env;
 }).fadeTime_(3);
 
@@ -239,15 +252,16 @@ Ndef(\rhPitch, {
 	var degrees = ~scale.degrees;
 	var xz = In.kr(~rhProjXZBus.index, 4);
 	var yx = In.kr(~rhProjYXBus.index, 4);
-	var trigger = Ndef.kr(\rhTrig);
+	var trigger = Ndef.kr(\rhTrig, 1);
 	var degree = 0, pitch = 0, octave = 2; // 0 - 4, then hr
 	octave = (xz[1] * 4).round;
 	// degree = (xz[0] * degrees.size).round;
 	degree = Demand.kr(trigger, 0, Dseq([0, 5, 0, 7], inf));
+	// todo: add more progressions
 	pitch = ~root + degree + (octave * 12);
 	//pitch = In.kr(~hrBus.index);
 	pitch;
-}).fadeTime(3);
+}).fadeTime_(3);
 
 Ndef(\control1, { |room=0.5, amp=1.0, pan=0|
 	var sig;
@@ -255,9 +269,9 @@ Ndef(\control1, { |room=0.5, amp=1.0, pan=0|
 	var yx = In.kr(~rhProjYXBus.index, 4);
 	var zy = In.kr(~rhProjZYBus.index, 4);
 	var acc = In.kr(~rhAccNormBus.index, 4);
-	var trigger = Ndef.kr(\rhTrig);
-	var env = Ndef.ar(\rhEnv);
-	var pitch = Ndef.kr(\rhPitch);
+	var trigger = Ndef.kr(\rhTrig, 1);
+	var env = Ndef.ar(\rhEnv, 1);
+	var pitch = Ndef.kr(\rhPitch, 1);
 
 	sig = MiBraids.ar(pitch, xz[0], xz[1], 12, trigger) * env;
 	sig = sig + MiBraids.ar(pitch+4, yx[0], yx[1], 14, trigger) * env;
@@ -268,9 +282,9 @@ Ndef(\control1, { |room=0.5, amp=1.0, pan=0|
 
 	sig = sig / 3 * 2;
 
-	sig = MiVerb.ar(sig);
-	// sig = MiVerb.ar(sig, acc[3] * 10);
-	// sig = (sig/3)!2;
+	// sig = MiVerb.ar(sig);
+	sig = MiVerb.ar(sig, acc[3] * 10);
+	// sig = sig!2;
 
 	sig = Balance2.ar(sig[0], sig[1], pan, amp);
 
@@ -284,52 +298,152 @@ Ndef(\control1).fadeTime = 0;
 Ndef(\breath, { |amp=0.0|
 	var sig = SoundIn.ar(0);
 	sig = HPF.ar(sig, 500);
-	sig = sig*amp;
-	Out.kr(~breathBus.index, sig);
-	//Out.ar(36, sig);
-	//Out.ar(37, sig);
+	sig = sig*amp*6;
+	Out.kr(~breathBus.index, sig*6);
+	// Out.ar(2, sig);
+	// Out.ar(3, sig);
 	(sig!2)*~breathEnabled.asInteger;
 });
 //Ndef(\breath).play(0, 2);
 //Ndef(\breath).xset(\amp, 1.0);
 
 Ndef(\rh_onsets, { |amp=0|
+	var sig;
 	var acc = In.kr(~rhAccNormBus.index, 4);
-	var compNorm = In.kr(~compNormBus.index);
+	//var compNorm = In.kr(~compNormBus.index);
 	// var harm = LFNoise2.kr(0.3,0.25,0.25);
 	// var timbre = LFNoise1.kr(0.4,0.5,0.5);
-	var timbre = (acc[0]+1)/2;
-	var harm = (acc[1]+1)/2;
-	//var dec = LFNoise2.kr(0.2).range(0.01,0.8);
-	var dec = acc[3];
+	// var timbre = (acc[0]+1)/2;
+	// var harm = (acc[1]+1)/2;
+	var quat = In.kr(~rhQuatBus.index, 16);
+	var yx = (quat[8..11]+1)/2;
+	var timbre = yx[0];
+	var harm = yx[1];
+	var dec = LFNoise2.kr(0.2).range(0.01,0.8);
+	// var dec = acc[3];
 	var chain = FFT(LocalBuf(128), acc[3]);
-	var trigger = Onsets.kr(chain, 0.75, \rcomplex, 0.01, 0.1, 1);
-	//var trigger = Onsets.kr(chain, 0.75);
-	var out = 10 + (25 * compNorm);
-	var sig = MiPlaits.ar(80-(acc[3]*80), 6, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
-	//var sig = MiPlaits.ar(80-(acc[3]*80), compNorm*15, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
-	// sig = sig + MiPlaits.ar(36-(acc[3]*24), 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
-	Out.ar(9 + (25 * compNorm).round, sig*amp);
-	sig*amp*0;
+	// var trigger = Onsets.kr(chain, 0.3+(LFNoise2.kr(1/20)*0.2), \rcomplex, 0.01, 0.1, 1);
+	var trigger = Onsets.kr(chain, 0.9, \rcomplex, 0.01, 0.1, 1);
+	// var trigger = Onsets.kr(chain, 0.75);
+	//var out = 10 + (25 * compNorm);;
+
+	//sig = MiPlaits.ar([41-(acc[3]*24), 48-(acc[3]*24)], 13, harm, timbre, 0.6+(LFNoise2.kr(1/30)*0.3), decay: dec, mul: 0.75);
+	// sig = MiVerb.ar(sig, drywet: LFNoise2.kr(1/30)*0.1);
+	// sig = MiVerb.ar(sig, drywet: LFNoise2.kr(1/30)*0.05);
+	// sig = MiPlaits.ar(60-(acc[3]*24), TChoose.kr(trigger, [6]), harm, timbre, 0.1, trigger, decay: dec, mul: 0.75);
+	sig = MiPlaits.ar(60-(acc[3]*24), 6, harm, timbre, 0.1, trigger, decay: dec, mul: 0.75);
+	sig = sig + MiPlaits.ar(36-(acc[3]*24), 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
+	//sig = HPF.ar(sig, 800);
+	sig = MoogFF.ar(sig, 1200);
+	// sig = CombC.ar(sig, mul: 0.1) + sig;
+	sig = MiVerb.ar(sig, drywet: 0.1);
+	// sig = LPF.ar(sig, 200, 0.3) + sig;
+	// sig = FbC({ |fb| FreqShift.ar(sig + fb, 200).softclip * 0.1}, 4, 1);
+
+	sig = sig*amp;
+	//Out.ar(9 + (25 * compNorm).round, sig);
+	sig;
+});
+//Ndef(\rh_onsets).fadeTime = 8;
+//Ndef(\rh_onsets).play(0, 2);
+//Ndef(\rh_onsets).xset(\amp, 1.0);
+//Ndef(\rh_onsets).stop
+
+Ndef(\lhTrig, {
+	var acc = In.kr(~lhAccNormBus.index, 4);
+	var xz = In.kr(~lhProjXZBus.index, 4);
+	var chain = FFT(LocalBuf(128), acc[3]);
+	var mag = 2;
+	var trigger = 0, trigger1 = 0, trigger2 = 0;
+	// trigger = Onsets.kr(chain, 0.9, \rcomplex, 0.01, 0.1, 1);
+	//trigger = Onsets.kr(chain, 0.75);
+	// trigger = In.kr(~lhTrigBus.index); // when moving
+	// trigger = (In.kr(~lhTrigBus.index) - 1).abs; // when not moving
+	trigger = 1;
+	// mag = Latch.kr((acc[3]*50).round.min(16), Impulse.kr(2));
+	// mag = (xz[1] * 3).round;
+	trigger = Impulse.kr(mag) * trigger;
+	trigger1 = Impulse.kr(mag/3) * trigger;
+	trigger2 = Impulse.kr(mag/8*5) * trigger;
+	[trigger, trigger1, trigger2];
+});
+
+// todo: ScGrids not working with Ugens
+// Ndef(\lhGrids, {
+// 	var xz = In.kr(~lhProjXZBus.index, 4);
+// 	var trigger, beat, mag = 2;
+// 	var level1 = 0, level2 = 0, level3 = 0;
+// 	trigger = Impulse.kr(mag);
+// 	beat = Demand.kr(trigger, 0, Dseq((0..31), inf)).asInteger;
+// 	level1 = ScGrids.calculateLevel(\kick, curBeat: beat, x: xz[0], y: xz[1], bias: 0.0);
+// 	level2 = ScGrids.calculateLevel(\hihat, curBeat: beat, x: xz[0], y: xz[1], bias: 0.0);
+// 	level3 = ScGrids.calculateLevel(\snare, curBeat: beat, x: xz[0], y: xz[1], bias: 0.0);
+// 	[level1, level2, level3];
+// });
+
+Ndef(\lhPitch, {
+	var acc = In.kr(~lhAccNormBus.index, 4);
+	var xz = In.kr(~lhProjXZBus.index, 4);
+	var yx = In.kr(~lhProjYXBus.index, 4);
+	var pitch = 0, degree = 0, octave = 2;
+	octave = (xz[1] * 4).round;
+	// degree = (acc[3]*12);
+	// degree = -1 * (acc[3]*24);
+	pitch = octave*12 + degree;
+	pitch;
 });
 
 Ndef(\lh_onsets, { |amp=0|
+	var sig, timbre, harm, dec, out, kick;
 	var acc = In.kr(~lhAccNormBus.index, 4);
+	var xz = In.kr(~lhProjXZBus.index, 4);
+	var yx = In.kr(~lhProjYXBus.index, 4);
+	var zy = In.kr(~lhProjZYBus.index, 4);
 	var compNorm = In.kr(~compNormBus.index);
-	// var harm = LFNoise2.kr(0.3,0.25,0.25);
-	// var timbre = LFNoise1.kr(0.4,0.5,0.5);
-	var timbre = (acc[0]+1)/2;
-	var harm = (acc[1]+1)/2;
-	//var dec = LFNoise2.kr(0.2).range(0.01,0.8);
-	var dec = acc[3];
-	var chain = FFT(LocalBuf(128), acc[3]);
-	var trigger = Onsets.kr(chain, 0.75, \rcomplex, 0.01, 0.1, 1);
-	//var trigger = Onsets.kr(chain, 0.75);
-	var out = 10 + (25 * compNorm);
-	// var sig = MiPlaits.ar(80-(acc[3]*80), 6, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
-	var sig = MiPlaits.ar(80-(acc[3]*80), compNorm*15, harm, timbre, 0, trigger, decay: dec, mul: 0.75);
-	// sig = sig + MiPlaits.ar(36-(acc[3]*24), 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
-	Out.ar(9 + (25 * compNorm).round, sig*amp);
-	sig*amp*0;
+	var trigger = Ndef.kr(\lhTrig, 3);
+	var pitch = Ndef.kr(\lhPitch, 1);
+
+	// timbre = 0.5;
+	// timbre = LFNoise1.kr(0.4,0.5,0.5);
+	timbre = xz[0];
+
+	// harm = 0.5;
+	// harm = LFNoise2.kr(0.3,0.25,0.25);
+	harm = zy[0];
+
+	// dec = acc[3]*4;
+	dec = LFNoise2.kr(0.2).range(0.01, 0.8);
+
+	// 1, 13, 15, 6, 3, 9, before switching come back to 15
+	kick = MiPlaits.ar(pitch, 13, harm, timbre, 0, Impulse.kr(2), decay: dec, mul: 1.1);
+	sig = kick;
+	sig = sig + MiPlaits.ar(pitch, 15, harm, timbre, 0, Impulse.kr(4), mul: 0.75);
+	// sig = sig + MiPlaits.ar(pitch, 14, harm, timbre, 0, Impulse.kr((xz[0]*4).round), mul: 1.5);
+	sig = sig + MiPlaits.ar(pitch, 14, harm, timbre, 0, Impulse.kr(1), mul: 1.2);
+	// sig = sig + MiPlaits.ar(pitch, 12, harm, timbre, 0, trigger[2], mul: 0.75);
+	sig = sig / 4;
+
+	sig = Compander.ar(sig, kick);
+
+	// sig = MiPlaits.ar(pitch, 13, harm, timbre, 0.1, decay: dec, mul: 0.75);
+	// sig = MiVerb.ar(sig, drywet: 0.4);
+	// sig = sig + MiPlaits.ar(pitch, 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
+	// sig = MoogFF.ar(sig, 1200);
+	// sig = CombC.ar(sig, mul: 0.2) + sig;
+	// sig = LPF.ar(sig, 200, 0.2) + sig;
+	// sig = MiVerb.ar(sig, drywet: 0.3);
+	// sig = FbC({ |fb| FreqShift.ar(sig + fb, 200).softclip * 0.8}, 4, 1);
+
+	sig = sig*amp; // amp up to 4
+
+	//out = 34 - (25 * compNorm);
+	// out = 4 * compNorm;
+	//Out.ar(9 + (25 * compNorm).round, sig);
+
+	sig;
 });
+//Ndef(\lh_onsets).fadeTime = 8;
+//Ndef(\lh_onsets).play(0, 2);
+//Ndef(\lh_onsets).xset(\amp, 1.0);
+//Ndef(\lh_onsets).stop
 )

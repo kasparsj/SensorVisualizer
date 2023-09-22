@@ -62,8 +62,16 @@ r = nil;
 ~lhAccNormBus = Bus.control(Server.default, 4);
 ~lhTrigBus.free;
 ~lhTrigBus = Bus.control(Server.default, 1);
+~lhQuatBus.free;
+~lhQuatBus = Bus.control(Server.default, 4);
+~lhProjXZBus.free;
+~lhProjXZBus = Bus.control(Server.default, 4);
+~lhProjYXBus.free;
+~lhProjYXBus = Bus.control(Server.default, 4);
+~lhProjZYBus.free;
+~lhProjZYBus = Bus.control(Server.default, 4);
 
-~breathEnabled = false;
+~breathEnabled = true;
 ~showBreath = true;
 ~breathBus.free;
 ~breathBus = Bus.control(Server.default, 1);

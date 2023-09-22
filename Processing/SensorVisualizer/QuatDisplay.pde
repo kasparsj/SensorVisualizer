@@ -21,7 +21,7 @@ public class QuatDisplay extends RotationStats {
             updateHist(quat, null);
           }
         }
-        // this will lower fps but forward anyway for compatability
+        // this will be lower fps but forward anyway for compatability
         ArrayList<Quaternion> values = new ArrayList<Quaternion>();
         values.add(quat);
         forward(values);

@@ -77,6 +77,17 @@ OSCdef(\quat, {|msg, time, addr, recvPort|
 		~rhProjYXBus.setn(projYX);
 		~rhProjZYBus.setn(projZY);
 	});
+	if (msg[1].asString() == ~lhId, {
+		var values = msg[2..17];
+		var quat = values[0..3];
+		var projXZ = (values[4..5]+1)/2 ++ values[6..7];
+		var projYX = (values[8..9]+1)/2 ++ values[10..11];
+		var projZY = (values[12..13]+1)/2 ++ values[14..15];
+		~lhQuatBus.setn(quat);
+		~lhProjXZBus.setn(projXZ);
+		~lhProjYXBus.setn(projYX);
+		~lhProjZYBus.setn(projZY);
+	});
 	if (msg[1].asString() == ~polarId, {
 		var values = msg[2..17];
 		var quat = values[0..3];

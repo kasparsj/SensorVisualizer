@@ -17,7 +17,7 @@ Ndef(\chestPitch, {
 	var xz = In.kr(~chestProjXZBus.index, 4);
 	var yx = In.kr(~chestProjYXBus.index, 4);
 	var octave = 2, degree = 0, pitch = 0;
-	// octave = 3;
+	// octave = 1;
 	// octave = ((2.0-(acc[3]*3))*2).round.abs;
 	// octave = Latch.kr(octave, Impulse.kr(1/2));
 	octave = (yx[1] * 4).round;
@@ -31,27 +31,29 @@ Ndef(\chestPitch, {
 	// pitch = pitch + TChoose.kr(gate, [0, 7, 12]);
 
 	pitch;
-});
+}).fadeTime_(3);
 
 SynthDef(\motion1, { |out=0, room=0.4, amp=0.14, dur = 180, pan = 0, gate = 1.0|
 	var sig, env;
 	var acc = In.kr(~chestAccNormBus.index, 4);
-	//var compNorm = In.kr(~compNormBus.index);
+	var compNorm = In.kr(~compNormBus.index);
+	var xz = In.kr(~chestProjXZBus.index, 4);
 	var pitch = Ndef.kr(\chestPitch, 1);
-	var timb, timb_mod, harm, morph;
+	var timb, timb_mod, harm, morph = 0;
 	var engine = Ndef.kr(\chestEngine, 1);
 
 	timb = (acc[0]+1)/2;
 	harm = (acc[1]+1)/2;
 	morph = (acc[2]+1)/2;
 
-	dur = (acc[3] * 100).max(0.01);
+	dur = (acc[3] * 100).max(0.01).min(3);
 
 	env = EnvGen.ar(Env([0, 0.01, 1.0, 0], [0.01, 0.98, 0.01]), gate, timeScale: dur, doneAction: 2);
-	// sig = MiPlaits.ar(pitch, engine, harm, timb, morph);
+	// sig = MiPlaits.ar(pitch, engine, harm, timb, morph, mul: 0.7);
 	sig = MiBraids.ar(pitch, timb, harm, engine);
 	sig = sig*env*amp*acc[3];
 	sig = MiVerb.ar(sig, drywet: room);
+	// sig = sig!2;
 
 	// try this out:
 	// sig = LPF.ar(sig, 200) + (sig * 0.3); // do not
