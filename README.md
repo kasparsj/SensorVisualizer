@@ -1,6 +1,16 @@
 # SensorVisualizer
 
-SensorVisualizer is a [Processing](https://processing.org/) app that visualizes sensor data, that it receives trough OSC:
+SensorVisualizer is a [Processing](https://processing.org/) app that visualizes sensor data, that it receives trough OSC.
+
+# Installation
+
+1. Download and install [Processing](https://processing.org/download).
+2. Install contributor libraries (Sketch > Import Library... > Manager Libraries...)
+  * oscP5
+  * UDP
+3. Install [JKalman lib](https://github.com/kasparsj/JKalman/releases/download/0.1.0/JKalman.zip)
+
+# OSC addresses
 
 By default it listens to port 57121 and the following OSC addresses:
 - "/deviceId/acc" (x y z)
