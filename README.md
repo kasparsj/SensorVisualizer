@@ -29,7 +29,7 @@ The "deviceId" prefix must change depending on the sending device.
 
 - [x] Mahony
 - [x] Madgwick
-- [] Kalman
+- [ ] Kalman
 
 ## Filtering
 
