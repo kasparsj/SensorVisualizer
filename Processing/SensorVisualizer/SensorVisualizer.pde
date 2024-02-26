@@ -132,25 +132,26 @@ void drawFps() {
 
 void drawInfo() {
   pushStyle();
-  fill(0, 127);
-  rect(0, 0, width, height);
+  background(0);
+  //fill(0, 127); // does not overlay strokes (lines)
+  //rect(0, 0, width, height);
   fill(255);
   List<String> keys = Arrays.asList("1 to 9", "r", "o", "space", "p", "s", "i", "f", "n");
   List<String> infos = Arrays.asList("switch device", "start/stop recording", "open folder for playback", "play/pause", "start playing", "stop playing",  "show/hide info", "show/hide fps", "show/hide gui");
   List<String> keys2 = Arrays.asList("u", "q", "e");
   List<String> infos2 = Arrays.asList("set device fusion type", "show hide quat view", "show/hide euler view");
-  List<String> keys3 = Arrays.asList("f", "t", "m", "v");
-  List<String> infos3 = Arrays.asList("set filter type", "set transform type", "reset min/max", "show/hide sensor");
+  List<String> keys3 = Arrays.asList("left click", "f", "t", "m", "v");
+  List<String> infos3 = Arrays.asList("select/unselect sensor", "set filter type", "set transform type", "reset min/max", "show/hide sensor");
   pushMatrix();
   translate(0, 0);
   textSize(20);
   text("Global commands", 30, 30);
   drawCommands(keys, infos);
-  translate(300, 0);
+  translate(350, 0);
   textSize(20);
   text("Device commands", 30, 30);
   drawCommands(keys2, infos2);
-  translate(300, 0);
+  translate(350, 0);
   textSize(20);
   text("Sensor commands", 30, 30);
   drawCommands(keys3, infos3);
@@ -164,7 +165,7 @@ void drawCommands(List<String> keys, List<String> infos) {
     String info = infos.get(i);
     textSize(18);
     text(key, 30, (i+2)*30);
-    text(info, 90, (i+2)*30);
+    text(info, 120, (i+2)*30);
   }
 }
 
