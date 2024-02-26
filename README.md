@@ -8,7 +8,7 @@ SensorVisualizer is a [Processing](https://processing.org/) app that visualizes 
 2. Install contributor libraries (Sketch > Import Library... > Manager Libraries...)
   * oscP5
   * UDP
-3. Install [JKalman lib](https://github.com/kasparsj/JKalman/releases/download/0.1.0/JKalman.zip)
+3. Install [JKalman lib](https://github.com/kasparsj/JKalman/releases/download/0.1.0/)
 
 # OSC addresses
 
