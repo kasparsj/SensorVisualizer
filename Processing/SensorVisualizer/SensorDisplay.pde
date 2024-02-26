@@ -303,7 +303,7 @@ abstract class SensorDisplay<T> {
     
   final void record(OscMessage msg) {
     String typetag = msg.typetag();
-    int totalArgs = typetag.length()-1;
+    int totalArgs = typetag.length();
     if (totalArgs % numArgs == 0) {
       PrintWriter recorder = device.getOrCreateRecorder(type);
       int numLines = supportBatch ? totalArgs / numArgs : 1;
@@ -313,7 +313,7 @@ abstract class SensorDisplay<T> {
         String line = msg.addrPattern() + "\t" + time;
         // todo: would be better to use "parse" method
         for (int j=0; j<numArgs; j++) {
-          var idx = 1+i*numArgs+j;
+          var idx = i*numArgs+j;
           OscArgument arg = msg.get(idx);
           switch (typetag.charAt(idx)) {
             case 'f':

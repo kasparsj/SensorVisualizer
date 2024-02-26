@@ -1,3 +1,6 @@
+import jkalman.*;
+import jama.*;
+
 public class ECGDisplay extends SensorDisplay<Float> {
 
   float w;
