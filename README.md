@@ -27,9 +27,9 @@ The "deviceId" prefix must change depending on the sending device.
 
 ## Sensor Fusion
 
-- Mahony [x]
-- Madgwick [x]
-- Kalman []
+- [x] Mahony
+- [x] Madgwick
+- [x] Kalman
 
 ## Filtering
 
