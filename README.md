@@ -29,12 +29,12 @@ The "deviceId" prefix must change depending on the sending device.
 
 - [x] Mahony
 - [x] Madgwick
-- [x] Kalman
+- [] Kalman
 
 ## Filtering
 
-- Lowpass [x]
-- Kalman [x]
+- [x] Lowpass
+- [x] Kalman
 
 ## Data Collection
 
