@@ -23,10 +23,15 @@ int listenPort = 57121;
 String outPrefix = "/out";
 NetAddress forwardAddr;
 
-void setup() {
-  size(1792, 980, P3D);
+void settings() {
+  size(displayWidth, displayHeight, P3D);
   //fullScreen(P3D);
+}
 
+void setup() {
+  surface.setResizable(true);
+  surface.setLocation(0, 0);
+  
   loadData();
     
   oscP5 = new OscP5(this, listenPort);
