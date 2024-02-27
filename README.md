@@ -9,7 +9,7 @@ Download latest binary for your OS from [Releases](https://github.com/kasparsj/S
 ## Building from source
 
 1. SensorVisualizer was made using [Processing](https://processing.org/download) - download and install.
-2. Install contributor libraries (Sketch > Import Library... > Manager Libraries...)
+2. Install contributor libraries (Sketch > Import Library... > Manage Libraries...)
   * oscP5
   * UDP
 3. Download and install [JKalman library](https://github.com/kasparsj/JKalman/releases/tag/0.1.0)
