@@ -8,7 +8,7 @@ Download latest binary for your OS from [Releases](https://github.com/kasparsj/S
 
 ## Building from source
 
-1. SensorVisualizer was made using [Processing](https://processing.org/download). Download and install.
+1. SensorVisualizer was made using [Processing](https://processing.org/download) - download and install.
 2. Install contributor libraries (Sketch > Import Library... > Manager Libraries...)
   * oscP5
   * UDP
