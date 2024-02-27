@@ -10,7 +10,7 @@ SensorVisualizer is a [Processing](https://processing.org/) app that visualizes 
   * UDP
 3. Download and install [JKalman library](https://github.com/kasparsj/JKalman/releases/tag/0.1.0)
 
-# OSC addresses
+## OSC addresses
 
 By default it listens to port 57121 and the following OSC addresses:
 - "/deviceId/acc" (x y z)
