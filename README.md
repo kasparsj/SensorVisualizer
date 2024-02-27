@@ -2,7 +2,11 @@
 
 SensorVisualizer is a [Processing](https://processing.org/) app that visualizes sensor data, that it receives trough OSC.
 
-# Installation
+## Installation
+
+Download latest binary for your OS from [Releases](https://github.com/kasparsj/SensorVisualizer/releases) and run.
+
+## Building from source
 
 1. Download and install [Processing](https://processing.org/download).
 2. Install contributor libraries (Sketch > Import Library... > Manager Libraries...)
