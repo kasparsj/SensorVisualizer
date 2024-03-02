@@ -115,6 +115,16 @@ void draw() {
     textSize(36); 
     textAlign(CENTER);
     text("Waiting for data on port " + listenPort, width/2, height/2);
+    textSize(14); 
+    text("'/deviceId/acc' (x y z)", width/2, height/2+40);
+    text("'/deviceId/gyro' (x y z)", width/2, height/2+60);
+    text("'/deviceId/mag' (x y z)", width/2, height/2+80);
+    text("'/deviceId/altitude' (value)", width/2, height/2+100);
+    text("'/deviceId/comp' (heading in radians)", width/2, height/2+120);
+    text("'/deviceId/ecg' (value)", width/2, height/2+140);
+    text("'/deviceId/hr' (heartrate)", width/2, height/2+160);
+    text("'/deviceId/euler' (roll pitch yaw)", width/2, height/2+180);
+    text("'/deviceId/quat' (w x y z)", width/2, height/2+200);
     popStyle();
   }
   
@@ -177,13 +187,25 @@ void drawCommands(List<String> keys, List<String> infos) {
 void oscEvent(OscMessage msg) {
   String prefix = getOscPrefix(msg.addrPattern());
   String deviceId = prefix.replaceAll("^/", "");
+  if (deviceId.equals("")) {
+    print("Received an osc message without an address");
+    return;
+  }
   String ip = msg.address();
+  try {
   getOrCreateDevice(deviceId, prefix, ip).oscEvent(msg);
+  } catch (Exception e) {
+    e.printStackTrace();
+  }
 }
 
 String getOscPrefix(String addrPattern) {
   int offset = addrPattern.charAt(0) == '/' ? 1 : 0;
-  return addrPattern.substring(0, addrPattern.indexOf("/", offset));
+  int index = addrPattern.indexOf("/", offset);
+  if (index > -1) {
+    return addrPattern.substring(0, index);
+  }
+  return addrPattern;
 }
 
 Device getOrCreateDevice(String deviceId, String inPrefix, String ip) {

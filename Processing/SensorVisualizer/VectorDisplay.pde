@@ -57,7 +57,7 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
             {0, 0, 0, 0, 1, 0},
             {0, 0, 0, 0, 0, 1}};
             
-        kalman.setTransition_matrix(new Matrix(tr));
+        kalman.setTransition_matrix(new jama.Matrix(tr));
         kalman.setError_cov_post(kalman.getError_cov_post().identity());
       }
       catch (Exception e) {
@@ -171,16 +171,16 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
   
   PVector kalman(PVector val) {
     // measurement [x, y, z]
-    Matrix m = new Matrix(3, 1);
+    jama.Matrix m = new jama.Matrix(3, 1);
     m.set(0, 0, val.x);
     m.set(1, 0, val.y);
     m.set(2, 0, val.z);
 
     // state [x, y, z, dx, dy, dz]
-    Matrix s = kalman.Predict();
+    jama.Matrix s = kalman.Predict();
 
     // corrected state [x, y,z, dx, dy, dz, dxyz]
-    Matrix c = kalman.Correct(m);
+    jama.Matrix c = kalman.Correct(m);
 
     val.x = (float) c.get(0, 0);
     val.y = (float) c.get(1, 0);

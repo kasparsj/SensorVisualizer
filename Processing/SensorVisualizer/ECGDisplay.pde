@@ -1,5 +1,4 @@
 import jkalman.*;
-import jama.*;
 
 public class ECGDisplay extends SensorDisplay<Float> {
 
@@ -29,7 +28,7 @@ public class ECGDisplay extends SensorDisplay<Float> {
         double[][] tr = {
             {1, 0},
             {0, 1}};
-        kalman.setTransition_matrix(new Matrix(tr));
+        kalman.setTransition_matrix(new jama.Matrix(tr));
         kalman.setError_cov_post(kalman.getError_cov_post().identity());
       }
       catch (Exception e) {
@@ -56,17 +55,13 @@ public class ECGDisplay extends SensorDisplay<Float> {
   }
 
   Float kalman(Float val) {
-    // measurement [x, y, z]
-    Matrix m = new Matrix(1, 1);
-    m.set(0, 0, val);
+    jama.Matrix measurement = new jama.Matrix(1, 1);
+    measurement.set(0, 0, val);
 
-    // state [x, y, z, dx, dy, dz]
-    Matrix s = kalman.Predict();
-
-    // corrected state [x, y,z, dx, dy, dz, dxyz]
-    Matrix c = kalman.Correct(m);
-
-    val = (float) c.get(0, 0);
+    // todo: do we need to call Predict even if we are not using it?
+    jama.Matrix predicted_state = kalman.Predict();
+    jama.Matrix corrected_state = kalman.Correct(measurement);
+    val = (float) corrected_state.get(0, 0);
 
     return val;
   }
