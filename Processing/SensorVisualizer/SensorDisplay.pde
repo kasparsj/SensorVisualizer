@@ -49,6 +49,8 @@ abstract class SensorDisplay<T> {
   boolean makePlayRegular = true;
   boolean visible = true;
   String addr;
+  T curValue;
+  long parUpdIdx = 0;
   
   SensorDisplay(float x, float y, float w, float h) {
     this.x = x;
@@ -100,6 +102,15 @@ abstract class SensorDisplay<T> {
   
   abstract T parse(TableRow row);
   
+  float parseParam(OscMessage msg) {
+    if (msg.typetag().charAt(firstArg) == 'i') {
+      return msg.get(firstArg).intValue();
+    }
+    else {
+      return msg.get(firstArg).floatValue();
+    }
+  }
+  
   void update(T val) {
     switch (filterType) {
       case KALMAN:
@@ -122,6 +133,7 @@ abstract class SensorDisplay<T> {
       updateAvg(value);
     }
     numUpdates++;
+    curValue = val;
   }
   
   void updateHist(T value, T rawVal) {
@@ -224,6 +236,25 @@ abstract class SensorDisplay<T> {
       values.add(value);
     }
     forward(values);
+  }
+  
+  final void oscEventParam(OscMessage msg, String param) {
+    if (numArgs == 1) {
+      oscEvent(msg);
+      return;
+    }
+    updateCur(param, parseParam(msg));
+    if (parUpdIdx % numArgs == 0) {
+      update(curValue);
+      ArrayList<T> values = new ArrayList<T>();
+      values.add(curValue);
+      forward(values);
+    }
+    parUpdIdx++;
+  }
+  
+  void updateCur(String param, float val) {
+    
   }
   
   final void playEvent(TableRow row) {
@@ -330,6 +361,10 @@ abstract class SensorDisplay<T> {
         recorder.println(line);
       }
     }
+  }
+  
+  final void recordParam(OscMessage msg, String param) {
+    
   }
   
   Table loadFile(File file) {

@@ -158,7 +158,16 @@ public class Device {
     }
     try {
       SensorDisplay sensor = null;
-      switch (msg.addrPattern().substring(inPrefix.length())) {
+      String addr = msg.addrPattern();
+      int len = inPrefix.length();
+      int slash2 = addr.indexOf("/", len+1);
+      String which = slash2 > -1 ? addr.substring(len, slash2) : addr.substring(len);
+      String param = null;
+      if (slash2 > -1) {
+        param = addr.substring(slash2+1);
+      }
+
+      switch (which) {
         case "/acc":
         case "/accel":
         case "/accelerometer":
@@ -201,9 +210,17 @@ public class Device {
           break;
       }
       if (sensor != null) {
-        sensor.oscEvent(msg);
-        if (isRecording) {
-          sensor.record(msg);
+        if (param == null) {
+          sensor.oscEvent(msg);
+          if (isRecording) {
+            sensor.record(msg);
+          }
+        }
+        else {
+          sensor.oscEventParam(msg, param);
+          if (isRecording) {
+            sensor.recordParam(msg, param);
+          }
         }
       }
     }

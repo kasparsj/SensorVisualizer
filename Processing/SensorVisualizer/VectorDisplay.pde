@@ -129,7 +129,7 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
     }
     return vec;
   }
-  
+    
   PVector parse(TableRow row) {
     PVector vec = new PVector(row.getFloat(2), row.getFloat(3), row.getFloat(4));
     if (row.getString(0).substring(row.getString(0).length()-4).equals("_deg")) {
@@ -138,6 +138,23 @@ abstract class VectorDisplay extends SensorDisplay<PVector> {
       vec.z = radians(vec.z);
     }
     return vec;
+  }
+  
+  void updateCur(String param, float val) {
+    if (curValue == null) {
+      curValue = new PVector();
+    }
+    switch (param) {
+      case "x":
+        curValue.x = val;
+        break;
+      case "y":
+        curValue.y = val;
+        break;
+      case "z":
+        curValue.z = val;
+        break;
+    }
   }
   
   void forwardOne(PVector value) {
