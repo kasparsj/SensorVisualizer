@@ -197,7 +197,7 @@ void oscEvent(OscMessage msg) {
   }
   String ip = msg.address();
   try {
-  getOrCreateDevice(deviceId, prefix, ip).oscEvent(msg);
+    getOrCreateDevice(deviceId, prefix, ip).oscEvent(msg);
   } catch (Exception e) {
     e.printStackTrace();
   }
@@ -261,6 +261,14 @@ void syncPlayback() {
     if (dev.isPlaying) {
       dev.playMinMs = minMs;
       dev.playMaxMs = maxMs;
+    }
+  }
+}
+
+void toggleMenu(float val) {
+  for (Device dev : devs.values()) {
+    if (dev.toggleMenu(val)) {
+      break;
     }
   }
 }
