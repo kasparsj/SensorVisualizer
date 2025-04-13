@@ -3,7 +3,7 @@ if (~visuals.isNil) {
 	"visuals.scd".loadRelative;
 };
 
-RedTrk2(\invert, Task({
+RedTrack(\invert, Task({
 	// ~visuals.send('/tex', 0, "shaders/color.frag");
 	~visuals.send('/tex/color', 0, [0.0, 1.0, 1.0]);
 	~visuals.send('/tex', 0, "shaders/100fragments/OscCircle.frag");
@@ -16,7 +16,7 @@ RedTrk2(\invert, Task({
 	~ecgMult = 1;
 }));
 
-RedTrk2(\no_invert, Task({
+RedTrack(\no_invert, Task({
 	~visuals.send('/tex/color', 0, [1.0, 1.0, 1.0]);
 	~visuals.send('/shading/passes');
 	~visuals.send('/tex/var', 0, "minRadius", 0.2);
@@ -27,36 +27,36 @@ RedTrk2(\no_invert, Task({
 	~ecgMult = 2pi;
 }));
 
-RedTrk2(\fadein0, Task({
+RedTrack(\fadein0, Task({
 	~visuals.send('/layer/alpha', 0, "line(1, 45)");
 	//~visuals.send('/layer/alpha', 0, 1.0);
 }));
 
-RedTrk2(\fadeout0, Task({
+RedTrack(\fadeout0, Task({
 	~visuals.send('/layer/alpha', 0, "line(1, 0, 10)");
 }));
 
-RedTrk2(\fadein1, Task({
+RedTrack(\fadein1, Task({
 	~visuals.send('/layer/alpha', 1, "line(1, 30)");
 }));
 
-RedTrk2(\fadeout1, Task({
+RedTrack(\fadeout1, Task({
 	~visuals.send('/layer/alpha', 1, "line(1, 0, 10)");
 }));
 
-RedTrk2(\line1, Task({
+RedTrack(\line1, Task({
 	~visuals.send('/layer/alpha', 2, "line(1, 5)");
 	~visuals.send('/layer/alpha', 3, "line(1, 5)");
 	~visuals.send('/layer/alpha', 4, "line(1, 5)");
 }));
 
-RedTrk2(\no_line1, Task({
+RedTrack(\no_line1, Task({
 	~visuals.send('/layer/alpha', 2, "line(1, 0, 10)");
 	~visuals.send('/layer/alpha', 3, "line(1, 0, 10)");
 	~visuals.send('/layer/alpha', 4, "line(1, 0, 10)");
 }));
 
-RedTrk2(\lines12, Task({
+RedTrack(\lines12, Task({
 	//~visuals.send('/tex/color', 0, [0.0, 1.0, 0.0]);
 
 	~visuals.send('/tex/color', 2, [1.0, 1.0, 1.0]);
@@ -94,7 +94,7 @@ RedTrk2(\lines12, Task({
 	~visuals.send('/tex/color', 9, [1.0, 1.0, 1.0]);
 }));
 
-RedTrk2(\lines123, Task({
+RedTrack(\lines123, Task({
 	//~visuals.send('/tex/color', 0, [0.0, 0.0, 1.0]);
 
 	// ~visuals.send('/tex/color', 2, [1.0, 0, 0.0]);
@@ -131,7 +131,7 @@ RedTrk2(\lines123, Task({
 	~visuals.send('/tex/var', 10, "scale", 0.125);
 }));
 
-RedTrk2(\lines23, Task({
+RedTrack(\lines23, Task({
 	//~visuals.send('/tex/color', 0, [0.0, 1.0, 1.0]);
 
 	// ~visuals.send('/tex/color', 2, [1.0, 1.0, 1.0]);
@@ -160,13 +160,13 @@ RedTrk2(\lines23, Task({
 
 }));
 
-RedTrk2(\no_lines, Task({
+RedTrack(\no_lines, Task({
 	9.do { |i|
 		~visuals.send('/layer/alpha', i+2, 0);
 	};
 }));
 
-RedTrk2(\nothing, Task({
+RedTrack(\nothing, Task({
 	~visuals.send('/layer/alpha', "*", 0);
 }));
 )

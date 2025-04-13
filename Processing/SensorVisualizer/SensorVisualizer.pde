@@ -1,4 +1,4 @@
-//import controlP5.*;
+import controlP5.*;
 import netP5.*;
 import oscP5.*;
 
@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.stream.*;
 
 import processing.data.JSONObject;
+
+ControlP5 cp5;
 
 boolean noDraw = false;
 boolean showFps = false;
@@ -36,6 +38,8 @@ void setup() {
     
   oscP5 = new OscP5(this, listenPort);
   forwardAddr = new NetAddress("127.0.0.1", 57120);
+  
+  cp5 = new ControlP5(this);
 }
 
 void loadData() {
@@ -47,7 +51,7 @@ void loadData() {
   //}
   
   //// Polar H10
-  //devs.put("7E37D222", new Device("7E37D222", "/sensor", outPrefix, new HashMap<SensorType, SensorDisplay>(){{
+  //devs.put("7E37D222", new Device("7E37D222", "/7E37D222", outPrefix, new HashMap<SensorType, SensorDisplay>(){{
   //    put(SensorType.ACC, new AccDisplay(0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
   //    EulerDisplay euler = new EulerDisplay(width/2, 0, width/2, height, 500);
   //    put(SensorType.EULER, euler);
@@ -105,7 +109,7 @@ void draw() {
     
     int i=0;
     for (Device dev1 : devs.values()) {
-      dev1.drawTab(i, dev1 == dev);
+      dev1.draw(i, dev1 == dev, cp5);
       i++;
     }
   }
@@ -209,7 +213,7 @@ String getOscPrefix(String addrPattern) {
 }
 
 Device getOrCreateDevice(String deviceId, String inPrefix, String ip) {
-  if (devs.get(deviceId) != null && !devs.get(deviceId).ip.equals("") && !devs.get(deviceId).ip.equals(ip)) {
+  if (devs.get(deviceId) != null && devs.get(deviceId).ip != null && !devs.get(deviceId).ip.equals("") && !devs.get(deviceId).ip.equals(ip)) {
     deviceId = deviceId + "-" + ip;
   }
   if (devs.get(deviceId) == null) {

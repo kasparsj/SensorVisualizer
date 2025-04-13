@@ -35,7 +35,7 @@ RedMst.clear;
 RedMst.clock = TempoClock(60/60);
 RedMst.quant = 1;
 
-RedTrk2(\heart_spawn, Pdef(\heartSpawn, Pseq([
+RedTrack(\heart_spawn, Pdef(\heartSpawn, Pseq([
 	Pfindur(300, Pspawn(Pbind(
 		\pattern, Pfunc {
 			var which = (0..2).choose;
@@ -57,9 +57,9 @@ RedTrk2(\heart_spawn, Pdef(\heartSpawn, Pseq([
 )))], inf)));
 //Pdef(\heartSpawn).play
 
-RedTrk2(\heart_noise, Synth(\ecg_WhiteNoise).run(false));
+RedTrack(\heart_noise, Synth(\ecg_WhiteNoise).run(false));
 
-RedTrk2(\heart_sin, RedVol(RedFn({
+RedTrack(\heart_sin, RedVol(RedFn({
 	Ndef(\heart_sin).fadeTime = 20;
 	Ndef(\heart_sin).set(\amp, 0);
 	Ndef(\heart_sin).play(0, 2);
@@ -70,7 +70,7 @@ RedTrk2(\heart_sin, RedVol(RedFn({
 	Ndef(\heart_sin).vol = vol;
 }, 0.5));
 
-RedTrk2(\heart_perc, RedVol(RedFn({ |vol|
+RedTrack(\heart_perc, RedVol(RedFn({ |vol|
 	Ndef(\heart_perc).fadeTime = 10;
 	Ndef(\heart_perc).set(\amp, 0);
 	Ndef(\heart_perc).play(0, 2, addAction: \addToTail);
@@ -81,7 +81,7 @@ RedTrk2(\heart_perc, RedVol(RedFn({ |vol|
 	Ndef(\heart_perc).vol = vol;
 }, 0.5));
 
-RedTrk2(\heart_sub, RedVol(RedFn({
+RedTrack(\heart_sub, RedVol(RedFn({
 	Ndef(\heart_sub).fadeTime = 30;
 	Ndef(\heart_sub).set(\amp, 0);
 	Ndef(\heart_sub).play(~subs, 2, addAction: \addToTail);
@@ -92,9 +92,9 @@ RedTrk2(\heart_sub, RedVol(RedFn({
 	Ndef(\heart_sub).vol = vol;
 }, 0.5));
 
-RedTrk2(\heart_beat, Ndef(\heart_beat));
+RedTrack(\heart_beat, Ndef(\heart_beat));
 
-RedTrk2(\breath, RedVol(RedFn({
+RedTrack(\breath, RedVol(RedFn({
 	Ndef(\breath).fadeTime = 10;
 	Ndef(\breath).set(\amp, 0);
 	Ndef(\breath).play(2, 2);
@@ -105,7 +105,7 @@ RedTrk2(\breath, RedVol(RedFn({
 	Ndef(\breath).vol = vol;
 }, 1));
 
-RedTrk2(\quite_heart, RedVol(RedFn({
+RedTrack(\quite_heart, RedVol(RedFn({
 	Ndef(\heart_sin).fadeTime = 15;
 	Ndef(\heart_sin).set(\amp, 0);
 	Ndef(\heart_sub).fadeTime = 15;
@@ -127,11 +127,11 @@ RedTrk2(\quite_heart, RedVol(RedFn({
 	Ndef(\heart_sub).vol = vol;
 }, 0));
 
-RedTrk2(\motion_grains, RedVol(Pdef(\motionGrains), { |vol|
+RedTrack(\motion_grains, RedVol(Pdef(\motionGrains), { |vol|
 	~motionGrainsAmp = vol;
 }));
 
-RedTrk2(\motion1, RedVol(RedFn({
+RedTrack(\motion1, RedVol(RedFn({
 	Ndef(\motion1).fadeTime = 1;
 	Ndef(\motion1).set(\amp, 0);
 	Ndef(\motion1).play(0, 2);
@@ -142,10 +142,11 @@ RedTrk2(\motion1, RedVol(RedFn({
 	Ndef(\motion1).vol = vol;
 }, 0.5));
 
-RedTrk2(\control1, RedVol(RedFn({
+RedTrack(\control1, RedVol(RedFn({
 	Ndef(\control1).fadeTime = 10;
 	Ndef(\control1).set(\amp, 0);
-	Ndef(\control1).play(2, 2);
+	// Ndef(\control1).play(2, 2);
+	Ndef(\control1).play(0, 2);
 	Ndef(\control1).xset(\amp, 0.5);
 }, {
 	Ndef(\control1).stop(5);
@@ -153,7 +154,7 @@ RedTrk2(\control1, RedVol(RedFn({
 	Ndef(\control1).vol = vol;
 }, 0.5));
 
-RedTrk2(\rh_onsets, RedVol(RedFn({
+RedTrack(\rh_onsets, RedVol(RedFn({
 	Ndef(\rh_onsets).fadeTime = 8;
 	Ndef(\rh_onsets).set(\amp, 0);
 	Ndef(\rh_onsets).play(0, 2);
@@ -164,7 +165,7 @@ RedTrk2(\rh_onsets, RedVol(RedFn({
 	Ndef(\rh_onsets).vol = vol;
 }, 1));
 
-RedTrk2(\lh_onsets, RedVol(RedFn({
+RedTrack(\lh_onsets, RedVol(RedFn({
 	Ndef(\lh_onsets).fadeTime = 8;
 	Ndef(\lh_onsets).set(\amp, 0);
 	Ndef(\lh_onsets).play(0, 2);
@@ -175,15 +176,15 @@ RedTrk2(\lh_onsets, RedVol(RedFn({
 	Ndef(\lh_onsets).vol = vol;
 }, 0.5));
 
-RedTrk2(\snare, Pdef(\snare));
+RedTrack(\snare, Pdef(\snare));
 
-RedTrk2(\snare2, Pdef(\snare2));
+RedTrack(\snare2, Pdef(\snare2));
 
-RedTrk2(\snare3, Pdef(\snare3));
+RedTrack(\snare3, Pdef(\snare3));
 
-RedTrk2(\snare4, Pdef(\snare4));
+RedTrack(\snare4, Pdef(\snare4));
 
-RedTrk2(\snare_final, Pdef(\snare_final));
+RedTrack(\snare_final, Pdef(\snare_final));
 
 "visuals/vis_tracks.scd".loadRelative;
 
@@ -206,29 +207,12 @@ RedTrk2(\snare_final, Pdef(\snare_final));
 	1, [\snare_final]
 ]);
 
-// todo: use RedSeq instead
-~video = VideoOSC(NetAddr("127.0.0.1", 133333));
-~sound = SoundTrack(~video, ~score.beats, \beats);
+~sound = ~score.createSeq(loop: false);
 )
 
-~sound.play(loop: false);
-~sound.nextSection;
+~sound.play;
+~sound.next;
 ~sound.stop;
 
-RedMstGUI4()
-
-//~phi8Master.add(\feedback, 1);
-//~phi8Master.remove(\feedback);
-//~phi8Master.gui;
-
-// Ndef(\motion2).play(0, 2);
-// Ndef(\motion2).xset(\amp, 0.5);
-// Ndef(\motion2).stop(5);
-//
-// Ndef(\motion3).play(0, 2);
-// Ndef(\motion3).xset(\amp, 1);
-// Ndef(\motion3).stop(5);
-//
-// Ndef(\motion3_mi).play(0, 2);
-// Ndef(\motion3_mi).xset(\amp, 0.75);
-// Ndef(\motion3_mi).stop(5);
+RedMstGUI(seq: ~sound)
+RedMstSessionGUI(seq: ~sound)

@@ -10,7 +10,9 @@ enum SensorType {
   ALTITUDE,
   ECG,
   HR,
-  COMP;
+  COMP,
+  PPG,
+  PPI;
 };
 
 public class Device {
@@ -34,6 +36,10 @@ public class Device {
   long playMinMs = -1;
   long playMaxMs = -1;
   boolean isPaused;
+  float x = 0, y = 0, w, h;
+  int idx;
+  ButtonBar menu;
+  boolean isMenuVisible = false;
   
   Device(String id, String inPrefix, String outPrefix, Map<SensorType, SensorDisplay> sensors, FusionType fusionType) {
     this.id = id;
@@ -45,6 +51,8 @@ public class Device {
     for (SensorDisplay sensor : sensors.values()) {
       sensor.device = this;
     }
+    this.w = 200;
+    this.h = 20;
   }
   
   Device(String id, String inPrefix, String outPrefix, Map<SensorType, SensorDisplay> sensors) {
@@ -66,10 +74,21 @@ public class Device {
     }
   }
   
-  void drawTab(int idx, boolean isActive) {
-    int w = 200;
+  void draw(int idx, boolean isActive, ControlP5 cp5) {
+    this.idx = idx;
+    x = idx * w;
+    y = height - h;
+    if (cp5 == null) {
+      drawTab(isActive);
+    }
+    else if (menu == null) {
+      drawMenu(isActive, cp5);
+    }
+  }
+  
+  void drawTab(boolean isActive) {
     pushMatrix();
-    translate(idx * w, height - 20);
+    translate(x, y);
     pushStyle();
     stroke(255);
     if (isActive) {
@@ -78,7 +97,7 @@ public class Device {
     else {
       noFill();
     }
-    rect(0, 0, w, 20);
+    rect(0, 0, w, h);
     fill(255);
     textAlign(CENTER);
     textSize(13);
@@ -89,6 +108,20 @@ public class Device {
       ellipse(10, 10, 10, 10);
     }
     popMatrix();
+  }
+  
+  void drawMenu(boolean isActive, ControlP5 cp5) {
+    cp5.addButton("toggleMenu")
+      .setValue(idx)
+      .setPosition(x, y)
+      .setSize((int) w, (int) h)
+      .setLabel(id);
+    String[] items = split("Item1,Item2,Item3", ",");
+    menu = cp5.addButtonBar(id + "Menu")
+      .setPosition(x, y-100)
+      .setSize((int) w, 100)
+      .addItems(items)
+      .setVisible(false);
   }
   
   void drawSensors() {  
@@ -160,6 +193,12 @@ public class Device {
         case "/quat":
           sensor = getOrCreateSensor(SensorType.QUAT);
           break;
+        case "/ppg":
+          sensor = getOrCreateSensor(SensorType.PPG);
+          break;
+        case "/ppi":
+          sensor = getOrCreateSensor(SensorType.PPI);
+          break;
       }
       if (sensor != null) {
         sensor.oscEvent(msg);
@@ -221,6 +260,10 @@ public class Device {
         return new QuatDisplay();
       case COMP:
         return new CompDisplay();
+      //case PPG:
+      //  return new PPGDisplay();
+      //case PPI:
+      //  return new PPIDisplay();
     }
     return null;
   }
@@ -283,6 +326,15 @@ public class Device {
     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HHmmss");
     String date = df.format(new Date());
     return createRecorder(st, date);
+  }
+  
+  boolean toggleMenu(float val) {
+    if (menu != null && val == (float) idx) {
+      isMenuVisible = !isMenuVisible;
+      menu.setVisible(isMenuVisible);
+      return true;
+    }
+    return false;
   }
     
   boolean mouseClicked() {
