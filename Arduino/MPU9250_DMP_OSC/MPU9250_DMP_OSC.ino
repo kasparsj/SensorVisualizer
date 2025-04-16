@@ -1,20 +1,32 @@
+extern "C" void c_log(const char* format, ...) {
+    char buf[128];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buf, sizeof(buf), format, args);
+    va_end(args);
+    Serial.println(buf);  // or Serial.printf if you want to skip buffering
+}
+
 #include <WiFi.h>       // use for ESP32
 #include <SparkFunMPU9250-DMP.h>
 #include <Adafruit_BMP280.h>
-#include <ArduinoOSC.h>
+#include <ArduinoOSCWiFi.h>
 
 #define fifoRate 60 // (4 - 200)
 #define updateRate 60
 #define sendEuler false
 
-const char* ssid = "k";
-const char* password = "letmeinplease";
+// const char* ssid = "OPTIC34C6-5G";
+// const char* password = "095034C6";
+const char* ssid = "toplap";
+const char* password = "karlsruhe";
 
-//static char* remoteIp = "192.168.1.129";
-static char* remoteIp = "192.168.1.141";
-static uint16_t remotePort = 9000;
+static char* remoteIp = "192.168.1.104";
+static uint16_t remotePort = 57121;
 
-const int id = 2;
+String deviceId = "lh";
+// String deviceId = "rh";
+String oscPrefix = "";
 
 MPU9250_DMP imu;
 Adafruit_BMP280 bmp;
@@ -30,26 +42,48 @@ unsigned long lastUpdate = 0;
 void setup() {
   Serial.begin(115200);
 
-  Wire.begin(19, 22, 400000); // lolin32 lite
+  // Initialize OSC prefix
+  oscPrefix = "/" + deviceId;
 
   setupWifi();
-  setupIMU();
-  setupBmp();
+
+  //Wire.begin(19, 22, 400000); // lolin32 lite
+
+  //setupIMU();
+  //setupBmp();
 
   Serial.println("setup finished");
 }
 
 void setupWifi()
 {
+    Serial.print("CONNECTING WIFI ");
+    Serial.print(ssid);
+    
+    WiFi.mode(WIFI_STA);
     WiFi.disconnect(true);
     
     WiFi.begin(ssid, password);
+    
+    // Add timeout to prevent infinite loop
+    unsigned long startTime = millis();
     while (WiFi.status() != WL_CONNECTED)
     {
         delay(500);
         Serial.print(".");
+        
+        // Timeout after 20 seconds
+        if (millis() - startTime > 20000) {
+            Serial.println("\nWiFi connection TIMEOUT!");
+            Serial.println("Check WiFi credentials or access point");
+            // Return anyway and let the program continue
+            return;
+        }
     }
+    
     Serial.println(" connected");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
 }
 
 void setupIMU()
@@ -98,10 +132,10 @@ void loop()
       quatY = imu.calcQuat(imu.qy);
       quatZ = imu.calcQuat(imu.qz);
       quatW = imu.calcQuat(imu.qw);
-      OscWiFi.send(remoteIp, remotePort, "/quat", id, quatX, quatY, quatZ, quatW);
+      OscWiFi.send(remoteIp, remotePort, oscPrefix + "/quat", quatX, quatY, quatZ, quatW);
       if (sendEuler) {
         imu.computeEulerAngles();
-        OscWiFi.send(remoteIp, remotePort, "/euler", id, imu.roll, imu.pitch, imu.yaw);        
+        OscWiFi.send(remoteIp, remotePort, oscPrefix + "/euler", imu.roll, imu.pitch, imu.yaw);
       }
     }
   }
@@ -117,15 +151,15 @@ void loop()
       magX = imu.calcMag(imu.mx);
       magY = imu.calcMag(imu.my);
       magZ = imu.calcMag(imu.mz);
-      OscWiFi.send(remoteIp, remotePort, "/acc", id, accX, accY, accZ);
-      OscWiFi.send(remoteIp, remotePort, "/gyro", id, gyroX, gyroY, gyroZ);
-      OscWiFi.send(remoteIp, remotePort, "/mag", id, magX, magY, magZ);
+      OscWiFi.send(remoteIp, remotePort, oscPrefix + "/acc", accX, accY, accZ);
+      OscWiFi.send(remoteIp, remotePort, oscPrefix + "/gyro", gyroX, gyroY, gyroZ);
+      OscWiFi.send(remoteIp, remotePort, oscPrefix + "/mag", magX, magY, magZ);
     }
 
     alt = bmp.readAltitude();
     //temp = imu.temperature;
-    OscWiFi.send(remoteIp, remotePort, "/altitude", id, alt);
-    //OscWiFi.publish(remoteIp, remotePort, "/temperature", id, temp);
+    OscWiFi.send(remoteIp, remotePort, oscPrefix + "/altitude", alt);
+    //OscWiFi.publish(remoteIp, remotePort, oscPrefix + "/temperature", temp);
     lastUpdate = ms;
   }
 }
