@@ -26,7 +26,7 @@ static uint16_t remotePort = 57121;
 
 String deviceId = "lh";
 // String deviceId = "rh";
-String oscPrefix = "";
+String oscPrefix = "/" + deviceId;
 
 MPU9250_DMP imu;
 Adafruit_BMP280 bmp;
@@ -42,15 +42,11 @@ unsigned long lastUpdate = 0;
 void setup() {
   Serial.begin(115200);
 
-  // Initialize OSC prefix
-  oscPrefix = "/" + deviceId;
+  Wire.begin(19, 22, 400000); // lolin32 lite
 
   setupWifi();
-
-  //Wire.begin(19, 22, 400000); // lolin32 lite
-
-  //setupIMU();
-  //setupBmp();
+  setupIMU();
+  setupBmp();
 
   Serial.println("setup finished");
 }
