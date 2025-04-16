@@ -40,6 +40,7 @@ public class Device {
   int idx;
   ButtonBar menu;
   boolean isMenuVisible = false;
+  Float battery = null;
   
   Device(String id, String inPrefix, String outPrefix, Map<SensorType, SensorDisplay> sensors, FusionType fusionType) {
     this.id = id;
@@ -78,12 +79,13 @@ public class Device {
     this.idx = idx;
     x = idx * w;
     y = height - h;
-    if (cp5 == null) {
+    // todo: fix
+    //if (cp5 == null) {
       drawTab(isActive);
-    }
-    else if (menu == null) {
-      drawMenu(isActive, cp5);
-    }
+    //}
+    //else if (menu == null) {
+      //drawMenu(isActive, cp5);
+    //}
   }
   
   void drawTab(boolean isActive) {
@@ -101,7 +103,7 @@ public class Device {
     fill(255);
     textAlign(CENTER);
     textSize(13);
-    text(id, w/2, 13);
+    text(id + (battery != null ? " " + battery + "V" : ""), w/2, 13);
     popStyle();
     if (isRecording || isPlaying) {
       fill(isRecording ? 255 : 0, isPlaying ? (isPaused ? 127 : 255) : 0, 0);
@@ -207,6 +209,9 @@ public class Device {
           break;
         case "/ppi":
           sensor = getOrCreateSensor(SensorType.PPI);
+          break;
+        case "/battery":
+          battery = msg.get(0).floatValue();
           break;
       }
       if (sensor != null) {

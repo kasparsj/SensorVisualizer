@@ -12,9 +12,12 @@ extern "C" void c_log(const char* format, ...) {
 #include <Adafruit_BMP280.h>
 #include <ArduinoOSCWiFi.h>
 
-#define fifoRate 60 // (4 - 200)
-#define updateRate 60
-#define sendEuler false
+#define FIFO_RATE 60 // (4 - 200)
+#define UPDATE_RATE 60
+#define SEND_EULER false
+#define BATTERY_PIN 34
+#define ADC_MAX 4095.0
+#define VOLTAGE_DIVIDER_RATIO 2.0  // Adjust according to your board
 
 // const char* ssid = "OPTIC34C6-5G";
 // const char* password = "095034C6";
@@ -24,8 +27,8 @@ const char* password = "karlsruhe";
 static char* remoteIp = "192.168.1.104";
 static uint16_t remotePort = 57121;
 
-String deviceId = "lh";
-// String deviceId = "rh";
+// String deviceId = "lh";
+String deviceId = "rh";
 String oscPrefix = "/" + deviceId;
 
 MPU9250_DMP imu;
@@ -41,6 +44,7 @@ unsigned long lastUpdate = 0;
 
 void setup() {
   Serial.begin(115200);
+  analogReadResolution(12); // 12-bit ADC
 
   Wire.begin(19, 22, 400000); // lolin32 lite
 
@@ -95,11 +99,11 @@ void setupIMU()
       delay(5000);
     }
   }
-  imu.setSampleRate(fifoRate);
+  imu.setSampleRate(FIFO_RATE);
   imu.dmpBegin(DMP_FEATURE_6X_LP_QUAT |
                DMP_FEATURE_GYRO_CAL |
                DMP_FEATURE_SEND_CAL_GYRO,
-              fifoRate); 
+              FIFO_RATE); 
 }
 
 void setupBmp()
@@ -129,13 +133,13 @@ void loop()
       quatZ = imu.calcQuat(imu.qz);
       quatW = imu.calcQuat(imu.qw);
       OscWiFi.send(remoteIp, remotePort, oscPrefix + "/quat", quatX, quatY, quatZ, quatW);
-      if (sendEuler) {
+      if (SEND_EULER) {
         imu.computeEulerAngles();
         OscWiFi.send(remoteIp, remotePort, oscPrefix + "/euler", imu.roll, imu.pitch, imu.yaw);
       }
     }
   }
-  else if ( (ms - lastUpdate) >= (1000 / updateRate) && imu.dataReady() )
+  else if ( (ms - lastUpdate) >= (1000 / UPDATE_RATE) && imu.dataReady() )
   {
     if (imu.update() == INV_SUCCESS) {
       accX = imu.calcAccel(imu.ax);
@@ -156,6 +160,11 @@ void loop()
     //temp = imu.temperature;
     OscWiFi.send(remoteIp, remotePort, oscPrefix + "/altitude", alt);
     //OscWiFi.publish(remoteIp, remotePort, oscPrefix + "/temperature", temp);
+
+    // int raw = analogRead(BATTERY_PIN);
+    // float voltage = (raw / ADC_MAX) * 3.3 * VOLTAGE_DIVIDER_RATIO;
+    // OscWiFi.send(remoteIp, remotePort, oscPrefix + "/battery", voltage);
+
     lastUpdate = ms;
   }
 }
