@@ -17,7 +17,9 @@ var busMap = (
     RH_ZY: ~rhProjZYBus,
     LH_XZ: ~lhProjXZBus,
     LH_YX: ~lhProjYXBus,
-	LH_ZY: ~lhProjZYBus
+	LH_ZY: ~lhProjZYBus,
+	COMPASS: ~compNormBus,
+	MAGNETIC: ~magNormBus,
 );
 
 // Add debug text display

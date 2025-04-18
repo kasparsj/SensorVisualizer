@@ -18,6 +18,7 @@ extern "C" void c_log(const char* format, ...) {
 #define BATTERY_PIN 34
 #define ADC_MAX 4095.0
 #define VOLTAGE_DIVIDER_RATIO 2.0  // Adjust according to your board
+#define M_PI 3.14159265359
 
 // const char* ssid = "OPTIC34C6-5G";
 // const char* password = "095034C6";
@@ -27,8 +28,8 @@ const char* password = "karlsruhe";
 static char* remoteIp = "192.168.1.104";
 static uint16_t remotePort = 57121;
 
-// String deviceId = "lh";
-String deviceId = "rh";
+String deviceId = "lh";
+// String deviceId = "rh";
 String oscPrefix = "/" + deviceId;
 
 MPU9250_DMP imu;
@@ -39,6 +40,7 @@ float accX, accY, accZ = 0;
 float gyroX, gyroY, gyroZ = 0;
 float magX, magY, magZ = 0;
 float temp, press, alt = 0;
+float xyHeading, zxHeading, heading, headingDegrees = 0;
 
 unsigned long lastUpdate = 0;
 
@@ -151,9 +153,19 @@ void loop()
       magX = imu.calcMag(imu.mx);
       magY = imu.calcMag(imu.my);
       magZ = imu.calcMag(imu.mz);
+      float xyHeading = atan2(magX, magY);
+      float zxHeading = atan2(magZ, magX);
+      float heading = xyHeading;
+
+      if(heading < 0)
+        heading += 2*PI;
+      if(heading > 2*PI)
+        heading -= 2*PI;
+      headingDegrees = heading * 180/M_PI; 
       OscWiFi.send(remoteIp, remotePort, oscPrefix + "/acc", accX, accY, accZ);
       OscWiFi.send(remoteIp, remotePort, oscPrefix + "/gyro", gyroX, gyroY, gyroZ);
       OscWiFi.send(remoteIp, remotePort, oscPrefix + "/mag", magX, magY, magZ);
+      OscWiFi.send(remoteIp, remotePort, oscPrefix + "/comp", headingDegrees);
     }
 
     alt = bmp.readAltitude();
