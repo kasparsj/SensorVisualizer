@@ -5,8 +5,8 @@ r = nil;
 ~numEcgBatchArgs = 2;
 ~numAccBatchArgs = 5;
 ~polarId = "7E37D222";
-~rhId = "gyrosc";
-~lhId = "m5StickC";
+~rhId = "rh";
+~lhId = "lh";
 ~motionGrainsAmp = 0.5;
 ~trigThresh = 0.02;
 
