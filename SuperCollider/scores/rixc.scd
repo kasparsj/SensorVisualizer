@@ -14,10 +14,9 @@ s.waitForBoot {
 		"../synths/*.scd".loadRelative;
 	} {
 		~subs = 0;
-
+		"../synths/*.scd".loadRelative;
 	};
 
-	"../synths/*.scd".loadRelative;
 	"../master.scd".loadRelative;
 
 	s.sync;

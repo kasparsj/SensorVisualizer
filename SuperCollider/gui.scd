@@ -1,19 +1,23 @@
 (
 var width = 800, height = 400;
-var window = Window("4-Channel Bus Monitor (Normalized)", Rect(100, 100, width, height));
+var window = Window("Bus Monitor", Rect(100, 100, width, height));
 var userView = UserView(window, Rect(0, 0, width, height));
 var bufferSize = 100;
 var colors = [Color.red, Color.green, Color(173/255, 216/255, 230/255), Color.yellow];
-var histories = Array.fill(4, { Array.fill(bufferSize, {0.5}) });  // Initialize with mid-range values
+var maxChan = 4;
+var histories = Array.fill(maxChan, { Array.fill(bufferSize, {0}) });  // Initialize with mid-range values
 var synth, debugText, busMenu;
-var currentBusIndex = ~rhProjXZBus.index;
+var currentBus = ~chestProjXZBus;
 var busMap = (
-    RH_XZ: ~rhProjXZBus.index,
-    RH_YX: ~rhProjYXBus.index,
-    RH_ZY: ~rhProjZYBus.index,
-    LH_XZ: ~lhProjXZBus.index,
-    LH_YX: ~lhProjYXBus.index,
-	LH_ZY: ~lhProjZYBus.index
+	CHEST_XZ: ~chestProjXZBus,
+	CHEST_YX: ~chestProjYXBus,
+	CHEST_ZY: ~chestProjZYBus,
+    RH_XZ: ~rhProjXZBus,
+    RH_YX: ~rhProjYXBus,
+    RH_ZY: ~rhProjZYBus,
+    LH_XZ: ~lhProjXZBus,
+    LH_YX: ~lhProjYXBus,
+	LH_ZY: ~lhProjZYBus
 );
 
 // Add debug text display
@@ -22,16 +26,16 @@ debugText.background = Color.black;
 debugText.stringColor = Color.white;
 
 busMenu = PopUpMenu(window, Rect(width - 100, 10, 90, 20));
-busMenu.items = busMap.keys.asArray;
+busMenu.items = busMap.keys.asArray.sort;
 busMenu.value = 0;
 busMenu.action = {
     var selectedName = busMenu.items[busMenu.value];
-    currentBusIndex = busMap[selectedName];
-    debugText.string = "Switched to Bus: " ++ selectedName ++ " (index: " ++ currentBusIndex ++ ")";
+    currentBus = busMap[selectedName];
+    debugText.string = "Switched to Bus: " ++ selectedName ++ " (index: " ++ currentBus.index ++ ")";
 
     synth.free;
     synth = {
-        var bus_data = In.kr(currentBusIndex, 4);
+        var bus_data = In.kr(currentBus.index, currentBus.numChannels);
         SendReply.kr(Impulse.kr(30), '/bus_data', bus_data);
         0.0;
     }.play;
@@ -39,17 +43,18 @@ busMenu.action = {
 
 // ▶ Initial Synth
 synth = {
-    var bus_data = In.kr(currentBusIndex, 4);
+    var bus_data = In.kr(currentBus.index, currentBus.numChannels);
     SendReply.kr(Impulse.kr(30), '/bus_data', bus_data);
     0.0;
 }.play;
 
 // Setup OSC responder
 OSCdef(\busDataOSC, { |msg|
-    var values = msg[3..6]; // Extract the 4 channel values
+	var lastIdx = 2+currentBus.numChannels;
+    var values = msg[3..6];
 
     // Update histories with new values
-    4.do { |i|
+    currentBus.numChannels.do { |i|
         histories[i] = histories[i].rotate(-1);
         histories[i][bufferSize-1] = values[i];
     };
@@ -91,7 +96,7 @@ userView.drawFunc = {
 		Pen.stroke;
 	};
 
-    4.do { |i|
+    currentBus.numChannels.do { |i|
         Pen.strokeColor = colors[i];
         Pen.width = 1;
 
