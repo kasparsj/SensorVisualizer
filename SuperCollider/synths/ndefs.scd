@@ -35,7 +35,7 @@ Ndef(\heart_sin).fadeTime = 5;
 
 Ndef(\heart_perc, { |room=0.5, amp=0.25|
 	var sig, env, hr, onset, vbap;
-	ecg = In.kr(~ecgBus.index, 2);
+	var ecg = In.kr(~ecgBus.index, 2);
 	hr = In.kr(~hrBus.index);
 	onset = In.kr(~onsetBus.index);
 	env = EnvGen.ar(Env.perc, onset);
@@ -307,23 +307,28 @@ Ndef(\breath, { |amp=0.0|
 //Ndef(\breath).xset(\amp, 1.0);
 
 Ndef(\rh_onsets, { |amp=0|
-	var sig;
+	// inputs
 	var acc = In.kr(~rhAccNormBus.index, 4);
-	//var comp = In.kr(~compassBus.index, 2);
+	var comp = In.kr(~compassBus.index, 2);
+	var quat = In.kr(~rhQuatBus.index, 16);
+	var yx = (quat[8..11]+1)/2;
+	var sig;
+
+	// timbre/harmony/decay
+	var timbre = yx[0];
+	var harm = yx[1];
 	// var harm = LFNoise2.kr(0.3,0.25,0.25);
 	// var timbre = LFNoise1.kr(0.4,0.5,0.5);
 	// var timbre = (acc[0]+1)/2;
 	// var harm = (acc[1]+1)/2;
-	var quat = In.kr(~rhQuatBus.index, 16);
-	var yx = (quat[8..11]+1)/2;
-	var timbre = yx[0];
-	var harm = yx[1];
 	var dec = LFNoise2.kr(0.2).range(0.01,0.8);
 	// var dec = acc[3];
+
+	// trigger
 	var chain = FFT(LocalBuf(128), acc[3]);
 	// var trigger = Onsets.kr(chain, 0.3+(LFNoise2.kr(1/20)*0.2), \rcomplex, 0.01, 0.1, 1);
-	var trigger = Onsets.kr(chain, 0.9, \rcomplex, 0.01, 0.1, 1);
-	// var trigger = Onsets.kr(chain, 0.75);
+	// var trigger = Onsets.kr(chain, 0.9, \rcomplex, 0.01, 0.1, 1);
+	var trigger = Onsets.kr(chain, 0.75);
 	//var out = 10 + (25 * comp[1]);
 
 	//sig = MiPlaits.ar([41-(acc[3]*24), 48-(acc[3]*24)], 13, harm, timbre, 0.6+(LFNoise2.kr(1/30)*0.3), decay: dec, mul: 0.75);

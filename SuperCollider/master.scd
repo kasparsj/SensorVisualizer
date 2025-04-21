@@ -5,6 +5,10 @@ ProxyChain.add(*[
 	\in12, \mix -> {
 		SoundIn.ar([0, 1]);
 	},
+	\leakdc, \filter -> { |in|
+	    in = in + WhiteNoise.ar(1e-16); // prevent denormals
+		LeakDC.ar(in);
+	},
 	\lpf, \filter -> { |in, freq = 200, mul = 4|
 		LPF.ar(in, freq, mul);
 	},
@@ -47,14 +51,16 @@ ProxyChain.add(*[
 	},
 ]);
 
-~filterKeys = [\lpf, \moogVcf, \feedback, \delay, \comb, \reverb, \gverb, \tanh, \limiter];
-~phi8Master = MasterFX(Server.default, 2, ~filterKeys);
-~phi8Master.add(\lpf, 0.2);
-~phi8Master.add(\moogVcf, 0.25);
-//~phi8Master.add(\feedback, 1);
-//~phi8Master.remove(\feedback);
-~phi8Master.add(\gverb, 0.1);
-//~phi8Master.add(\tanh, 1);
-//~phi8Master.add(\limiter, 1);
-//~phi8Master.gui;
+~filterKeys = [\lpf, \leakdc, \moogVcf, \feedback, \delay, \comb, \reverb, \gverb, \tanh, \limiter];
+~master = MainFX(Server.default, 2, ~filterKeys);
+~master.add(\leakdc, 1);
+~master.add(\lpf, 0.2);
+~master.add(\moogVcf, 0.25);
+//~master.add(\feedback, 1);
+//~master.remove(\feedback);
+~master.add(\gverb, 0.1);
+//~master.add(\tanh, 1);
+//~master.add(\limiter, 1);
 )
+
+// ~master.gui;

@@ -1,7 +1,7 @@
 (
 // requires: https://github.com/kasparsj/redMst
 
-MasterFX.clear('localhost');
+MainFX.clear('localhost');
 
 s.waitForBoot {
 	"../config.scd".loadRelative;

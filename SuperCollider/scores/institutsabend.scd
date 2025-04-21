@@ -217,9 +217,9 @@ RedTrk2(\snare_final, Pdef(\snare_final));
 
 RedMstGUI4()
 
-//~phi8Master.add(\feedback, 1);
-//~phi8Master.remove(\feedback);
-//~phi8Master.gui;
+//~master.add(\feedback, 1);
+//~master.remove(\feedback);
+//~master.gui;
 
 // Ndef(\motion2).play(0, 2);
 // Ndef(\motion2).xset(\amp, 0.5);
