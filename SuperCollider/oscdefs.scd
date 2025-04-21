@@ -5,8 +5,7 @@ if (~prefix.isNil) {
 
 OSCdef(\ecg, {|msg, time, addr, recvPort|
 	// deviceId, value, minValue, maxValue, percValue, avgValue
-	~ecgBus.set(msg[2]);
-	~ecgNormBus.set(msg[5]);
+	~ecgBus.setn([msg[2], msg[5]]);
 }, ~prefix++"/ecg");
 
 OSCdef(\ecg_batch, {|msg, time, addr, recvPort|
@@ -112,13 +111,13 @@ OSCdef(\quat, {|msg, time, addr, recvPort|
 OSCdef(\compass, {|msg, time, addr, recvPort|
 	if (msg[1].asString == ~rhId) {
 		var compNorm;
-		~compassBus.set(msg[2]);
+
 		if (msg[2] > 250) {
 			compNorm = (msg[2] - 340).clip(0, 20) / 180;
 		} {
 			compNorm = (msg[2] + 20).clip(0, 180) / 180;
 		};
-		~compNormBus.set(compNorm);
+		~compassBus.setn([msg[2], compNorm]);
 	};
 }, ~prefix++"/comp");
 
@@ -132,8 +131,7 @@ OSCdef(\record, {|msg, time, addr, recvPort|
 Tdef(\ecg_loop, { loop {
 	if (~ecg.size > 0) {
 		var val = ~ecg[0..(~numEcgBatchArgs-1)];
-		~ecgBus.setSynchronous(val[0]);
-		~ecgNormBus.setSynchronous(val[1]);
+		~ecgBus.setnSynchronous([val[0], val[1]]);
 		~ecg = ~ecg[~numEcgBatchArgs..];
 	};
 	(1.0/130).wait;

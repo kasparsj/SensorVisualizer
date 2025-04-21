@@ -12,8 +12,8 @@ if (~breathEnabled.isNil) {
 );
 
 ~ecgHist.frame = { |self|
-	var ecg = ~ecgNormBus.getSynchronous().range(-1, 1);
-	self.data = self.data.add(ecg);
+	var ecg = ~ecgBus.getnSynchronous(2);
+	self.data = self.data.add(ecg[1].range(-1, 1));
 	if (self.data.size > self.length) {
 		self.data.removeAt(0);
 	};
@@ -169,7 +169,8 @@ if (~breathEnabled) {
 ~visuals.send('/tex/var', 10, "thickness", 2);
 
 Tdef(\visuals_loop, { loop {
-	~visuals.send('/tex/var', 0, "time", ~ecgNormBus.getSynchronous() * ~ecgMult);
+	var ecg = ~ecgBus.getnSynchronous(2);
+	~visuals.send('/tex/var', 0, "time", ecg[1] * ~ecgMult);
 
 	if (~breathEnabled and: { ~showBreath }) {
 		~breathHist.frame();

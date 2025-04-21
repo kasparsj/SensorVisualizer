@@ -12,17 +12,14 @@ r = nil;
 
 ~hrBus.free; // 40 - 180
 ~hrBus = Bus.control(Server.default, 1);
-~ecgBus.free; // 0 - 1
-~ecgBus = Bus.control(Server.default, 1);
-~ecgNormBus.free; // 0 - 1
-~ecgNormBus = Bus.control(Server.default, 1);
+~ecgBus.free; // [raw, norm]
+~ecgBus = Bus.control(Server.default, 2);
 ~onsetBus.free; // 0, 1
 ~onsetBus = Bus.control(Server.default, 4).set(0);
 
-~compassBus.free; // 0 - 360
-~compassBus = Bus.control(Server.default, 1);
-~compNormBus.free; // 0 - 1 (180 degrees)
-~compNormBus = Bus.control(Server.default, 1);
+// right hand compass
+~compassBus.free; // [0-360, 0-1]
+~compassBus = Bus.control(Server.default, 2);
 
 ~chestAccBus.free;
 ~chestAccBus = Bus.control(Server.default, 5);

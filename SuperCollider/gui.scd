@@ -3,8 +3,8 @@ var width = 800, height = 400;
 var window = Window("Bus Monitor", Rect(100, 100, width, height));
 var userView = UserView(window, Rect(0, 0, width, height));
 var bufferSize = 100;
-var colors = [Color.red, Color.green, Color(173/255, 216/255, 230/255), Color.yellow];
-var maxChan = 4;
+var colors = [Color.red, Color.green, Color(173/255, 216/255, 230/255), Color.yellow, Color.magenta];
+var maxChan = color.size;
 var histories = Array.fill(maxChan, { Array.fill(bufferSize, {0}) });  // Initialize with mid-range values
 var synth, debugText, busMenu;
 var currentBus = ~chestProjXZBus;
@@ -18,8 +18,9 @@ var busMap = (
     LH_XZ: ~lhProjXZBus,
     LH_YX: ~lhProjYXBus,
 	LH_ZY: ~lhProjZYBus,
-	COMPASS: ~compNormBus,
+	COMPASS: ~compassBus,
 	MAGNETIC: ~magNormBus,
+	ECG: ~ecgBus,
 );
 
 // Add debug text display

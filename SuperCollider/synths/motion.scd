@@ -36,7 +36,7 @@ Ndef(\chestPitch, {
 SynthDef(\motion1, { |out=0, room=0.4, amp=0.14, dur = 180, pan = 0, gate = 1.0|
 	var sig, env;
 	var acc = In.kr(~chestAccNormBus.index, 4);
-	var compNorm = In.kr(~compNormBus.index);
+	var comp = In.kr(~compassBus.index, 2);
 	var xz = In.kr(~chestProjXZBus.index, 4);
 	var pitch = Ndef.kr(\chestPitch, 1);
 	var timb, timb_mod, harm, morph = 0;
