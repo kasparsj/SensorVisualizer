@@ -2,12 +2,10 @@ import controlP5.*;
 import netP5.*;
 import oscP5.*;
 
-import hypermedia.net.*;
+import hypermedia.net.*;  
 
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.*;
+import java.net.*;
+import java.util.*;
 
 import processing.data.JSONObject;
 
@@ -20,10 +18,32 @@ Map<String, Device> devs = new HashMap<String, Device>();
 String cur = "";
 
 // osc
-OscP5 oscP5; 
+OscP5 oscP5;
+String listenIP;
 int listenPort = 57121;
 String outPrefix = "/out";
 NetAddress forwardAddr;
+
+String getLocalIPAddress() {
+  try {
+    Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+    while (interfaces.hasMoreElements()) {
+      NetworkInterface iface = interfaces.nextElement();
+      if (iface.isLoopback() || !iface.isUp()) continue;
+
+      Enumeration<InetAddress> addresses = iface.getInetAddresses();
+      while (addresses.hasMoreElements()) {
+        InetAddress addr = addresses.nextElement();
+        if (addr instanceof Inet4Address && !addr.isLoopbackAddress()) {
+          return addr.getHostAddress();
+        }
+      }
+    }
+  } catch (SocketException e) {
+    e.printStackTrace();
+  }
+  return "";
+}
 
 void settings() {
   size(displayWidth, displayHeight, P3D);
@@ -38,6 +58,7 @@ void setup() {
     
   oscP5 = new OscP5(this, listenPort);
   forwardAddr = new NetAddress("127.0.0.1", 57120);
+  listenIP = getLocalIPAddress();;
   
   cp5 = new ControlP5(this);
 }
@@ -55,9 +76,9 @@ void loadData() {
       put(SensorType.ACC, new AccDisplay(0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
       EulerDisplay euler = new EulerDisplay(width/2, 0, width/2, height, 500);
       put(SensorType.EULER, euler);
-      //QuatDisplay = new QuatDisplay(width/2, 0, width/2, height, 500);
-      //quat.visible = false;
-      //put(SensorType.QUAT, quat);
+      QuatDisplay quat = new QuatDisplay(width/2, 0, width/2, height, 500);
+      quat.visible = false;
+      put(SensorType.QUAT, quat);
       put(SensorType.HR, new HRDisplay(0, height/2, width/4, height/2, 0, 50));
       put(SensorType.ECG, new ECGDisplay(width/4, height/2, width/4, height/2, 500));
   }}));
@@ -91,7 +112,7 @@ void draw() {
     return;
   }
   
-  if (devs.size() > 0) {
+  if (devs.size() > 0 && !cur.equals("")) {
     Device dev = devs.get(cur);
     pushStyle();
     textSize(13);
@@ -118,7 +139,7 @@ void draw() {
     fill(255);
     textSize(36); 
     textAlign(CENTER);
-    text("Waiting for data on port " + listenPort, width/2, height/2);
+    text("Waiting for data on " + listenIP + ":" + listenPort, width/2, height/2);
     textSize(14); 
     text("'/deviceId/acc' (x y z)", width/2, height/2+40);
     text("'/deviceId/gyro' (x y z)", width/2, height/2+60);
@@ -305,7 +326,7 @@ void keyPressed() {
       dev.keyPressed();
     }
   }
-  else if (devs.size() > 0) {
+  else if (devs.size() > 0 && !cur.equals("")) {
     devs.get(cur).keyPressed();
   }
 }

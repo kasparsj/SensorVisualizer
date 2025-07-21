@@ -98,7 +98,7 @@ if (~breathEnabled.isNil) {
 	};
 };
 
-~visuals = OSCVisuals("127.0.0.1", 33333);
+~visuals = OSCVisuals("127.0.0.1", 33333, reset: true);
 
 ~visuals.send('/layers', 16, "stack");
 
