@@ -61,11 +61,11 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
       }
       avgMinMax += (ups > 0 ? " ("+nf(minValue, 0, 2)+", "+nf(maxValue, 0, 2)+")" : "");
       text("altitude " + avgMinMax, 20, 20);
-      text(ups+" hz", w - 120, 20);
+      text(ups+" hz", w - 50, 20);
     }
     else {
       text("altitude", 20, 20);
-      text("no data", w - 120, 20);
+      text("no data", w - 50, 20);
     }
     
     popStyle();

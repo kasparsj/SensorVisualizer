@@ -144,7 +144,7 @@ public class QuatDisplay extends RotationStats {
     drawHeader(quat, w, h);
 
     pushMatrix();
-    translate(w/2 - 50, h/2);
+    translate(w/2-20, h/2);
     scale(4, 4, 4);
 
     if (quat != null) {
