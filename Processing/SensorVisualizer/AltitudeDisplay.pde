@@ -34,28 +34,39 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
     drawHeader(w, h);
     
     if (perc[histCursor] == null) return;
+    
+    pushMatrix();
+    pushStyle();
+    fill(255);
+    line(20, 33, perc[histCursor] * (w - 40), 33);
+    text(nf(perc[histCursor], 0, 2), 20, 55);
+    popStyle();
+    popMatrix();
 
     pushMatrix();
     translate(20, h - 20);
-    plotMagnitude(perc, w - 40, -h + 80);
+    plotMagnitude(perc, w - 40, -h + 80, histCursor);
     popMatrix();
   }
   
   void drawHeader(float w, float h) {
     pushMatrix();
     pushStyle();
-    noFill();
-
     fill(255);
-    String avgMinMax = "";
-    if (avgLen > 0) {
-      avgMinMax += "avg/"+avgLen+" "+nf(avgValue, 0, 2);
+    
+    if (perc[histCursor] != null) {
+      String avgMinMax = "";
+      if (avgLen > 0) {
+        avgMinMax += "avg/"+avgLen+" "+nf(avgValue, 0, 2);
+      }
+      avgMinMax += (ups > 0 ? " ("+nf(minValue, 0, 2)+", "+nf(maxValue, 0, 2)+")" : "");
+      text("altitude " + avgMinMax, 20, 20);
+      text(ups+" hz", w - 120, 20);
     }
-    avgMinMax += (ups > 0 ? " ("+nf(minValue, 0, 2)+", "+nf(maxValue, 0, 2)+")" : "");
-    text(avgMinMax, 20, 20);
-    text("altitude "+ups+" hz", w - 120, 20);
-    rect(20, 30, perc[histCursor] * (w - 20), 10);
-    text(nf(perc[histCursor], 0, 2), 20, 55);
+    else {
+      text("altitude", 20, 20);
+      text("no data", w - 120, 20);
+    }
     
     popStyle();
     popMatrix();
