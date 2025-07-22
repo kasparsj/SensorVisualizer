@@ -63,6 +63,7 @@ public class EulerDisplay extends VectorDisplay {
       angles = value.copy();
     }
     if (angles == null) {
+      drawHeader(angles, w, h);
       return;
     }
 
@@ -182,11 +183,7 @@ public class EulerDisplay extends VectorDisplay {
   }
 
   private void drawCube(PVector angles, float w, float h) {
-    pushStyle();
-    fill(255);
-    text("euler " + filterType + (device.fusion != null ? " fusion: " + device.fusion.type : ""), 20, 20);
-    text(ups+" hz", w - 50, 20);
-    popStyle();
+    drawHeader(angles, w, h);
 
     pushMatrix();
     translate(w/2 - 50, h/2);
@@ -200,5 +197,18 @@ public class EulerDisplay extends VectorDisplay {
     buildBoxShape();
 
     popMatrix();
+  }
+  
+  void drawHeader(PVector angles, float w, float h) {
+    pushStyle();
+    fill(255);
+    text("euler " + filterType + (device.fusion != null ? " fusion: " + device.fusion.type : ""), 20, 20);
+    if (angles != null) {
+      text(ups+" hz", w - 50, 20);
+    }
+    else {
+      text("no data", w - 50, 20);
+    }
+    popStyle();
   }
 }

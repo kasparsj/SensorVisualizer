@@ -31,6 +31,7 @@ public class QuatDisplay extends RotationStats {
       quat = value.copy();
     }
     if (quat == null) {
+      drawHeader(quat, w, h);
       return;
     }
 
@@ -140,11 +141,7 @@ public class QuatDisplay extends RotationStats {
   }
 
   private void drawCube(Quaternion quat, float w, float h) {
-    pushStyle();
-    fill(255);
-    text("quats " + filterType + (device.fusion != null ? " fusion: " + device.fusion.type : ""), 20, 20);
-    text(ups+" hz", w - 50, 20);
-    popStyle();
+    drawHeader(quat, w, h);
 
     pushMatrix();
     translate(w/2 - 50, h/2);
@@ -156,6 +153,19 @@ public class QuatDisplay extends RotationStats {
 
     buildBoxShape();
     popMatrix();
+  }
+  
+  void drawHeader(Quaternion quat, float w, float h) {
+    pushStyle();
+    fill(255);
+    text("quats " + filterType + (device.fusion != null ? " fusion: " + device.fusion.type : ""), 20, 20);
+    if (quat != null) {
+      text(ups+" hz", w - 50, 20);
+    }
+    else {
+      text("no data", w - 50, 20);
+    }
+    popStyle();
   }
 
   PVector getOrigEulerAngles() {
