@@ -1,40 +1,39 @@
 import p5 from 'p5';
 import { Device, SensorType } from './Device.js';
 import { AccDisplay } from './AccDisplay.js';
-import OSC from 'osc-js';
 
 const sketch = (p) => {
   let devs = new Map();
   let cur = "";
-  let listenIP;
+  let listenIP = "0.0.0.0";
   let listenPort = 57121;
-  let osc;
+  let font;
 
   p.setup = () => {
-    p.createCanvas(p.windowWidth, p.windowHeight, p.WEBGL);
+    p.createCanvas(p.windowWidth, p.windowHeight);
+    p.textFont('Georgia');
     
     // Mock device for now
     const device = new Device(p, "7E37D222", "/7E37D222", "/out");
     device.sensors.set(SensorType.ACC, new AccDisplay(p, device, 0, 20, p.width/2, p.height/2 - 20));
     devs.set("7E37D222", device);
-    cur = "7E37D222";
+    //cur = "7E37D222";
 
     setupOsc();
   };
 
   const setupOsc = () => {
-    osc = new OSC({ plugin: new OSC.DatagramPlugin() });
+    console.log('Setting up OSC...');
+    if (window.__TAURI__) {
+      console.log('Tauri API available, starting OSC listener');
+      window.__TAURI__.invoke('start_osc_listener');
 
-    osc.on('open', () => {
-      console.log('OSC socket open');
-    });
-
-    osc.on('*', msg => {
-      oscEvent(msg);
-    });
-
-    osc.listen({ port: listenPort });
-    console.log(`OSC listening on port ${listenPort}`);
+      window.__TAURI__.event.listen('osc-message', event => {
+        oscEvent(event.payload);
+      });
+    } else {
+      console.log('Tauri API not available - running in browser mode');
+    }
   };
 
   const getOscPrefix = (addrPattern) => {
@@ -78,6 +77,11 @@ const sketch = (p) => {
 
   p.draw = () => {
     p.background(0);
+    
+    // Debug: log once to verify draw is running
+    if (p.frameCount === 1) {
+      console.log('Draw function started, devs.size:', devs.size, 'cur:', cur);
+    }
 
     if (devs.size > 0 && cur !== "") {
       let dev = devs.get(cur);
@@ -90,17 +94,17 @@ const sketch = (p) => {
       p.fill(255);
       p.textSize(36);
       p.textAlign(p.CENTER);
-      p.text("Waiting for data on " + listenIP + ":" + listenPort, 0, -100);
+      p.text("Waiting for data on " + listenIP + ":" + listenPort, p.width/2, p.height/2 - 100);
       p.textSize(14);
-      p.text("'/deviceId/acc' (x y z)", 0, -60);
-      p.text("'/deviceId/gyro' (x y z)", 0, -40);
-      p.text("'/deviceId/mag' (x y z)", 0, -20);
-      p.text("'/deviceId/altitude' (value)", 0, 0);
-      p.text("'/deviceId/comp' (heading in radians)", 0, 20);
-      p.text("'/deviceId/ecg' (value)", 0, 40);
-      p.text("'/deviceId/hr' (heartrate)", 0, 60);
-      p.text("'/deviceId/euler' (roll pitch yaw)", 0, 80);
-      p.text("'/deviceId/quat' (w x y z)", 0, 100);
+      p.text("'/deviceId/acc' (x y z)", p.width/2, p.height/2 - 60);
+      p.text("'/deviceId/gyro' (x y z)", p.width/2, p.height/2 - 40);
+      p.text("'/deviceId/mag' (x y z)", p.width/2, p.height/2 - 20);
+      p.text("'/deviceId/altitude' (value)", p.width/2, p.height/2);
+      p.text("'/deviceId/comp' (heading in radians)", p.width/2, p.height/2 + 20);
+      p.text("'/deviceId/ecg' (value)", p.width/2, p.height/2 + 40);
+      p.text("'/deviceId/hr' (heartrate)", p.width/2, p.height/2 + 60);
+      p.text("'/deviceId/euler' (roll pitch yaw)", p.width/2, p.height/2 + 80);
+      p.text("'/deviceId/quat' (w x y z)", p.width/2, p.height/2 + 100);
       p.pop();
     }
   };
