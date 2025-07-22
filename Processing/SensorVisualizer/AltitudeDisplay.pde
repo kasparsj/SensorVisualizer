@@ -36,8 +36,6 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
     pushMatrix();
     pushStyle();
     noFill();
-    stroke(64);
-    rect(0, 0, w, h);
 
     fill(255);
     String avgMinMax = "";

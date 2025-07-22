@@ -28,6 +28,11 @@ public class Device {
   SensorFusion fusion;
   Map<SensorType, PrintWriter> recorders;
   boolean isRecording;
+  
+  // tab system
+  String currentTab = "overview";
+  int tabHeight = 20;
+  ArrayList<String> availableTabs = new ArrayList<String>();
   Map<SensorType, Table> loadedTables;
   Map<SensorType, Integer> nextRowCursor;
   boolean isPlaying;
@@ -130,13 +135,19 @@ public class Device {
   }
   
   void drawSensors() {  
-    Map<SensorType, SensorDisplay> copy = new HashMap<SensorType, SensorDisplay>();
-    copy.putAll(sensors);        
-    for (SensorDisplay sensor : copy.values()) {
-      if (sensor.visible) {
-        sensor.draw();
+    if (currentTab.equals("overview")) {
+      Map<SensorType, SensorDisplay> copy = new HashMap<SensorType, SensorDisplay>();
+      copy.putAll(sensors);        
+      for (SensorDisplay sensor : copy.values()) {
+        if (sensor.visible) {
+          sensor.draw();
+        }
       }
+    } else {
+      drawSingleSensor(currentTab);
     }
+    
+    drawTabs();
   }
   
   PVector getEulerAngles() {
@@ -363,6 +374,11 @@ public class Device {
   }
     
   boolean mouseClicked() {
+    // Check tab clicks first
+    if (handleTabClick(mouseX, mouseY)) {
+      return true;
+    }
+    
     for (SensorDisplay sensor : sensors.values()) {
       if (sensor.mouseClicked()) {
         return true;     
@@ -540,6 +556,89 @@ public class Device {
       }
     }
     return minMaxMs;
+  }
+  
+  void updateAvailableTabs() {
+    availableTabs.clear();
+    availableTabs.add("overview");
+    for (SensorType sensorType : sensors.keySet()) {
+      if (sensors.get(sensorType).visible) {
+        availableTabs.add(sensorType.toString().toLowerCase());
+      }
+    }
+  }
+  
+  void drawTabs() {
+    updateAvailableTabs();
+    
+    pushMatrix();
+    translate(0, height - 20);
+    
+    float tabWidth = width / (float)availableTabs.size();
+    
+    for (int i = 0; i < availableTabs.size(); i++) {
+      String tab = availableTabs.get(i);
+      boolean isActive = tab.equals(currentTab);
+      
+      pushStyle();
+      if (isActive) {
+        fill(100);
+      } else {
+        fill(50);
+      }
+      rect(i * tabWidth, 0, tabWidth, tabHeight);
+      
+      fill(255);
+      textAlign(CENTER);
+      textSize(12);
+      text(tab, i * tabWidth + tabWidth/2, tabHeight/2 + 4);
+      popStyle();
+    }
+    
+    popMatrix();
+  }
+  
+  void drawSingleSensor(String sensorName) {
+    SensorType sensorType = null;
+    for (SensorType st : SensorType.values()) {
+      if (st.toString().toLowerCase().equals(sensorName)) {
+        sensorType = st;
+        break;
+      }
+    }
+    
+    if (sensorType != null && sensors.containsKey(sensorType)) {
+      SensorDisplay sensor = sensors.get(sensorType);
+      if (sensor.visible) {
+        pushMatrix();
+        translate(0, 20);
+        sensor.drawBorder(width/4, height - 40, false);
+        sensor.draw(width/4, height - 40);
+        popMatrix();
+      }
+    }
+  }
+  
+  boolean handleTabClick(int mouseX, int mouseY) {
+    if (mouseY >= height - 20 && mouseY <= height) {
+      updateAvailableTabs();
+      float tabWidth = width / (float)availableTabs.size();
+      int tabIndex = (int)(mouseX / tabWidth);
+      
+      if (tabIndex >= 0 && tabIndex < availableTabs.size()) {
+        currentTab = availableTabs.get(tabIndex);
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  boolean handleDeviceTabClick(int mouseX, int mouseY) {
+    if (mouseY >= y && mouseY <= y + h && 
+        mouseX >= x && mouseX <= x + w) {
+      return true;
+    }
+    return false;
   }
   
   void resizeSensors() {

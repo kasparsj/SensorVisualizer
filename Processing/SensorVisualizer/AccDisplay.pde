@@ -89,27 +89,52 @@ public class AccDisplay extends VectorDisplay {
     text("min " + nf(minValue.x, 0, 2) + ", " + nf(minValue.y, 0, 2) + ", " + nf(minValue.z, 0, 2), 20, 80);
     text(ups+" hz", w - 50, 20);
 
-    drawPlot3D(w/2, h/2);
+    if (w > h) {
+      drawPlot3D(w/2, h/2);
 
-    pushMatrix();
-    translate(0, h/2);
-    drawPlot2D(w/2, h / 4);
-    popMatrix();
-
-    pushMatrix();
-    translate(0, h/2);
-    drawMag(w/2, h / 4);
-    popMatrix();
-
-    pushMatrix();
-    translate(0, h / 4 * 3);
-    drawVelocity(w/2, h / 4);
-    popMatrix();
-
-    pushMatrix();
-    translate(w/2, 0);
-    drawPosition(w/2, h);
-    popMatrix();
+      pushMatrix();
+      translate(0, h/2);
+      drawPlot2D(w/2, h / 4);
+      popMatrix();
+  
+      pushMatrix();
+      translate(0, h/2);
+      drawMag(w/2, h / 4);
+      popMatrix();
+  
+      pushMatrix();
+      translate(0, h / 4 * 3);
+      drawVelocity(w/2, h / 4);
+      popMatrix();
+  
+      pushMatrix();
+      translate(w/2, 0);
+      drawPosition(w/2, h);
+      popMatrix();
+    }
+    else {
+      drawPlot3D(w, h / 4);
+      
+      pushMatrix();
+      translate(0, h / 4);
+      drawPlot2D(w, h / 2 / 4);
+      popMatrix();
+  
+      pushMatrix();
+      translate(0, h / 4);
+      drawMag(w, h / 2 / 4);
+      popMatrix();
+  
+      pushMatrix();
+      translate(0, h / 2 / 4 * 3);
+      drawVelocity(w, h / 2 / 4);
+      popMatrix();
+  
+      pushMatrix();
+      translate(0, h/2);
+      drawPosition(w, h/2);
+      popMatrix();
+    }    
 
     popStyle();
   }

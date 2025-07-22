@@ -206,9 +206,15 @@ abstract class SensorDisplay<T> {
   void draw() {
     pushMatrix();
     translate(x, y);
+    drawBorder(w, h, device.curSensor == this);
+    draw(w, h);
+    popMatrix();
+  }
+  
+  void drawBorder(float w, float h, boolean isActive) {
     pushStyle();
     noFill();
-    if (device.curSensor == this) {
+    if (isActive) {
       stroke(127, 0, 0);
     }
     else {
@@ -216,8 +222,6 @@ abstract class SensorDisplay<T> {
     }
     rect(0, 0, w-1, h-1);
     popStyle();
-    draw(w, h);
-    popMatrix();
   }
   
   abstract void draw(float w, float h);

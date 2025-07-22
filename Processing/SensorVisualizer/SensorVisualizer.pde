@@ -299,6 +299,15 @@ void toggleMenu(float val) {
 
 void mouseClicked() {
   if (devs.size() > 0) {
+    // Check device tab clicks first
+    for (Device dev : devs.values()) {
+      if (dev.handleDeviceTabClick(mouseX, mouseY)) {
+        cur = dev.id;
+        return;
+      }
+    }
+    
+    // Then check sensor and bottom tab clicks for current device
     devs.get(cur).mouseClicked();
   }
 }
