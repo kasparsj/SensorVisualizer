@@ -53,7 +53,7 @@ public class Device {
       sensor.device = this;
     }
     this.w = 200;
-    this.h = 20;
+    this.h = 18;
   }
   
   Device(String id, String inPrefix, String outPrefix, Map<SensorType, SensorDisplay> sensors) {
@@ -78,7 +78,7 @@ public class Device {
   void draw(int idx, boolean isActive, ControlP5 cp5) {
     this.idx = idx;
     x = idx * w;
-    y = height - h;
+    y = 0;
     // todo: fix
     //if (cp5 == null) {
       drawTab(isActive);
@@ -101,6 +101,9 @@ public class Device {
     }
     rect(0, 0, w, h);
     fill(255);
+    textAlign(LEFT);
+    textSize(13);
+    text((idx + 1), 10, 13);
     textAlign(CENTER);
     textSize(13);
     text(id + (battery != null ? " " + battery + "V" : ""), w/2, 13);
@@ -537,5 +540,11 @@ public class Device {
       }
     }
     return minMaxMs;
+  }
+  
+  void resizeSensors() {
+    for (SensorDisplay sensor : sensors.values()) {
+      sensor.resize();
+    }
   }
 }

@@ -9,7 +9,7 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
   }
 
   AltitudeDisplay(boolean visible) {
-    this(width/2, height/2, width/4, height/2, 2, 50);
+    this(width/2, height/2, width/4, height/2 - 20, 2, 50);
     this.visible = visible;
   }
 

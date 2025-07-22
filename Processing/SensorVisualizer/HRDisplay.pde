@@ -10,7 +10,7 @@ public class HRDisplay extends SensorDisplay<Float> {
   }
 
   HRDisplay() {
-    this(0, height/2, width/4, height/2, 0, 50);
+    this(0, height/2, width/4, height/2 - 20, 0, 50);
   }
 
   void updateAvg() {

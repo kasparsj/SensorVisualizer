@@ -9,7 +9,7 @@ public class GyroDisplay extends VectorDisplay {
   }
 
   GyroDisplay() {
-    this(width/2, 0, width/4, height/2, 500, 2);
+    this(width/2, 20, width/4, height/2 - 20, 500, 2);
   }
 
   void draw(float w, float h) {

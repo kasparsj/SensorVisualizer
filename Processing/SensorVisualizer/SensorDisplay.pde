@@ -414,4 +414,63 @@ abstract class SensorDisplay<T> {
     }
     return false;
   }
+  
+  void resize() {
+    switch(type) {
+      case ACC:
+        x = 0;
+        y = 20;
+        w = width/2;
+        h = height/2 - 20;
+        break;
+      case GYRO:
+        x = width/2;
+        y = 20;
+        w = width/4;
+        h = height/2 - 20;
+        break;
+      case HR:
+        x = 0;
+        y = height/2;
+        w = width/4;
+        h = height/2 - 20;
+        break;
+      case ECG:
+        x = width/4;
+        y = height/2;
+        w = width/4;
+        h = height/2 - 20;
+        break;
+      case ALTITUDE:
+        x = width/2;
+        y = height/2;
+        w = width/4;
+        h = height/2 - 20;
+        break;
+      case MAG:
+        x = 0;
+        y = height/2;
+        w = width/4;
+        h = height/2 - 20;
+        break;
+      case COMP:
+        x = width/4;
+        y = height/2;
+        w = width/4;
+        h = height/2 - 20;
+        break;
+      case EULER:
+        x = width/4 * 3;
+        y = 20;
+        w = width/4;
+        h = height - 40;
+        break;
+      case QUAT:
+        x = width/4 * 3;
+        y = 20;
+        w = width/4;
+        h = height - 40;
+        break;
+    }
+  }
 }

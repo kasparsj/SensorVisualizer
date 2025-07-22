@@ -16,7 +16,7 @@ public class EulerDisplay extends VectorDisplay {
   }
 
   EulerDisplay(boolean _glPrevent) {
-    this(width/4 * 3, 0, width/4, height, 500, _glPrevent);
+    this(width/4 * 3, 20, width/4, height - 40, 500, _glPrevent);
   }
 
   EulerDisplay() {

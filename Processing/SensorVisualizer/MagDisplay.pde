@@ -10,7 +10,7 @@ public class MagDisplay extends VectorDisplay {
   }
 
   MagDisplay() {
-    this(0, height/2, width/4, height/2, 500, 2);
+    this(0, height/2, width/4, height/2 - 20, 500, 2);
   }
 
   void draw(float w, float h) {

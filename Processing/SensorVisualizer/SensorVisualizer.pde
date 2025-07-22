@@ -29,7 +29,10 @@ String getLocalIPAddress() {
     Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
     while (interfaces.hasMoreElements()) {
       NetworkInterface iface = interfaces.nextElement();
-      if (iface.isLoopback() || !iface.isUp()) continue;
+      String name = iface.getName().toLowerCase();
+      String displayName = iface.getDisplayName().toLowerCase();
+      if (iface.isLoopback() || iface.isVirtual() || !iface.isUp() || iface.getHardwareAddress() == null) continue;
+      if (name.contains("br") || name.contains("bridge") || displayName.contains("bridge")) continue;
 
       Enumeration<InetAddress> addresses = iface.getInetAddresses();
       while (addresses.hasMoreElements()) {
@@ -73,14 +76,14 @@ void loadData() {
   
   //// Polar H10
   devs.put("7E37D222", new Device("7E37D222", "/7E37D222", outPrefix, new HashMap<SensorType, SensorDisplay>(){{
-      put(SensorType.ACC, new AccDisplay(0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 981));
-      EulerDisplay euler = new EulerDisplay(width/2, 0, width/2, height, 500);
+      put(SensorType.ACC, new AccDisplay(0, 20, width/2, height/2 - 20, GravityMethod.HIGHPASS, 500, 2, 981));
+      EulerDisplay euler = new EulerDisplay(width/2, 20, width/2, height - 40, 500);
       put(SensorType.EULER, euler);
-      QuatDisplay quat = new QuatDisplay(width/2, 0, width/2, height, 500);
+      QuatDisplay quat = new QuatDisplay(width/2, 20, width/2, height - 40, 500);
       quat.visible = false;
       put(SensorType.QUAT, quat);
-      put(SensorType.HR, new HRDisplay(0, height/2, width/4, height/2, 0, 50));
-      put(SensorType.ECG, new ECGDisplay(width/4, height/2, width/4, height/2, 500));
+      put(SensorType.HR, new HRDisplay(0, height/2, width/4, height/2 - 20, 0, 50));
+      put(SensorType.ECG, new ECGDisplay(width/4, height/2, width/4, height/2 - 20, 500));
   }}));
   
   //devs.put("m5StickC", new Device("m5StickC", "/m5stickc", outPrefix, new HashMap<SensorType, SensorDisplay>(){{
@@ -529,4 +532,14 @@ PVector squircle(PVector v) {
 
 <T>void plotMagnitude(T[] hist, float w, float h) {
   plotMagnitude(hist, w, h, 0);
+}
+
+void windowResized() {
+  resizeSensors();
+}
+
+void resizeSensors() {
+  for (Device dev : devs.values()) {
+    dev.resizeSensors();
+  }
 }

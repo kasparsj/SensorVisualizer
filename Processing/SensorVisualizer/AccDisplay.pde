@@ -36,7 +36,7 @@ public class AccDisplay extends VectorDisplay {
   }
 
   AccDisplay() {
-    this(0, 0, width/2, height/2, GravityMethod.HIGHPASS, 500, 2, 9.81);
+    this(0, 20, width/2, height/2 - 20, GravityMethod.HIGHPASS, 500, 2, 9.81);
   }
 
   AccDisplay enableHistory(int histLen) {

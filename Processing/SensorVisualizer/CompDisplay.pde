@@ -7,7 +7,7 @@ public class CompDisplay extends SensorDisplay<Float> {
   }
 
   CompDisplay() {
-    this(width/4, height/2, width/4, height/2);
+    this(width/4, height/2, width/4, height/2 - 20);
   }
 
   void draw(float w, float h) {

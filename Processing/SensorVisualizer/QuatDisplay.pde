@@ -7,7 +7,7 @@ public class QuatDisplay extends RotationStats {
   }
 
   QuatDisplay() {
-    this(width/4 * 3, 0, width/4, height, 500);
+    this(width/4 * 3, 20, width/4, (height - 40), 500);
   }
 
   void draw(float w, float h) {

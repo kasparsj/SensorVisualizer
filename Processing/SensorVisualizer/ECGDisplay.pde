@@ -16,7 +16,7 @@ public class ECGDisplay extends SensorDisplay<Float> {
   }
 
   ECGDisplay() {
-    this(width/4, height/2, width/4, height/2, 500);
+    this(width/4, height/2, width/4, height/2 - 20, 500);
   }
 
   ECGDisplay setFilterType(FilterType ft) {
