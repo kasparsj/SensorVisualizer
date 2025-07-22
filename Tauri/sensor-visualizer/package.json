@@ -1,0 +1,22 @@
+{
+  "name": "sensor-visualizer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "vite": "^5.3.1",
+    "@tauri-apps/cli": "^1.5.14"
+  },
+  "dependencies": {
+    "p5": "^1.9.4",
+    "@tauri-apps/api": "^1",
+    "osc-js": "^2.4.1",
+    "kalmanjs": "^1.1.0"
+  }
+}
