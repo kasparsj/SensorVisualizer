@@ -39,19 +39,29 @@ public class ECGDisplay extends SensorDisplay<Float> {
   }
 
   void draw(float w, float h) {
+    drawHeader(w, h);
+    
     if (value == null) return;
-
-    pushStyle();
-    fill(255);
-    text("ECG " + filterType + " " + nf(value, 0, 2), 20, 20);
-    text("min, max "+nf(minValue, 0, 2)+", "+nf(maxValue, 0, 2), 20, 40);
-    text(ups+ "hz", w - 50, 20);
-    popStyle();
 
     pushMatrix();
     translate(20, h - 20);
     plotMagnitude(perc, w - 40, -h + 80, histCursor);
     popMatrix();
+  }
+  
+  void drawHeader(float w, float h) {
+    pushStyle();
+    fill(255);
+    if (value != null) {
+      text("ECG " + filterType + " " + nf(value, 0, 2), 20, 20);
+      text("min, max "+nf(minValue, 0, 2)+", "+nf(maxValue, 0, 2), 20, 40);
+      text(ups+ "hz", w - 50, 20);
+    }
+    else {
+      text("ECG " + filterType, 20, 20);
+      text("no data", w - 50, 20);
+    }
+    popStyle();
   }
 
   Float kalman(Float val) {

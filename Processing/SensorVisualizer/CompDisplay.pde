@@ -11,18 +11,9 @@ public class CompDisplay extends SensorDisplay<Float> {
   }
 
   void draw(float w, float h) {
+    drawHeader(w, h);
+    
     if (value == null) return;
-
-    pushMatrix();
-    pushStyle();
-    //translate();
-    //noFill();
-    //stroke(64);
-    //rect(0, 0, w / 2, h);
-
-    fill(255);
-    text("compass " + nf(value, 0, 2) + " " + filterType.toString(), 20, 20);
-    text(ups+" hz", w - 50, 20);
 
     // 2D compass
     pushMatrix();
@@ -31,7 +22,14 @@ public class CompDisplay extends SensorDisplay<Float> {
     heading.normalize();
     compass2D(heading, w/2);
     popMatrix();
-
+  }
+  
+  void drawHeader(float w, float h) {
+    pushMatrix();
+    pushStyle();
+    fill(255);
+    text("compass " + nf(value, 0, 2) + " " + filterType.toString(), 20, 20);
+    text(ups+" hz", w - 50, 20);
     popStyle();
     popMatrix();
   }

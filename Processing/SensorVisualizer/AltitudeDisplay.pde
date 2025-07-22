@@ -31,8 +31,17 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
   }
 
   void draw(float w, float h) {
+    drawHeader(w, h);
+    
     if (perc[histCursor] == null) return;
 
+    pushMatrix();
+    translate(20, h - 20);
+    plotMagnitude(perc, w - 40, -h + 80);
+    popMatrix();
+  }
+  
+  void drawHeader(float w, float h) {
     pushMatrix();
     pushStyle();
     noFill();
@@ -47,12 +56,7 @@ public class AltitudeDisplay extends SensorDisplay<Float> {
     text("altitude "+ups+" hz", w - 120, 20);
     rect(20, 30, perc[histCursor] * (w - 20), 10);
     text(nf(perc[histCursor], 0, 2), 20, 55);
-
-    pushMatrix();
-    translate(20, h - 20);
-    plotMagnitude(perc, w - 40, -h + 80);
-    popMatrix();
-
+    
     popStyle();
     popMatrix();
   }
