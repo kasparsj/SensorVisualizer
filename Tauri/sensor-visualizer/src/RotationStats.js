@@ -95,6 +95,8 @@ export class RotationStats extends SensorDisplay {
   }
 
   drawProjectionHistory(hist, d) {
+    if (!isFinite(d) || d <= 0) return;
+    
     this.p.push();
     this.p.noFill();
     this.p.stroke(255);
@@ -103,10 +105,12 @@ export class RotationStats extends SensorDisplay {
     this.p.beginShape();
     for (let i = 0; i < hist.length; i++) {
       const j = (i + this.histCursor + 1) % hist.length;
-      if (hist[j]) {
+      if (hist[j] && isFinite(hist[j].x) && isFinite(hist[j].y)) {
         const v = hist[j].copy();
         v.mult(d/2);
-        this.p.vertex(v.x, v.y);
+        if (isFinite(v.x) && isFinite(v.y)) {
+          this.p.vertex(v.x, v.y);
+        }
       }
     }
     this.p.endShape();

@@ -258,8 +258,6 @@ class SensorDisplay {
     this.forward(parsedValues);
   }
   
-  // ... (rest of the methods to be ported)
-
   mouseClicked() {
     if (this.visible && this.p.mouseX >= this.x && this.p.mouseX <= this.x + this.w && this.p.mouseY >= this.y && this.p.mouseY <= this.y + this.h) {
       if (this.device) {
@@ -291,7 +289,71 @@ class SensorDisplay {
   }
   
   resize() {
-    // This will be handled by a layout manager or in the main sketch
+    if (!this.type || !this.p) return;
+    
+    const width = this.p.width;
+    const height = this.p.height;
+    
+    // Apply the same layout logic as Processing version
+    switch (this.type.toString()) {
+      case 'ACC':
+        this.x = 0;
+        this.y = 20;
+        this.w = width / 2;
+        this.h = height / 2 - 20;
+        break;
+      case 'GYRO':
+        this.x = width / 2;
+        this.y = 20;
+        this.w = width / 4;
+        this.h = height / 2 - 20;
+        break;
+      case 'MAG':
+        this.x = width / 4 * 3;
+        this.y = 20;
+        this.w = width / 4;
+        this.h = height / 2 - 20;
+        break;
+      case 'HR':
+        this.x = 0;
+        this.y = height / 2;
+        this.w = width / 4;
+        this.h = height / 2 - 20;
+        break;
+      case 'ECG':
+        this.x = width / 4;
+        this.y = height / 2;
+        this.w = width / 4;
+        this.h = height / 2 - 20;
+        break;
+      case 'ALTITUDE':
+        this.x = width / 2;
+        this.y = height / 2;
+        this.w = width / 4;
+        this.h = height / 2 - 20;
+        break;
+      case 'COMP':
+        this.x = width / 4;
+        this.y = height / 2;
+        this.w = width / 4;
+        this.h = height / 2 - 20;
+        break;
+      case 'EULER':
+        this.x = width / 2;
+        this.y = 20;
+        this.w = width / 2;
+        this.h = height - 40;
+        break;
+      case 'QUAT':
+        this.x = width / 4 * 3;
+        this.y = 20;
+        this.w = width / 4;
+        this.h = height - 40;
+        break;
+      default:
+        // Keep existing dimensions if no specific layout defined
+        break;
+    }
   }
 }
 

@@ -203,18 +203,43 @@ export class Device {
   }
 
   createSensor(st) {
+    let sensor;
     switch (st) {
-      case SensorType.ACC: return new AccDisplay(this.p, this);
-      case SensorType.GYRO: return new GyroDisplay(this.p, this);
-      case SensorType.MAG: return new MagDisplay(this.p, this);
-      case SensorType.EULER: return new EulerDisplay(this.p, this);
-      case SensorType.HR: return new HRDisplay(this.p, this);
-      case SensorType.ECG: return new ECGDisplay(this.p, this);
-      case SensorType.ALTITUDE: return new AltitudeDisplay(this.p, this);
-      case SensorType.QUAT: return new QuatDisplay(this.p, this);
-      case SensorType.COMP: return new CompDisplay(this.p, this);
+      case SensorType.ACC: 
+        sensor = new AccDisplay(this.p, this, 0, 20, this.p.width / 2, this.p.height / 2 - 20);
+        break;
+      case SensorType.GYRO: 
+        sensor = new GyroDisplay(this.p, this, this.p.width / 2, 20, this.p.width / 4, this.p.height / 2 - 20);
+        break;
+      case SensorType.MAG: 
+        sensor = new MagDisplay(this.p, this, this.p.width / 4 * 3, 20, this.p.width / 4, this.p.height / 2 - 20);
+        break;
+      case SensorType.EULER: 
+        sensor = new EulerDisplay(this.p, this, this.p.width / 2, 20, this.p.width / 2, this.p.height - 40);
+        break;
+      case SensorType.HR: 
+        sensor = new HRDisplay(this.p, this, 0, this.p.height / 2, this.p.width / 4, this.p.height / 2 - 20);
+        break;
+      case SensorType.ECG: 
+        sensor = new ECGDisplay(this.p, this, this.p.width / 4, this.p.height / 2, this.p.width / 4, this.p.height / 2 - 20);
+        break;
+      case SensorType.ALTITUDE: 
+        sensor = new AltitudeDisplay(this.p, this, this.p.width / 2, this.p.height / 2, this.p.width / 4, this.p.height / 2 - 20);
+        break;
+      case SensorType.QUAT: 
+        sensor = new QuatDisplay(this.p, this, this.p.width / 4 * 3, 20, this.p.width / 4, this.p.height - 40);
+        break;
+      case SensorType.COMP: 
+        sensor = new CompDisplay(this.p, this, this.p.width / 4 * 3, this.p.height / 2, this.p.width / 4, this.p.height / 2 - 20);
+        break;
+      default:
+        return null;
     }
-    return null;
+    
+    if (sensor) {
+      sensor.resize(); // Apply layout after creation
+    }
+    return sensor;
   }
 
   hasAccelerometer() { return this.sensors.has(SensorType.ACC); }

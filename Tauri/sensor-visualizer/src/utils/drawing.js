@@ -25,7 +25,7 @@ export const plot3D = (p, size) => {
 }
 
 export const compass2D = (p, vector, d, useRect = false) => {
-  if (!vector) return;
+  if (!vector || !isFinite(vector.x) || !isFinite(vector.y) || !isFinite(d)) return;
   const mult = p.constructor.Vector.mult(vector, d / 2);
   p.push();
   p.noFill();

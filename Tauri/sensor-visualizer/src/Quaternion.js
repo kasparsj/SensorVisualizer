@@ -92,6 +92,11 @@ export class Quaternion {
   }
 
   multVec(v) {
+    // Validate quaternion values
+    if (!isFinite(this.x) || !isFinite(this.y) || !isFinite(this.z) || !isFinite(this.w)) {
+      return new p5.Vector(0, 0, 0);
+    }
+    
     const px = (1 - 2 * this.y * this.y - 2 * this.z * this.z) * v.x +
                (2 * this.x * this.y - 2 * this.z * this.w) * v.y +
                (2 * this.x * this.z + 2 * this.y * this.w) * v.z;
@@ -103,7 +108,15 @@ export class Quaternion {
     const pz = (2 * this.x * this.z - 2 * this.y * this.w) * v.x +
                (2 * this.y * this.z + 2 * this.x * this.w) * v.y +
                (1 - 2 * this.x * this.x - 2 * this.y * this.y) * v.z;
-    return new p5.Vector(px, py, pz);
+
+    // Validate results
+    const result = new p5.Vector(
+      isFinite(px) ? px : 0,
+      isFinite(py) ? py : 0,
+      isFinite(pz) ? pz : 0
+    );
+    
+    return result;
   }
 
   normalize() {
@@ -159,17 +172,29 @@ export class Quaternion {
   
   projXZ() {
     const rot = this.multVec(new p5.Vector(0.0, 1.0, 0.0));
-    return new p5.Vector(rot.x, rot.z);
+    const result = new p5.Vector(rot.x, rot.z);
+    // Validate result
+    if (!isFinite(result.x)) result.x = 0;
+    if (!isFinite(result.y)) result.y = 0;
+    return result;
   }
 
   projYX() {
     const rot = this.multVec(new p5.Vector(1.0, 0.0, 0.0));
-    return new p5.Vector(rot.y, rot.x);
+    const result = new p5.Vector(rot.y, rot.x);
+    // Validate result
+    if (!isFinite(result.x)) result.x = 0;
+    if (!isFinite(result.y)) result.y = 0;
+    return result;
   }
 
   projZY() {
     const rot = this.multVec(new p5.Vector(0.0, 0.0, 1.0));
-    return new p5.Vector(rot.z, rot.y);
+    const result = new p5.Vector(rot.z, rot.y);
+    // Validate result
+    if (!isFinite(result.x)) result.x = 0;
+    if (!isFinite(result.y)) result.y = 0;
+    return result;
   }
 
   toMatrix() {
