@@ -31,4 +31,9 @@ export class GyroDisplay extends VectorDisplay {
     // drawMag(w, h / 4);
     // popMatrix();
   }
+
+  updateUps() {
+    this.ups = this.numUpdates;
+    this.numUpdates = 0;
+  }
 }

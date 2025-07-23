@@ -81,17 +81,14 @@ export class Quaternion {
   mult(r) {
     if (r instanceof Quaternion) {
       const w = this.w, x = this.x, y = this.y, z = this.z;
-      this.w = r.w * w - r.x * x - r.y * y - r.z * z;
-      this.x = r.w * x + r.x * w + r.y * z - r.z * y;
-      this.y = r.w * y - r.x * z + r.y * w + r.z * x;
-      this.z = r.w * z + r.x * y - r.y * x + r.z * w;
+      const newW = r.w * w - r.x * x - r.y * y - r.z * z;
+      const newX = r.w * x + r.x * w + r.y * z - r.z * y;
+      const newY = r.w * y - r.x * z + r.y * w + r.z * x;
+      const newZ = r.w * z + r.x * y - r.y * x + r.z * w;
+      return new Quaternion(newW, newX, newY, newZ);
     } else {
-      this.w *= r;
-      this.x *= r;
-      this.y *= r;
-      this.z *= r;
+      return new Quaternion(this.w * r, this.x * r, this.y * r, this.z * r);
     }
-    return this;
   }
 
   multVec(v) {
@@ -173,5 +170,20 @@ export class Quaternion {
   projZY() {
     const rot = this.multVec(new p5.Vector(0.0, 0.0, 1.0));
     return new p5.Vector(rot.z, rot.y);
+  }
+
+  toMatrix() {
+    const x = this.x, y = this.y, z = this.z, w = this.w;
+    const x2 = x + x, y2 = y + y, z2 = z + z;
+    const xx = x * x2, xy = x * y2, xz = x * z2;
+    const yy = y * y2, yz = y * z2, zz = z * z2;
+    const wx = w * x2, wy = w * y2, wz = w * z2;
+
+    return [
+      1 - (yy + zz), xy + wz, xz - wy, 0,
+      xy - wz, 1 - (xx + zz), yz + wx, 0,
+      xz + wy, yz - wx, 1 - (xx + yy), 0,
+      0, 0, 0, 1
+    ];
   }
 }

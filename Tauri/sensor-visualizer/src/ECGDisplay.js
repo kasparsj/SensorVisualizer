@@ -1,36 +1,30 @@
-import { Sensor } from './Sensor.js';
+import { SensorDisplay } from './SensorDisplay.js';
 import { SensorType } from './Device.js';
 import KalmanFilter from 'kalmanjs';
 
-export class ECGDisplay extends Sensor {
+export class ECGDisplay extends SensorDisplay {
   constructor(p, device, x, y, w, h, histLen = 500) {
-    super(p, device);
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
+    super(p, x, y, w, h);
+    this.device = device;
     this.type = SensorType.ECG;
     this.addr = "/ecg";
     this.supportBatch = true;
-    this.histLen = histLen;
-    this.values = [];
-    this.value = null;
+    this.enableHistory(histLen);
     this.kalman = null;
-    this.filterType = null;
   }
 
   setFilterType(ft) {
-    this.filterType = ft;
+    super.setFilterType(ft);
     if (ft === 'KALMAN' && !this.kalman) {
       this.kalman = new KalmanFilter({R: 0.01, Q: 3});
     }
   }
 
-  draw(w, h) {
+  drawContent(w, h) {
     // To be implemented
   }
 
-  kalmanFilter(val) {
+  kalman(val) {
     if (this.kalman) {
       return this.kalman.filter(val);
     }
@@ -38,10 +32,12 @@ export class ECGDisplay extends Sensor {
   }
   
   oscEvent(msg) {
-    let val = msg.args[0];
-    if (this.filterType === 'KALMAN') {
-      val = this.kalmanFilter(val);
-    }
-    this.value = val;
+    const val = msg.args[0].value;
+    this.update(val);
+  }
+
+  updateUps() {
+    this.ups = this.numUpdates;
+    this.numUpdates = 0;
   }
 }

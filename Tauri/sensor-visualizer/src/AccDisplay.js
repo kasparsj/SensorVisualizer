@@ -23,33 +23,48 @@ export class AccDisplay extends VectorDisplay {
     this.gravity = p.createVector(0, 0, 0);
     // enableMagnitude(deltaSumWin, maxMag);
     // setFilterType(FilterType.KALMAN);
-    
-    this.prevMillis = 0;
-    this.velocity = p.createVector(0, 0, 0);
-    this.maxVelocity = p.createVector(0, 0, 0);
-    this.velocities = [];
-    this.speeds = [];
-    this.position = p.createVector(0, 0, 0);
   }
   
   update(val) {
+    const processedVal = val.copy();
     switch (this.gravityMethod) {
       case GravityMethod.ORIENT:
         // To be implemented
         break;
       case GravityMethod.HIGHPASS:
         const alpha = 0.05;
-        // gravity = lowpass(val.copy(), alpha, gravity);
-        // val = p5.Vector.sub(val, gravity);
+        // this.gravity = lowpass(val.copy(), alpha, this.gravity);
+        // processedVal.sub(this.gravity);
         break;
       case GravityMethod.NONE:
       default:
         break;
     }
-    super.update(val);
+    super.update(processedVal);
+  }
+
+  updateUps() {
+    this.ups = this.numUpdates;
+    this.numUpdates = 0;
   }
   
-  draw(w, h) {
-    // To be implemented
+  drawContent(w, h) {
+    this.p.push();
+    this.p.translate(20, 20);
+    
+    // Draw header
+    this.p.fill(255);
+    this.p.textSize(16);
+    this.p.text(`ACC (${this.ups} upd/s)`, 0, 0);
+    if (this.value) {
+      this.p.text(`x: ${this.value.x.toFixed(2)} y: ${this.value.y.toFixed(2)} z: ${this.value.z.toFixed(2)}`, 0, 20);
+    }
+
+    // Draw plots
+    this.p.translate(0, 40);
+    // plotVectors(this.values, w - 40, h / 2, this.histCursor, this.maxValue);
+    // plotMagnitude(this.values, w - 40, h / 2, this.histCursor);
+
+    this.p.pop();
   }
 }

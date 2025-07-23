@@ -1,0 +1,298 @@
+const FilterType = Object.freeze({
+  NONE: { toString: () => "NONE" },
+  LOWPASS: { toString: () => "LP" },
+  KALMAN: { toString: () => "KALMAN" },
+  next: (current) => {
+    const values = Object.values(FilterType).filter(v => typeof v !== 'function');
+    const currentIndex = values.indexOf(current);
+    return values[(currentIndex + 1) % values.length];
+  }
+});
+
+const TransformType = Object.freeze({
+  NONE: { toString: () => "NONE" },
+  SQUIRCLE: { toString: () => "SQUIRCLE" },
+  next: (current) => {
+    const values = Object.values(TransformType).filter(v => typeof v !== 'function');
+    const currentIndex = values.indexOf(current);
+    return values[(currentIndex + 1) % values.length];
+  }
+});
+
+class SensorDisplay {
+  
+  constructor(p, x, y, w, h) {
+    this.p = p;
+    this.type = null; // Should be set by subclass
+    this.device = null; // Should be set by subclass
+    this.firstArg = 0;
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.value = null;
+    this.minMaxLen = 0;
+    this.minValue = null;
+    this.maxValue = null;
+    this.values = null;
+    this.rawValues = null;
+    this.perc = null;
+    this.ups = 0;
+    this.numUpdates = 0;
+    this.avgLen = 0;
+    this.avgValue = null;
+    this.histLen = 0;
+    this.histCursor = -1;
+    this.filterType = FilterType.NONE;
+    this.transformType = TransformType.NONE;
+    this.numArgs = 1;
+    this.supportBatch = false;
+    this.makePlayRegular = true;
+    this.visible = true;
+    this.addr = null;
+    this.curValue = null;
+    this.parUpdIdx = 0;
+  }
+
+  enableHistory(histLen) {
+    if (histLen > 0) {
+      this.histLen = histLen;
+      this.values = new Array(histLen).fill(null);
+      this.rawValues = new Array(histLen).fill(null);
+      this.perc = new Array(histLen).fill(null);
+    }
+    return this;
+  }
+
+  enableAverage(avgLen) {
+    if (avgLen > 0) {
+      this.avgLen = avgLen;
+      if (avgLen > this.histLen) {
+        this.enableHistory(avgLen);
+      }
+    }
+    return this;
+  }
+
+  setFilterType(ft) {
+    this.filterType = ft;
+    return this;
+  }
+
+  setTransformType(tt) {
+    this.transformType = tt;
+    return this;
+  }
+
+  updateUps() {
+    this.ups = this.numUpdates;
+    this.numUpdates = 0;
+  }
+
+  parse(msg, batchIndex) {
+    throw new Error("Method 'parse()' must be implemented.");
+  }
+
+  parseFromRow(row) {
+    throw new Error("Method 'parseFromRow()' must be implemented.");
+  }
+
+  parseParam(msg) {
+    // This logic might need adjustment based on the OSC library used
+    if (typeof msg.args[this.firstArg] === 'number') {
+      return msg.args[this.firstArg];
+    }
+    return 0;
+  }
+
+  update(val) {
+    switch (this.filterType) {
+      case FilterType.KALMAN:
+        this.value = this.kalman(val);
+        break;
+      case FilterType.LOWPASS:
+        this.value = this.lowpass(val);
+        break;
+      case FilterType.NONE:
+      default:
+        this.value = val;
+        break;
+    }
+    if (this.histLen > 0) {
+      this.updateMinMax(this.value);
+      this.updateHist(this.value, val);
+    }
+    this.transform();
+    if (this.avgLen > 0) {
+      this.updateAvg(this.value);
+    }
+    this.numUpdates++;
+    this.curValue = val;
+  }
+
+  updateHist(value, rawVal) {
+    const nextCursor = (this.histCursor + 1) % this.histLen;
+    if (this.rawValues) {
+      this.rawValues[nextCursor] = rawVal;
+    }
+    if (this.values) {
+      this.values[nextCursor] = value;
+    }
+    if (typeof value === 'number' && this.perc) {
+      this.perc[nextCursor] = this.getPerc(value);
+    }
+    this.histCursor = nextCursor;
+    if (this.minMaxLen > 0 && this.histCursor === (this.minMaxLen - 1)) {
+      this.resetMinMax();
+    }
+  }
+
+  updateMinMax(value) {
+    if (typeof value === 'number') {
+      if (this.minValue === null || value < this.minValue) {
+        this.minValue = value;
+      }
+      if (this.maxValue === null || value > this.maxValue) {
+        this.maxValue = value;
+      }
+    }
+  }
+
+  resetMinMax() {
+    this.minValue = null;
+    this.maxValue = null;
+    for (let i = 0; i < this.histLen; i++) {
+      this.updateMinMax(this.values[i]);
+    }
+  }
+
+  getPerc(value) {
+    if (this.maxValue === this.minValue) return 0.5; // Avoid division by zero
+    return (value - this.minValue) / (this.maxValue - this.minValue);
+  }
+
+  updateAvg(value) {
+    if (!this.values || this.values.length === 0) {
+      this.avgValue = value;
+      return;
+    }
+
+    const relevantValues = this.values.slice(Math.max(0, this.histCursor - this.avgLen + 1), this.histCursor + 1);
+    
+    if (relevantValues.length === 0) {
+        this.avgValue = value;
+        return;
+    }
+
+    if (typeof value === 'number') {
+      const sum = relevantValues.reduce((acc, val) => acc + (val || 0), 0);
+      this.avgValue = sum / relevantValues.length;
+    } else if (value instanceof this.p.constructor.Vector) {
+      const sumVec = relevantValues.reduce((acc, val) => {
+        if (val) {
+          acc.add(val);
+        }
+        return acc;
+      }, this.p.createVector(0, 0, 0));
+      this.avgValue = sumVec.div(relevantValues.length);
+    }
+  }
+
+  prevVal() {
+    const prevIndex = this.histCursor > 0 ? this.histCursor - 1 : this.histLen + this.histCursor - 1;
+    return this.values[prevIndex];
+  }
+
+  kalman(value) {
+    console.log("kalman filter not implemented");
+    return value;
+  }
+
+  lowpass(val, coef = 0.2, prevVal = this.value) {
+    console.log("lowpass filter not implemented");
+    return val;
+  }
+
+  transform() {
+    // To be implemented by subclasses if needed
+  }
+
+  draw() {
+    if (!this.visible) return;
+    this.p.push();
+    this.p.translate(this.x, this.y);
+    this.drawBorder(this.w, this.h, this.device && this.device.curSensor === this);
+    this.drawContent(this.w, this.h);
+    this.p.pop();
+  }
+
+  drawBorder(w, h, isActive) {
+    this.p.push();
+    this.p.noFill();
+    if (isActive) {
+      this.p.stroke(127, 0, 0);
+    } else {
+      this.p.stroke(64);
+    }
+    this.p.rect(0, 0, w - 1, h - 1);
+    this.p.pop();
+  }
+
+  drawContent(w, h) {
+    throw new Error("Method 'drawContent()' must be implemented.");
+  }
+
+  oscEvent(msg) {
+    let numValues = 1;
+    if (this.supportBatch) {
+      const msgArgs = msg.args.length;
+      if ((msgArgs - this.firstArg) % this.numArgs === 0) {
+        numValues = (msgArgs - this.firstArg) / this.numArgs;
+      }
+    }
+    const parsedValues = [];
+    for (let i = 0; i < numValues; i++) {
+      this.update(this.parse(msg, i));
+      parsedValues.push(this.value);
+    }
+    this.forward(parsedValues);
+  }
+  
+  // ... (rest of the methods to be ported)
+
+  mouseClicked() {
+    if (this.visible && this.p.mouseX >= this.x && this.p.mouseX <= this.x + this.w && this.p.mouseY >= this.y && this.p.mouseY <= this.y + this.h) {
+      if (this.device) {
+        this.device.curSensor = this.device.curSensor !== this ? this : null;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  keyPressed() {
+    if (this.p.key === 'f') {
+      this.setFilterType(FilterType.next(this.filterType));
+      return true;
+    }
+    if (this.p.key === 't') {
+      this.setTransformType(TransformType.next(this.transformType));
+      return true;
+    }
+    if (this.p.key === 'v') {
+      if (this.device) this.device.toggleVisible(this.type);
+      return true;
+    }
+    if (this.p.key === 'm') {
+      this.resetMinMax();
+      return true;
+    }
+    return false;
+  }
+  
+  resize() {
+    // This will be handled by a layout manager or in the main sketch
+  }
+}
+
+export { SensorDisplay, FilterType, TransformType };

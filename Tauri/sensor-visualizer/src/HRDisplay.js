@@ -1,28 +1,18 @@
-import { Sensor } from './Sensor.js';
+import { SensorDisplay } from './SensorDisplay.js';
 import { SensorType } from './Device.js';
 
-export class HRDisplay extends Sensor {
+export class HRDisplay extends SensorDisplay {
   constructor(p, device, x, y, w, h, avgLen = 0, histLen = 50) {
-    super(p, device);
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
+    super(p, x, y, w, h);
+    this.device = device;
     this.type = SensorType.HR;
     this.addr = "/hr";
     this.supportBatch = false;
-    this.avgLen = avgLen;
-    this.histLen = histLen;
-    this.values = [];
-    this.avgValue = 0;
-    this.value = null;
+    this.enableHistory(histLen);
+    this.enableAverage(avgLen);
   }
 
-  updateAvg() {
-    // To be implemented
-  }
-
-  draw(w, h) {
+  drawContent(w, h) {
     if (this.value === null) return;
 
     this.p.push();
@@ -44,7 +34,12 @@ export class HRDisplay extends Sensor {
   }
   
   oscEvent(msg) {
-    const val = msg.args[0];
-    this.value = val;
+    const val = msg.args[0].value;
+    this.update(val);
+  }
+
+  updateUps() {
+    this.ups = this.numUpdates;
+    this.numUpdates = 0;
   }
 }

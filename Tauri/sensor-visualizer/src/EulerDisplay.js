@@ -1,3 +1,4 @@
+import { buildBoxShape } from './utils/shapes.js';
 import { VectorDisplay } from './VectorDisplay.js';
 import { SensorType } from './Device.js';
 
@@ -20,6 +21,11 @@ export class EulerDisplay extends VectorDisplay {
   update(val) {
     this.preventGimbalLock(val);
     super.update(val);
+  }
+
+  updateUps() {
+    this.ups = this.numUpdates;
+    this.numUpdates = 0;
   }
 
   draw(w, h) {
@@ -61,7 +67,7 @@ export class EulerDisplay extends VectorDisplay {
     this.p.rotateZ(-angles.x); // roll
     this.p.rotateY(angles.z); // yaw
 
-    // buildBoxShape();
+    buildBoxShape(this.p);
 
     this.p.pop();
   }

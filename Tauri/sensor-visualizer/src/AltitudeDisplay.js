@@ -1,32 +1,27 @@
-import { Sensor } from './Sensor.js';
+import { SensorDisplay } from './SensorDisplay.js';
 import { SensorType } from './Device.js';
 
-export class AltitudeDisplay extends Sensor {
+export class AltitudeDisplay extends SensorDisplay {
   constructor(p, device, x, y, w, h, avgLen = 2, histLen = 50) {
-    super(p, device);
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
+    super(p, x, y, w, h);
+    this.device = device;
     this.type = SensorType.ALTITUDE;
     this.addr = "/altitude";
-    this.avgLen = avgLen;
-    this.histLen = histLen;
-    this.values = [];
-    this.avgValue = 0;
-    this.value = null;
+    this.enableHistory(histLen);
+    this.enableAverage(avgLen);
   }
 
-  updateAvg() {
-    // To be implemented
-  }
-
-  draw(w, h) {
+  drawContent(w, h) {
     // To be implemented
   }
   
   oscEvent(msg) {
-    const val = msg.args[0];
-    this.value = val;
+    const val = msg.args[0].value;
+    this.update(val);
+  }
+
+  updateUps() {
+    this.ups = this.numUpdates;
+    this.numUpdates = 0;
   }
 }
