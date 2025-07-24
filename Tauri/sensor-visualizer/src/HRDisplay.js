@@ -37,9 +37,4 @@ export class HRDisplay extends SensorDisplay {
     const val = msg.args[0].value;
     this.update(val);
   }
-
-  updateUps() {
-    this.ups = this.numUpdates;
-    this.numUpdates = 0;
-  }
 }

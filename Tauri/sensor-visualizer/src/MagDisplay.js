@@ -50,9 +50,4 @@ export class MagDisplay extends VectorDisplay {
 
     return heading;
   }
-
-  updateUps() {
-    this.ups = this.numUpdates;
-    this.numUpdates = 0;
-  }
 }

@@ -2,7 +2,7 @@ import { RotationStats } from './RotationStats.js';
 import { SensorType } from './Device.js';
 import { Quaternion } from './Quaternion.js';
 import { buildBoxShape } from './utils/shapes.js';
-import { compass2D, plot2D, plotMagnitude } from './utils/drawing.js';
+import { compass2D, plot2D, plotMagnitude, drawProjectionCompasses } from './utils/drawing.js';
 
 export class QuatDisplay extends RotationStats {
   constructor(p, device, x, y, w, h, histLen = 500) {
@@ -55,32 +55,21 @@ export class QuatDisplay extends RotationStats {
   drawProjections(w, h) {
     if (!this.value) return;
     
-    const d = Math.min(w/3, h) - 20;
-
-    this.p.push();
-    this.p.translate(20, 0);
-    this.p.fill(255);
-    this.p.textSize(12);
-    this.p.text("xzProj", 0, 20);
-    this.p.text("yxProj", w/3, 20);
-    this.p.text("zyProj", 2*w/3, 20);
-
-    this.p.push();
-    this.p.translate(d/2, h/2);
-    compass2D(this.p, this.value.projXZ(), d, this.transformType.toString() === 'SQUIRCLE');
-    this.p.pop();
-
-    this.p.push();
-    this.p.translate(w/3 + d/2, h/2);
-    compass2D(this.p, this.value.projYX(), d, this.transformType.toString() === 'SQUIRCLE');
-    this.p.pop();
-
-    this.p.push();
-    this.p.translate(w/3*2 + d/2, h/2);
-    compass2D(this.p, this.value.projZY(), d, this.transformType.toString() === 'SQUIRCLE');
-    this.p.pop();
-
-    this.p.pop();
+    const projections = [
+      this.value.projXZ(),
+      this.value.projYX(),
+      this.value.projZY()
+    ];
+    
+    const labels = ["xzProj", "yxProj", "zyProj"];
+    
+    drawProjectionCompasses(this.p, projections, w, h, {
+      labels: labels,
+      useSquare: this.transformType.toString() === 'SQUIRCLE',
+      showLabels: true,
+      yOffset: 0,
+      xOffset: 20
+    });
   }
 
   drawProjectionHistory(w, h) {

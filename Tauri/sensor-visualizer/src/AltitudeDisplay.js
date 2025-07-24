@@ -87,9 +87,4 @@ export class AltitudeDisplay extends SensorDisplay {
     // For CSV/table data - assuming altitude is in column 2
     return parseFloat(row[2]);
   }
-
-  updateUps() {
-    this.ups = this.numUpdates;
-    this.numUpdates = 0;
-  }
 }

@@ -1,6 +1,6 @@
 import { SensorDisplay } from './SensorDisplay.js';
 import { Quaternion } from './Quaternion.js';
-import { compass2D } from './utils/drawing.js';
+import { compass2D, drawProjectionCompasses } from './utils/drawing.js';
 
 export class RotationStats extends SensorDisplay {
   constructor(p, device, x, y, w, h, histLen) {
@@ -30,11 +30,6 @@ export class RotationStats extends SensorDisplay {
     this.value = val;
   }
 
-  updateUps() {
-    this.ups = this.numUpdates;
-    this.numUpdates = 0;
-  }
-
   drawHeader(value, w, h) {
     this.p.push();
     this.p.fill(255);
@@ -47,73 +42,63 @@ export class RotationStats extends SensorDisplay {
   }
 
   drawProjections(w, h) {
-    this.p.push();
-    this.p.translate(0, 50);
+    const projections = [
+      this.xz[this.histCursor],
+      this.yx[this.histCursor], 
+      this.zy[this.histCursor]
+    ];
     
-    const d = Math.min(w/3, h);
-    
-    this.p.push();
-    this.p.translate(d/2, d/2);
-    compass2D(this.p, this.xz[this.histCursor], d, true);
-    this.p.pop();
-    
-    this.p.push();
-    this.p.translate(d*1.5, d/2);
-    compass2D(this.p, this.yx[this.histCursor], d, true);
-    this.p.pop();
-    
-    this.p.push();
-    this.p.translate(d*2.5, d/2);
-    compass2D(this.p, this.zy[this.histCursor], d, true);
-    this.p.pop();
-    
-    this.p.pop();
+    drawProjectionCompasses(this.p, projections, w, h, {
+      useSquare: true,
+      yOffset: 50,
+      xOffset: 0
+    });
   }
 
-  drawProjectionHistory(w, h) {
-    this.p.push();
-    this.p.translate(w, 50);
-    
-    const d = Math.min(w/3, h);
-    
-    this.p.push();
-    this.p.translate(d/2, d/2);
-    this.drawProjectionHistory(this.xz, d);
-    this.p.pop();
-    
-    this.p.push();
-    this.p.translate(d*1.5, d/2);
-    this.drawProjectionHistory(this.yx, d);
-    this.p.pop();
-    
-    this.p.push();
-    this.p.translate(d*2.5, d/2);
-    this.drawProjectionHistory(this.zy, d);
-    this.p.pop();
-    
-    this.p.pop();
-  }
-
-  drawProjectionHistory(hist, d) {
-    if (!isFinite(d) || d <= 0) return;
-    
-    this.p.push();
-    this.p.noFill();
-    this.p.stroke(255);
-    this.p.rect(-d/2, -d/2, d, d);
-    this.p.stroke(255, 0, 0);
-    this.p.beginShape();
-    for (let i = 0; i < hist.length; i++) {
-      const j = (i + this.histCursor + 1) % hist.length;
-      if (hist[j] && isFinite(hist[j].x) && isFinite(hist[j].y)) {
-        const v = hist[j].copy();
-        v.mult(d/2);
-        if (isFinite(v.x) && isFinite(v.y)) {
-          this.p.vertex(v.x, v.y);
-        }
-      }
-    }
-    this.p.endShape();
-    this.p.pop();
-  }
+  // drawProjectionHistory(w, h) {
+  //   this.p.push();
+  //   this.p.translate(w, 50);
+  //
+  //   const d = Math.min(w/3, h);
+  //
+  //   this.p.push();
+  //   this.p.translate(d/2, d/2);
+  //   this.drawProjectionHistory(this.xz, d);
+  //   this.p.pop();
+  //
+  //   this.p.push();
+  //   this.p.translate(d*1.5, d/2);
+  //   this.drawProjectionHistory(this.yx, d);
+  //   this.p.pop();
+  //
+  //   this.p.push();
+  //   this.p.translate(d*2.5, d/2);
+  //   this.drawProjectionHistory(this.zy, d);
+  //   this.p.pop();
+  //
+  //   this.p.pop();
+  // }
+  //
+  // drawProjectionHistory(hist, d) {
+  //   if (!isFinite(d) || d <= 0) return;
+  //
+  //   this.p.push();
+  //   this.p.noFill();
+  //   this.p.stroke(255);
+  //   this.p.rect(-d/2, -d/2, d, d);
+  //   this.p.stroke(255, 0, 0);
+  //   this.p.beginShape();
+  //   for (let i = 0; i < hist.length; i++) {
+  //     const j = (i + this.histCursor + 1) % hist.length;
+  //     if (hist[j] && isFinite(hist[j].x) && isFinite(hist[j].y)) {
+  //       const v = hist[j].copy();
+  //       v.mult(d/2);
+  //       if (isFinite(v.x) && isFinite(v.y)) {
+  //         this.p.vertex(v.x, v.y);
+  //       }
+  //     }
+  //   }
+  //   this.p.endShape();
+  //   this.p.pop();
+  // }
 }

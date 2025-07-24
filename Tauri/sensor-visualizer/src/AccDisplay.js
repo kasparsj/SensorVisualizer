@@ -1,6 +1,6 @@
 import { VectorDisplay } from './VectorDisplay.js';
 import { SensorType } from './Device.js';
-import { plot3D, plotVectors, plotMagnitude } from './utils/drawing.js';
+import {plot3D, plotVectors, plotMagnitude, drawProjectionPlanes, drawPlot3DSphere} from './utils/drawing.js';
 import { eulerAngles } from './utils/drawing.js';
 import {FilterType} from "./SensorDisplay.js";
 
@@ -30,6 +30,7 @@ export class AccDisplay extends VectorDisplay {
     this.velocities = null;
     this.speeds = null;
     this.position = p.createVector(0, 0, 0);
+    this.maxPosition = p.createVector(0, 0, 0);
     
     // Initialize velocity tracking
     this.enableHistory(histLen);
@@ -47,6 +48,7 @@ export class AccDisplay extends VectorDisplay {
     } else {
       this.velocities = null;
       this.speeds = null;
+      this.maxPosition = this.p.createVector(0, 0, 0);
     }
     return this;
   }
@@ -83,11 +85,6 @@ export class AccDisplay extends VectorDisplay {
     super.update(processedVal);
   }
 
-  updateUps() {
-    this.ups = this.numUpdates;
-    this.numUpdates = 0;
-  }
-  
   drawContent(w, h) {
     this.drawHeader(w, h);
     
@@ -182,55 +179,13 @@ export class AccDisplay extends VectorDisplay {
     
     this.p.push();
     this.p.translate(w/2, h/2, 0);
+    this.p.rotateX(-Math.PI / 10);
+    this.p.rotateY(-Math.PI / 10);
     plot3D(this.p, Math.min(w / 2, h - 40));
     this.p.stroke(255);
     this.p.strokeWeight(2); // Make line thicker for visibility
     // Note: Processing version uses (force.y, force.x, force.z) - different axis order
     this.p.line(0, 0, 0, force.y, force.x, force.z);
-    this.p.pop();
-  }
-
-  drawPlot2D(w, h) {
-    if (!this.values || !this.maxValue || !this.minValue) return;
-    
-    this.p.push();
-    this.p.translate(20, h/2);
-    
-    // Calculate maximum absolute value across all axes (matching Processing version exactly)
-    const maxX = Math.max(Math.abs(this.maxValue.x), Math.abs(this.minValue.x));
-    const maxY = Math.max(Math.abs(this.maxValue.y), Math.abs(this.minValue.y));
-    const maxZ = Math.max(Math.abs(this.maxValue.z), Math.abs(this.minValue.z));
-    const mv = Math.max(maxX, maxY, maxZ);
-    
-    // Ensure we have a valid scaling factor
-    const scalingFactor = mv > 0 ? mv : 1;
-    const maxVal = this.p.createVector(scalingFactor, scalingFactor, scalingFactor);
-    
-    // Pass correct width (plotVectors will handle the -40 internally)
-    plotVectors(this.p, this.values, w, h, this.histCursor, maxVal);
-    this.p.pop();
-  }
-
-  drawMag(w, h) {
-    if (!this.value) return;
-    
-    this.p.push();
-    
-    const magPercValue = this.magPerc();
-    
-    this.p.fill(255);
-    this.p.text(`mag % ${magPercValue.toFixed(2)}`, 20, 20);
-    this.p.stroke(255);
-    this.p.line(20, 5, 20 + magPercValue * (w - 40), 5);
-
-    // Draw magnitude history using magPercentages array (like Processing version)
-    if (this.magPercentages) {
-      this.p.push();
-      this.p.translate(20, h - 20);
-      plotMagnitude(this.p, this.magPercentages, w - 40, -h + 20, this.histCursor);
-      this.p.pop();
-    }
-    
     this.p.pop();
   }
 
@@ -278,19 +233,13 @@ export class AccDisplay extends VectorDisplay {
     this.p.push();
     this.p.fill(255);
     this.p.text(`pos ${this.position.x.toFixed(2)}, ${this.position.y.toFixed(2)}, ${this.position.z.toFixed(2)}`, 20, 20);
-    
-    this.p.push();
-    this.p.translate(w/2, h/2);
-    this.p.translate(this.position.x, this.position.y);
-    this.p.fill(255);
-    this.p.circle(0, 0, 10);
     this.p.pop();
     
-    this.p.pop();
+    //drawProjectionPlanes(this.p, this.position, this.maxPosition, w, h);
+    drawPlot3DSphere(this.p, this.position, this.maxPosition, w, h);
   }
 
   forward(values) {
-    console.log(`AccDisplay.forward called with ${values.length} values`);
     this.calcVelocity(values.length);
     super.forward(values);
   }
@@ -346,7 +295,17 @@ export class AccDisplay extends VectorDisplay {
           this.velocity.y * interval,
           this.velocity.z * interval
         ));
-        this.position.mult(0.999);
+        this.position.mult(0.9999);
+        
+        // Update maxPosition
+        if (!this.maxPosition) {
+          this.maxPosition = this.p.createVector(0, 0, 0);
+        }
+        this.maxPosition = this.p.createVector(
+          Math.max(Math.abs(this.position.x), Math.abs(this.maxPosition.x)),
+          Math.max(Math.abs(this.position.y), Math.abs(this.maxPosition.y)),
+          Math.max(Math.abs(this.position.z), Math.abs(this.maxPosition.z))
+        );
       }
     }
     this.prevMillis = millis;

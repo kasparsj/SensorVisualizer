@@ -23,11 +23,6 @@ export class EulerDisplay extends VectorDisplay {
     super.update(val);
   }
 
-  updateUps() {
-    this.ups = this.numUpdates;
-    this.numUpdates = 0;
-  }
-
   draw(w, h) {
     let angles;
     if (!this.value || this.device.fusion) {

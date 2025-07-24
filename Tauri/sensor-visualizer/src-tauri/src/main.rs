@@ -26,6 +26,12 @@ enum SerializableOscType {
     String(String),
 }
 
+#[derive(Serialize, Clone)]
+struct SerializableOscMessage {
+    addr: String,
+    args: Vec<OscArgWithValue>,
+}
+
 fn to_serializable_osc_type(arg: &OscType) -> Option<SerializableOscType> {
     match arg {
         OscType::Int(i) => Some(SerializableOscType::Int(*i)),
@@ -33,12 +39,6 @@ fn to_serializable_osc_type(arg: &OscType) -> Option<SerializableOscType> {
         OscType::String(s) => Some(SerializableOscType::String(s.clone())),
         _ => None,
     }
-}
-
-#[derive(Serialize, Clone)]
-struct SerializableOscMessage {
-    addr: String,
-    args: Vec<OscArgWithValue>,
 }
 
 #[tauri::command]
