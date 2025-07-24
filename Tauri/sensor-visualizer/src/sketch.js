@@ -1,19 +1,6 @@
 import p5 from 'p5';
-import { Device, SensorType } from './Device.js';
-import { AccDisplay } from './AccDisplay.js';
-import { GyroDisplay } from './GyroDisplay.js';
-import { MagDisplay } from './MagDisplay.js';
-import { EulerDisplay } from './EulerDisplay.js';
-import { QuatDisplay } from './QuatDisplay.js';
-import { HRDisplay } from './HRDisplay.js';
-import { ECGDisplay } from './ECGDisplay.js';
-import { AltitudeDisplay } from './AltitudeDisplay.js';
-import { CompDisplay } from './CompDisplay.js';
-import { MahonyFusion } from './MahonyFusion.js';
-import { MadgwickFusion } from './MadgwickFusion.js';
-import { KalmanFusion } from './KalmanFusion.js';
-import { eulerAngles, plot3D, compass2D, squircle, plot2D, plotVectors, plotMagnitude, drawCommands, drawInfo } from './utils/drawing.js';
-import { buildBoxShape } from './utils/shapes.js';
+import { Device } from './Device.js';
+import { drawInfo } from './utils/drawing.js';
 
 const sketch = (p) => {
   let devs = new Map();

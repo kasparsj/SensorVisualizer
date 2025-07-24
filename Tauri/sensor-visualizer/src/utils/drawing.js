@@ -15,6 +15,8 @@ export const eulerAngles = (p, value, restrictPitch = false) => {
 export const plot3D = (p, size) => {
   const half = size / 2.0;
   p.push();
+  p.rotateX(-Math.PI / 20);
+  p.rotateY(-Math.PI / 20);
   p.stroke(0, 0, 255);
   p.line(-half, 0, 0, half, 0, 0);
   p.stroke(0, 255, 0);

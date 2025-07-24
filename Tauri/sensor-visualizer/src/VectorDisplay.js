@@ -15,7 +15,24 @@ export class VectorDisplay extends SensorDisplay {
 
   update(val) {
     super.update(val);
+    this.updateMinMax(this.value);
     this.updateMagnitudeTracking();
+  }
+
+  updateMinMax(value) {
+    if (!value) return;
+    
+    this.minValue = this.p.createVector(
+      Math.min(value.x, this.minValue ? this.minValue.x : 0),
+      Math.min(value.y, this.minValue ? this.minValue.y : 0),
+      Math.min(value.z, this.minValue ? this.minValue.z : 0)
+    );
+    
+    this.maxValue = this.p.createVector(
+      Math.max(value.x, this.maxValue ? this.maxValue.x : 0),
+      Math.max(value.y, this.maxValue ? this.maxValue.y : 0),
+      Math.max(value.z, this.maxValue ? this.maxValue.z : 0)
+    );
   }
 
   updateMagnitudeTracking() {

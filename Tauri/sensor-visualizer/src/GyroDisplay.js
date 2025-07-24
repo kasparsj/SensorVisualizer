@@ -33,7 +33,7 @@ export class GyroDisplay extends VectorDisplay {
 
     // Draw magnitude plot
     this.p.push();
-    this.p.translate(0, h/2);
+    this.p.translate(0, h / 4 * 3);
     this.drawMag(w, h / 4);
     this.p.pop();
   }
