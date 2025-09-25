@@ -89,7 +89,8 @@ Ndef(\heart_sub, { |room=0.25, amp=1.0|
 	fmul = 1.0 - ecg[1];
 	mul = ecg[1];
 	sig = (SinOsc.ar(hr * fmul * 2) * env * mul);
-	sig = LPF.ar(sig, 60, 2);
+	// sig = LPF.ar(sig, 60, 2);
+	sig = LPF.ar(sig, 260, 2);
 
 	// sig = FreeVerb.ar(sig, room: room)!2;
 	//sig = MiVerb.ar(sig, drywet: room);
@@ -141,11 +142,11 @@ Ndef(\motion1, { |room=0.5, amp=1.0, pan=0|
 	var color = (acc[1]+1)/2;
 
 	// sig = MiBraids.ar(hr/2, timb.clip(0, 1), color.clip(0, 1), 28+(hr/6).floor, resamp: 0, ws: z.abs.clip(0, 1));
-	//sig = MiBraids.ar(12+(timb*60), timb.clip(0, 1), color.clip(0, 1), 28+(hr/6).floor, resamp: 0);
+	// sig = MiBraids.ar(12+(timb*60), timb.clip(0, 1), color.clip(0, 1), 28+(hr/6).floor, resamp: 0);
 	// sig = MiBraids.ar(hr, timb.clip(0, 1), color.clip(0, 1), 28+(hr/12).floor, resamp: 1, ws: z.abs.clip(0, 1));
 
-	sig = MiPlaits.ar(12+(color*12), (7-(hr/16).floor).clip(0, 15), color, timb, (acc[3]+1)/2);
-	// sig = MiPlaits.ar(24+(color*12), 2, color, timb, z.abs.clip(0, 1));
+	// sig = MiPlaits.ar(12+(color*12), (7-(hr/16).floor).clip(0, 15), color, timb, (acc[3]+1)/2);
+	sig = MiPlaits.ar(24+(color*12), 2, color, timb, z.abs.clip(0, 1));
 
 	// sig = BPF.ar(sig, hr.midicps*z); // do NOT
 	sig = MiVerb.ar(sig);
@@ -220,9 +221,9 @@ Ndef(\rhTrig, {
 	var mag = 2;
 	var trigger = 0;
 	// trigger = Impulse.kr(2);
-	//trigger = In.kr(~onsetBus.index);
-	// trigger = In.kr(~rhTrigBus.index); // when moving
-	// trigger = (In.kr(~rhTrigBus.index) - 1).abs; // when not moving
+	// trigger = In.kr(~onsetBus.index);
+	trigger = In.kr(~rhTrigBus.index); // when moving
+	//trigger = (In.kr(~rhTrigBus.index) - 1).abs; // when not moving
 	// mag = Latch.kr((acc[3]*100).round.min(16), Impulse.kr(2));
 	// mag = (xz[1] * 4).round * 2;
 	// trigger = 1;
@@ -232,13 +233,14 @@ Ndef(\rhTrig, {
 
 Ndef(\rhEnv, {
 	var env = 1, trigger = 0;
+	var acc = In.kr(~rhAccNormBus.index, 4);
 	trigger = Ndef.kr(\rhTrig, 1);
 	// trigger = Impulse.kr(2);
 	// trigger = In.kr(~onsetBus.index);
 	// trigger = In.kr(~rhTrigBus.index);
 	// trigger = (In.kr(~rhTrigBus.index) - 1).abs;
-	// env = EnvGen.ar(Env.adsr, trigger);
-	// env = EnvGen.ar(Exnv.perc, trigger);
+	env = EnvGen.ar(Env.adsr, trigger, timeScale: 1/acc[3]);
+	// env = EnvGen.ar(Env.perc, trigger, timeScale: 1/acc[3]);
 	env;
 }).fadeTime_(3);
 
@@ -252,18 +254,19 @@ Ndef(\rhPitch, {
 	var xz = In.kr(~rhProjXZBus.index, 4);
 	var yx = In.kr(~rhProjYXBus.index, 4);
 	var trigger = Ndef.kr(\rhTrig, 1);
-	var degree = 0, pitch = 0, octave = 2; // 0 - 4, then hr
-	octave = (xz[1] * 4).round;
-	// degree = (xz[0] * degrees.size).round;
-	degree = Demand.kr(trigger, 0, Dseq([0, 5, 0, 7], inf));
+	var degree = 0, pitch = 0, octave = 3; // 0 - 4, then hr
+	// octave = (xz[1] * 5).round;
+	degree = (xz[0] * degrees.size).round;
+	// degree = Demand.kr(trigger, 0, Dseq([0, 5, 0, 7], inf));
 	// todo: add more progressions
 	pitch = ~root + degree + (octave * 12);
-	//pitch = In.kr(~hrBus.index);
+	// pitch = In.kr(~hrBus.index);
 	pitch;
 }).fadeTime_(3);
 
 Ndef(\control1, { |room=0.5, amp=1.0, pan=0|
 	var sig;
+	var hr = In.kr(~hrBus.index);
 	var xz = In.kr(~rhProjXZBus.index, 4);
 	var yx = In.kr(~rhProjYXBus.index, 4);
 	var zy = In.kr(~rhProjZYBus.index, 4);
@@ -272,12 +275,13 @@ Ndef(\control1, { |room=0.5, amp=1.0, pan=0|
 	var env = Ndef.ar(\rhEnv, 1);
 	var pitch = Ndef.kr(\rhPitch, 1);
 
+	// all 3 together
 	sig = MiBraids.ar(pitch, xz[0], xz[1], 12, trigger) * env;
-	sig = sig + MiBraids.ar(pitch+4, yx[0], yx[1], 14, trigger) * env;
+	// sig = sig + MiBraids.ar(pitch+4, yx[0], yx[1], 14, trigger) * env;
 	sig = sig + MiBraids.ar(pitch+7, zy[0], zy[1], 44, trigger) * env;
 
-	// sig = MiPlaits.ar(12+(color*12), (7-(hr/16).floor).clip(0, 15), color, timb, (acc[3]+1)/2);
-	// sig = MiPlaits.ar(24+(color*12), 2, color, timb, z.abs.clip(0, 1));
+	// sig = MiPlaits.ar(12+(xz[0]*12), (7-(hr/16).floor).clip(0, 15), xz[1], zy[0], (acc[3]+1)/2);
+	// sig = MiPlaits.ar(24+(yx[0]*12), 2, yx[1], zy[1], zy[1].abs.clip(0, 1));
 
 	sig = sig / 3 * 2;
 
@@ -327,8 +331,8 @@ Ndef(\rh_onsets, { |amp=0|
 	// trigger
 	var chain = FFT(LocalBuf(128), acc[3]);
 	// var trigger = Onsets.kr(chain, 0.3+(LFNoise2.kr(1/20)*0.2), \rcomplex, 0.01, 0.1, 1);
-	// var trigger = Onsets.kr(chain, 0.9, \rcomplex, 0.01, 0.1, 1);
-	var trigger = Onsets.kr(chain, 0.75);
+	var trigger = Onsets.kr(chain, 0.9, \rcomplex, 0.01, 0.1, 1);
+	// var trigger = Onsets.kr(chain, 0.75);
 	//var out = 10 + (25 * comp[1]);
 
 	//sig = MiPlaits.ar([41-(acc[3]*24), 48-(acc[3]*24)], 13, harm, timbre, 0.6+(LFNoise2.kr(1/30)*0.3), decay: dec, mul: 0.75);
@@ -337,10 +341,10 @@ Ndef(\rh_onsets, { |amp=0|
 	// sig = MiPlaits.ar(60-(acc[3]*24), TChoose.kr(trigger, [6]), harm, timbre, 0.1, trigger, decay: dec, mul: 0.75);
 	sig = MiPlaits.ar(60-(acc[3]*24), 6, harm, timbre, 0.1, trigger, decay: dec, mul: 0.75);
 	sig = sig + MiPlaits.ar(36-(acc[3]*24), 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
-	//sig = HPF.ar(sig, 800);
-	sig = MoogFF.ar(sig, 1200);
+	sig = HPF.ar(sig, 800);
+	// sig = MoogFF.ar(sig, 1200);
 	// sig = CombC.ar(sig, mul: 0.1) + sig;
-	sig = MiVerb.ar(sig, drywet: 0.1);
+	// sig = MiVerb.ar(sig, drywet: 0.1);
 	// sig = LPF.ar(sig, 200, 0.3) + sig;
 	// sig = FbC({ |fb| FreqShift.ar(sig + fb, 200).softclip * 0.1}, 4, 1);
 
@@ -360,19 +364,19 @@ Ndef(\lhTrig, {
 	var mag = 2;
 	var trigger = 0, trigger1 = 0, trigger2 = 0;
 
-	// trigger = Onsets.kr(chain, 0.9, \rcomplex, 0.01, 0.1, 1);
+	trigger = Onsets.kr(chain, 0.9, \rcomplex, 0.01, 0.1, 1);
 	// trigger = Onsets.kr(chain, 0.75);
-	trigger = In.kr(~lhTrigBus.index); // when moving
+	// trigger = In.kr(~lhTrigBus.index); // when moving
 	// trigger = (In.kr(~lhTrigBus.index) - 1).abs; // when not moving
 	// trigger = 1;
 
 	mag = Latch.kr((acc[3]*50).round.min(16), Impulse.kr(2));
-	mag = (xz[1] * 3).round;
+	// mag = (xz[1] * 3).round;
 
 	trigger = Impulse.kr(mag) * trigger;
 	trigger1 = Impulse.kr(mag/3) * trigger;
 	trigger2 = Impulse.kr(mag/8*5) * trigger;
-
+	//
 	[trigger, trigger1, trigger2];
 });
 
@@ -402,7 +406,7 @@ Ndef(\lhPitch, {
 });
 
 Ndef(\lh_onsets, { |amp=0|
-	var sig = 0, timbre, harm, dec, out, kick;
+	var sig = 0, timbre, harm, dec, out, kick = 0;
 	var acc = In.kr(~lhAccNormBus.index, 4);
 	var xz = In.kr(~lhProjXZBus.index, 4);
 	var yx = In.kr(~lhProjYXBus.index, 4);
@@ -419,31 +423,32 @@ Ndef(\lh_onsets, { |amp=0|
 	// harm = LFNoise2.kr(0.3,0.25,0.25);
 	harm = zy[0];
 
-	// dec = acc[3]*4;
-	dec = LFNoise2.kr(0.2).range(0.01, 0.8);
+	dec = acc[3]*4;
+	// dec = LFNoise2.kr(0.2).range(0.01, 0.8);
+	// dec = 1;
 
 	// 1, 13, 15, 6, 3, 9, before switching come back to 15
-	kick = MiPlaits.ar(pitch, 13, harm, timbre, 0, Impulse.kr(2), decay: dec, mul: 1.1);
-	// kick = MiPlaits.ar(pitch, 1, harm, timbre, 0, trigger[2], decay: dec, mul: 1.1);
-	sig = kick;
-	sig = sig + MiPlaits.ar(pitch, 15, harm, timbre, 0, Impulse.kr(4), mul: 0.75);
+	// kick = MiPlaits.ar(pitch, 13, harm, timbre, 0, Impulse.kr(2), decay: dec, mul: 1.1);
+	kick = MiPlaits.ar(pitch, 13, harm, timbre, 0, trigger[2], decay: dec, mul: 1.1);
+	sig = (kick * 10).tanh;
+	// sig = sig + MiPlaits.ar(pitch, 15, harm, timbre, 0, Impulse.kr(4), mul: 0.75);
 
 	// changes rhythm based on orientation
 	sig = sig + MiPlaits.ar(pitch, 14, harm, timbre, 0, Impulse.kr((xz[0]*4).round), mul: 1.5);
 
 	// sig = sig + MiPlaits.ar(pitch, 14, harm, timbre, 0, Impulse.kr(1), mul: 1.2);
-	// sig = sig + MiPlaits.ar(pitch, 12, harm, timbre, 0, trigger[2], mul: 0.75);
+	sig = sig + MiPlaits.ar(pitch, 12, harm, timbre, 0, trigger[0], mul: 0.75);
 	sig = sig / 4;
 
 	sig = Compander.ar(sig, kick);
 
 	// sig = MiPlaits.ar(pitch, 13, harm, timbre, 0.1, decay: dec, mul: 0.75);
 	// sig = MiVerb.ar(sig, drywet: 0.4);
-	// sig = sig + MiPlaits.ar(pitch, 13, harm, timbre, 0, trigger, decay: dec*2, mul: 0.25);
+	// sig = sig + MiPlaits.ar(pitch, 13, harm, timbre, 0, trigger[1], decay: dec*2, mul: 0.25);
 	// sig = MoogFF.ar(sig, 1200);
 	// sig = CombC.ar(sig, mul: 0.2) + sig;
-	// sig = LPF.ar(sig, 200, 0.2) + sig;
-	sig = MiVerb.ar(sig, drywet: 0.3);
+	// sig = LPF.ar(sig, 200, 0.5) + sig;
+	// sig = MiVerb.ar(sig, drywet: 0.3);
 	// sig = FbC({ |fb| FreqShift.ar(sig + fb, 200).softclip * 0.8}, 4, 1);
 
 	sig = sig*amp; // amp up to 4

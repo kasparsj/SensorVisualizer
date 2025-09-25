@@ -10,23 +10,30 @@ Ndef(\chestEngine, {
 }).fadeTime_(10);
 
 Ndef(\chestPitch, {
-	var degrees = ~scale.degrees;
-	//var degrees = ((~scale.degrees+12) ++ (~scale.degrees+24));
+	// 1: start with a constant octave and go trough other modes, adding control of pitch
+	// 2: add more degrees
+	// 3: can try switch to -12 to +24
+	// var degrees = ~scale.degrees;
+	var degrees = ((~scale.degrees-12) ++ (~scale.degrees+24));
 	var hr = In.kr(~hrBus.index);
 	var acc = In.kr(~chestAccNormBus.index, 4);
 	var xz = In.kr(~chestProjXZBus.index, 4);
 	var yx = In.kr(~chestProjYXBus.index, 4);
 	var octave = 2, degree = 0, pitch = 0;
+	var comp = In.kr(~compassBus.index, 2);
 	// octave = 1;
 	// octave = ((2.0-(acc[3]*3))*2).round.abs;
-	// octave = Latch.kr(octave, Impulse.kr(1/2));
 	octave = (yx[1] * 4).round;
+	octave = Latch.kr(octave, Impulse.kr(8));
 
-	//degree = Latch.kr((compNorm*degrees.size).floor, Impulse.kr(128));
-	// degree = (harm*degrees.size).floor;
-	degree = Select.kr((hr + degree) % degrees.size, degrees);
+	// together with yx
+	degree = Latch.kr((xz[1]*degrees.size).floor, Impulse.kr(128));
+	// degree = Select.kr((hr + degree) % degrees.size, degrees);
 
 	pitch = ~root + (12*octave) + degree;
+
+	// not used:
+	// degree = (harm*degrees.size).floor;
 	// pitch = ~root + (harm * 12 * octave);
 	// pitch = pitch + TChoose.kr(gate, [0, 7, 12]);
 
@@ -36,7 +43,7 @@ Ndef(\chestPitch, {
 SynthDef(\motion1, { |out=0, room=0.4, amp=0.14, dur = 180, pan = 0, gate = 1.0|
 	var sig, env;
 	var acc = In.kr(~chestAccNormBus.index, 4);
-	var comp = In.kr(~compassBus.index, 2);
+	//var comp = In.kr(~compassBus.index, 2);
 	var xz = In.kr(~chestProjXZBus.index, 4);
 	var pitch = Ndef.kr(\chestPitch, 1);
 	var timb, timb_mod, harm, morph = 0;
@@ -50,6 +57,7 @@ SynthDef(\motion1, { |out=0, room=0.4, amp=0.14, dur = 180, pan = 0, gate = 1.0|
 
 	env = EnvGen.ar(Env([0, 0.01, 1.0, 0], [0.01, 0.98, 0.01]), gate, timeScale: dur, doneAction: 2);
 	// sig = MiPlaits.ar(pitch, engine, harm, timb, morph, mul: 0.7);
+	// todo: add chords!!!
 	sig = MiBraids.ar(pitch, timb, harm, engine);
 	sig = sig*env*amp*acc[3];
 	sig = MiVerb.ar(sig, drywet: room);

@@ -203,7 +203,7 @@ RedTrack(\snare_final, Pdef(\snare_final));
 	inf, [\snare4, \lines23, \quite_heart],
 	inf, [\heart_sub, \heart_sin, \no_lines, \no_invert, \breath, \fadein1],
 	5, [\nothing],
-	1, [\snare_final]
+	// 1, [\snare_final]
 ]);
 
 ~sound = ~score.createSeq(loop: false);
