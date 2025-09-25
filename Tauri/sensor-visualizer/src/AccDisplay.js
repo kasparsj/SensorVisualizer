@@ -156,10 +156,6 @@ export class AccDisplay extends VectorDisplay {
     
     this.p.pop();
   }
-    }
-    
-    this.p.pop();
-  }
 
   drawPlot3D(w, h) {
     const val = this.val();
