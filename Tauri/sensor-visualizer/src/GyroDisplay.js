@@ -46,14 +46,14 @@ export class GyroDisplay extends VectorDisplay {
     // Validate value vector
     if (!isFinite(val.x) || !isFinite(val.y) || !isFinite(val.z)) return;
     
-    let magPercValue = this.magPerc();
-    if (!isFinite(magPercValue)) magPercValue = 0;
+    let normMag = this.normMag();
+    if (!isFinite(normMag)) normMag = 0;
     
     const magnitude = val.mag();
     if (!isFinite(magnitude) || magnitude === 0) return;
     
-    // Ensure minimum visibility - if magPerc is too small, use a minimum value
-    const scaleFactor = Math.max(magPercValue, 0.1) * (w / 4);
+    // Ensure minimum visibility - if normMag is too small, use a minimum value
+    const scaleFactor = Math.max(normMag, 0.1) * (w / 4);
     const force = val.normalize().mult(scaleFactor);
     
     // Validate force vector

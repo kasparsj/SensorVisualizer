@@ -36,7 +36,7 @@ class SensorDisplay {
     this.maxValue = null;
     this.values = null;
     this.rawValues = null;
-    this.perc = null;
+    this.normValues = null;
     this.ups = 0;
     this.numUpdates = 0;
     this.avgLen = 0;
@@ -59,7 +59,7 @@ class SensorDisplay {
       this.histLen = histLen;
       this.values = new Array(histLen).fill(null);
       this.rawValues = new Array(histLen).fill(null);
-      this.perc = new Array(histLen).fill(null);
+      this.normValues = new Array(histLen).fill(null);
     }
     return this;
   }
@@ -138,8 +138,8 @@ class SensorDisplay {
     if (this.values) {
       this.values[nextCursor] = value;
     }
-    if (typeof value === 'number' && this.perc) {
-      this.perc[nextCursor] = this.getPerc(value);
+    if (typeof value === 'number' && Array.isArray(this.normValues)) {
+      this.normValues[nextCursor] = this.normalize(value);
     }
     this.histCursor = nextCursor;
     if (this.minMaxLen > 0 && this.histCursor === (this.minMaxLen - 1)) {
@@ -166,7 +166,7 @@ class SensorDisplay {
     }
   }
 
-  getPerc(value) {
+  normalize(value) {
     if (this.maxValue === this.minValue) return 0.5; // Avoid division by zero
     return (value - this.minValue) / (this.maxValue - this.minValue);
   }
@@ -256,6 +256,89 @@ class SensorDisplay {
       parsedValues.push(this.value);
     }
     this.forward(parsedValues);
+  }
+
+  forward(values) {
+    if (this.addr && this.addr.length > 0 && this.device) {
+      if (values.length === 1) {
+        this.forwardOne(values[0]);
+      } else {
+        this.forwardBatch(values);
+      }
+    }
+  }
+
+  async forwardOne(value) {
+    if (!this.device.forwardAddr || !this.addr) return;
+    
+    const args = [this.device.id];
+    
+    if (typeof value === 'number') {
+      args.push(value);
+      if (this.histLen > 0 && this.normValues) {
+        args.push(this.normValues[this.histCursor]);
+        args.push(this.minValue);
+        args.push(this.maxValue);
+      }
+      if (this.avgLen > 0 && this.avgValue !== null) {
+        args.push(this.avgValue);
+      }
+    } else if (typeof value === 'string') {
+      args.push(value);
+    } else if (value && typeof value.x === 'number' && typeof value.y === 'number' && typeof value.z === 'number') {
+      args.push(value.x);
+      args.push(value.y);
+      args.push(value.z);
+    }
+    
+    try {
+      await window.__TAURI__.invoke('send_osc_message', {
+        address: this.device.outPrefix + this.addr,
+        args: args,
+        host: this.device.forwardAddr.host,
+        port: this.device.forwardAddr.port
+      });
+    } catch (error) {
+      console.error('Failed to send OSC message:', error);
+    }
+  }
+
+  async forwardBatch(values) {
+    if (!this.device.forwardAddr || !this.addr || values.length === 0) return;
+    
+    const args = [this.device.id];
+    
+    const firstValue = values[0];
+    if (typeof firstValue === 'number') {
+      args.push(1);
+      for (let i = 0; i < values.length; i++) {
+        args.push(values[i]);
+      }
+    } else if (typeof firstValue === 'string') {
+      args.push(1);
+      for (let i = 0; i < values.length; i++) {
+        args.push(values[i]);
+      }
+    } else if (firstValue && typeof firstValue.x === 'number' && typeof firstValue.y === 'number' && typeof firstValue.z === 'number') {
+      args.push(3);
+      for (let i = 0; i < values.length; i++) {
+        const val = values[i];
+        args.push(val.x);
+        args.push(val.y);
+        args.push(val.z);
+      }
+    }
+    
+    try {
+      await window.__TAURI__.invoke('send_osc_message', {
+        address: this.device.outPrefix + this.addr + '/batch',
+        args: args,
+        host: this.device.forwardAddr.host,
+        port: this.device.forwardAddr.port
+      });
+    } catch (error) {
+      console.error('Failed to send OSC batch message:', error);
+    }
   }
   
   mouseClicked() {

@@ -147,11 +147,15 @@ export class AccDisplay extends VectorDisplay {
       this.p.text(`gravity ${this.gravityMethod} ${this.gravity.x.toFixed(2)}, ${this.gravity.y.toFixed(2)}, ${this.gravity.z.toFixed(2)}`, 20, 40);
       this.p.text(`max ${this.maxValue.x.toFixed(2)}, ${this.maxValue.y.toFixed(2)}, ${this.maxValue.z.toFixed(2)}`, 20, 60);
       this.p.text(`min ${this.minValue.x.toFixed(2)}, ${this.minValue.y.toFixed(2)}, ${this.minValue.z.toFixed(2)}`, 20, 80);
-      this.p.text(`${this.ups} hz`, w - 50, 20);
+      this.p.text(`${this.ups} hz`, w - 100, 20);
     } else {
       this.p.text(`acceleration ${this.filterType}`, 20, 20);
       this.p.text(`gravity ${this.gravityMethod} ${this.gravity.x.toFixed(2)}, ${this.gravity.y.toFixed(2)}, ${this.gravity.z.toFixed(2)}`, 20, 40);
-      this.p.text("no data", w - 50, 20);
+      this.p.text("no data", w - 100, 20);
+    }
+    
+    this.p.pop();
+  }
     }
     
     this.p.pop();
@@ -164,14 +168,14 @@ export class AccDisplay extends VectorDisplay {
     // Validate value vector
     if (!isFinite(val.x) || !isFinite(val.y) || !isFinite(val.z)) return;
     
-    let magPercValue = this.magPerc();
-    if (!isFinite(magPercValue)) magPercValue = 0;
+    let normMag = this.normMag();
+    if (!isFinite(normMag)) normMag = 0;
     
     const magnitude = val.mag();
     if (!isFinite(magnitude) || magnitude === 0) return;
     
-    // Ensure minimum visibility - if magPerc is too small, use a minimum value
-    const scaleFactor = Math.max(magPercValue, 0.1) * (w / 4);
+    // Ensure minimum visibility - if normMag is too small, use a minimum value
+    const scaleFactor = Math.max(normMag, 0.1) * (w / 4);
     const force = val.normalize().mult(scaleFactor);
     
     // Validate force vector

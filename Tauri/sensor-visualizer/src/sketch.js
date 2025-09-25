@@ -19,7 +19,8 @@ const sketch = (p) => {
   }
 
   p.setup = () => {
-    p.createCanvas(p.windowWidth, p.windowHeight, p.WEBGL);
+    const renderer = p.WEBGL;
+    p.createCanvas(p.windowWidth, p.windowHeight, renderer);
     p.ortho(0, p.windowWidth, -p.windowHeight, 0, -1000, 1000);
     p.textFont(font);
     

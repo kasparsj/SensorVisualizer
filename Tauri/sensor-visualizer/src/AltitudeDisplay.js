@@ -31,18 +31,18 @@ export class AltitudeDisplay extends SensorDisplay {
   drawContent(w, h) {
     this.drawHeader(w, h);
     
-    if (!this.perc || this.perc[this.histCursor] == null) return;
+    if (!this.normValues || this.normValues[this.histCursor] == null) return;
     
     this.p.push();
     this.p.fill(255);
     this.p.stroke(255);
-    this.p.line(20, 33, 20 + this.perc[this.histCursor] * (w - 40), 33);
-    this.p.text(this.perc[this.histCursor].toFixed(2), 20, 55);
+    this.p.line(20, 33, 20 + this.normValues[this.histCursor] * (w - 40), 33);
+    this.p.text(this.normValues[this.histCursor].toFixed(2), 20, 55);
     this.p.pop();
 
     this.p.push();
     this.p.translate(20, h - 20);
-    plotMagnitude(this.p, this.perc, w - 40, -h + 80, this.histCursor);
+    plotMagnitude(this.p, this.normValues, w - 40, -h + 80, this.histCursor);
     this.p.pop();
   }
   
@@ -51,7 +51,7 @@ export class AltitudeDisplay extends SensorDisplay {
     this.p.fill(255);
     this.p.textSize(16);
     
-    if (this.perc && this.perc[this.histCursor] != null) {
+    if (this.normValues && this.normValues[this.histCursor] !== null) {
       let avgMinMax = "";
       if (this.avgLen > 0 && this.avgValue !== null) {
         avgMinMax += `avg/${this.avgLen} ${this.avgValue.toFixed(2)}`;

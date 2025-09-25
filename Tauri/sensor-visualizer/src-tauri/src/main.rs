@@ -4,12 +4,12 @@
 )]
 
 
-use rosc::{decoder::decode, OscMessage, OscPacket, OscType};
+use rosc::{decoder::decode, encoder::encode, OscMessage, OscPacket, OscType};
 use std::net::UdpSocket;
 use tauri::Manager;
 use once_cell::sync::OnceCell;
 use local_ip_address::local_ip;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 static STARTED: OnceCell<()> = OnceCell::new();
 
@@ -41,10 +41,62 @@ fn to_serializable_osc_type(arg: &OscType) -> Option<SerializableOscType> {
     }
 }
 
+#[derive(Deserialize)]
+struct OscMessageArgs {
+    address: String,
+    args: Vec<serde_json::Value>,
+    host: String,
+    port: u16,
+}
+
 #[tauri::command]
 fn get_local_ip_address() -> String {
   let my_local_ip = local_ip().unwrap();
   my_local_ip.to_string()
+}
+
+#[tauri::command]
+fn send_osc_message(message: OscMessageArgs) -> Result<(), String> {
+    let mut osc_args = Vec::new();
+    
+    for arg in message.args {
+        match arg {
+            serde_json::Value::Number(n) => {
+                if let Some(i) = n.as_i64() {
+                    osc_args.push(OscType::Int(i as i32));
+                } else if let Some(f) = n.as_f64() {
+                    osc_args.push(OscType::Float(f as f32));
+                }
+            }
+            serde_json::Value::String(s) => {
+                osc_args.push(OscType::String(s));
+            }
+            _ => {
+                return Err("Unsupported argument type".to_string());
+            }
+        }
+    }
+    
+    let osc_msg = OscMessage {
+        addr: message.address,
+        args: osc_args,
+    };
+    
+    match encode(&OscPacket::Message(osc_msg)) {
+        Ok(msg_buf) => {
+            let target_addr = format!("{}:{}", message.host, message.port);
+            match UdpSocket::bind("0.0.0.0:0") {
+                Ok(socket) => {
+                    match socket.send_to(&msg_buf, target_addr) {
+                        Ok(_) => Ok(()),
+                        Err(e) => Err(format!("Failed to send OSC message: {}", e)),
+                    }
+                }
+                Err(e) => Err(format!("Failed to bind socket: {}", e)),
+            }
+        }
+        Err(e) => Err(format!("Failed to encode OSC message: {}", e)),
+    }
 }
 
 fn handle_osc_message(msg: OscMessage, app_handle: &tauri::AppHandle) {
@@ -109,7 +161,7 @@ async fn start_osc_listener(app_handle: tauri::AppHandle) {
 
 fn main() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![start_osc_listener, get_local_ip_address])
+    .invoke_handler(tauri::generate_handler![start_osc_listener, get_local_ip_address, send_osc_message])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

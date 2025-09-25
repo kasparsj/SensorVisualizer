@@ -309,6 +309,10 @@ export class Device {
         this.availableTabs.push(sensorType.toString().toLowerCase());
       }
     }
+    const order = ['overview', 'acc', 'gyro', 'quat', 'euler', 'comp', 'altitude'];
+    this.availableTabs.sort((a, b) => {
+      return order.indexOf(a) - order.indexOf(b);
+    });
   }
 
   drawTabs() {

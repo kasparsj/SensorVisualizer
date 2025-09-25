@@ -11,7 +11,7 @@ export class VectorDisplay extends SensorDisplay {
     this.maxValue = p.createVector(0, 0, 0);
     this.minValue = p.createVector(0, 0, 0);
     // Initialize magnitude tracking arrays
-    this.magPercentages = new Array(histLen).fill(0);
+    this.normMags = new Array(histLen).fill(0);
     this.maxMagnitude = 0;
   }
 
@@ -48,8 +48,8 @@ export class VectorDisplay extends SensorDisplay {
       }
       
       // Calculate and store magnitude percentage
-      const magPerc = this.maxMagnitude > 0 ? currentMag / this.maxMagnitude : 0;
-      this.magPercentages[this.histCursor] = magPerc;
+      const normMag = this.maxMagnitude > 0 ? currentMag / this.maxMagnitude : 0;
+      this.normMags[this.histCursor] = normMag;
     }
   }
 
@@ -58,29 +58,19 @@ export class VectorDisplay extends SensorDisplay {
   }
 
   mag() {
-    return this.perc && this.perc[this.histCursor] !== null ? this.perc[this.histCursor] : this.prevMag();
+    return Array.isArray(this.normValues) &&
+      this.normValues[this.histCursor] !== null ? this.normValues[this.histCursor] : this.prevMag();
   }
 
   prevMag() {
-    if (!this.perc) return 0;
+    if (!this.normValues) return 0;
     const prevIndex = this.histCursor > 0 ? this.histCursor - 1 : this.histLen + this.histCursor - 1;
-    return this.perc[prevIndex] || 0;
+    return this.normValues[prevIndex] || 0;
   }
 
-  magPerc() {
-    if (!this.magPercentages || this.histCursor < 0) return 0;
-    return this.magPercentages[this.histCursor] || 0;
-  }
-
-  prevMagPerc() {
-    if (!this.perc) return 0;
-    const prevIndex = this.histCursor > 0 ? this.histCursor - 1 : this.histLen + this.histCursor - 1;
-    const prevMag = this.perc[prevIndex];
-    if (prevMag !== null && prevMag !== undefined && this.maxValue) {
-      const maxMag = Math.max(Math.abs(this.maxValue.x), Math.abs(this.maxValue.y), Math.abs(this.maxValue.z));
-      return maxMag > 0 ? prevMag / maxMag : 0;
-    }
-    return 0;
+  normMag() {
+    if (!this.normMags || this.histCursor < 0) return 0;
+    return this.normMags[this.histCursor] || 0;
   }
 
   parse(msg, batchIndex) {
@@ -106,9 +96,60 @@ export class VectorDisplay extends SensorDisplay {
     );
   }
 
-  forward(values) {
-    // Base implementation - can be overridden by subclasses
-    // This is called after batch processing is complete
+  async forwardOne(value) {
+    if (!this.device.forwardAddr || !this.addr) return;
+    
+    const args = [this.device.id];
+    
+    if (value && typeof value.x === 'number' && typeof value.y === 'number' && typeof value.z === 'number') {
+      args.push(value.x);
+      args.push(value.y);
+      args.push(value.z);
+      args.push(this.mag());
+      args.push(this.normMag());
+      args.push(this.value ? this.value.mag() : 0);
+      args.push(this.normMag());
+      args.push(this.value ? this.value.heading() : 0);
+    }
+    
+    try {
+      await window.__TAURI__.invoke('send_osc_message', {
+        address: this.device.outPrefix + this.addr,
+        args: args,
+        host: this.device.forwardAddr.host,
+        port: this.device.forwardAddr.port
+      });
+    } catch (error) {
+      console.error('Failed to send vector OSC message:', error);
+    }
+  }
+
+  async forwardBatch(values) {
+    if (!this.device.forwardAddr || !this.addr || values.length === 0) return;
+    
+    const args = [this.device.id, 5];
+    
+    for (let i = 0; i < values.length; i++) {
+      const val = values[i];
+      if (val && typeof val.x === 'number' && typeof val.y === 'number' && typeof val.z === 'number') {
+        args.push(val.x);
+        args.push(val.y);
+        args.push(val.z);
+        args.push(val.mag());
+        args.push(this.maxMagnitude > 0 ? val.mag() / this.maxMagnitude : 0);
+      }
+    }
+    
+    try {
+      await window.__TAURI__.invoke('send_osc_message', {
+        address: this.device.outPrefix + this.addr + '/batch',
+        args: args,
+        host: this.device.forwardAddr.host,
+        port: this.device.forwardAddr.port
+      });
+    } catch (error) {
+      console.error('Failed to send vector OSC batch message:', error);
+    }
   }
 
   drawPlot2D(w, h) {
@@ -137,18 +178,18 @@ export class VectorDisplay extends SensorDisplay {
 
     this.p.push();
 
-    const magPercValue = this.magPerc();
+    const normMag = this.normMag();
 
     this.p.fill(255);
-    this.p.text(`mag % ${magPercValue.toFixed(2)}`, 20, 20);
+    this.p.text(`mag % ${normMag.toFixed(2)}`, 20, 20);
     this.p.stroke(255);
-    this.p.line(20, 5, 20 + magPercValue * (w - 40), 5);
+    this.p.line(20, 5, 20 + normMag * (w - 40), 5);
 
-    // Draw magnitude history using magPercentages array (like Processing version)
-    if (this.magPercentages) {
+    // Draw magnitude history using normMags array (like Processing version)
+    if (this.normMags) {
       this.p.push();
       this.p.translate(20, h - 20);
-      plotMagnitude(this.p, this.magPercentages, w - 40, -h + 20, this.histCursor);
+      plotMagnitude(this.p, this.normMags, w - 40, -h + 20, this.histCursor);
       this.p.pop();
     }
 
