@@ -10,15 +10,19 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.3.0",
     "@tailwindcss/vite": "^4.1.13",
     "@tauri-apps/api": "^1",
+    "@types/three": "^0.180.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "kalmanjs": "^1.1.0",
     "p5": "^2.0.5",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "tailwind-merge": "^3.3.1"
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwind-merge": "^3.3.1",
+    "three": "^0.180.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.5.14",

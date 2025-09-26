@@ -2,7 +2,8 @@ import React, {useState, useEffect, useRef, useMemo} from 'react';
 import { SensorType } from '../types.js';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs.jsx';
 import SensorDisplay from "./SensorDisplay.jsx";
-import {AccDisplay, GyroDisplay, MagDisplay, EulerDisplay, HRDisplay, ECGDisplay, AltitudeDisplay, QuatDisplay, CompDisplay} from "../p5";
+import {AccDisplay, GyroDisplay, MagDisplay, EulerDisplay, HRDisplay, ECGDisplay, AltitudeDisplay, QuatDisplay, CompDisplay} from "../r3f";
+import SensorDisplayR3F from "./SensorDisplayR3F.jsx";
 
 const Device = ({ device, windowDimensions, isActive, index, onDeviceSelect }) => {
   const [curSensor, setCurSensor] = useState(null);
@@ -62,12 +63,12 @@ const Device = ({ device, windowDimensions, isActive, index, onDeviceSelect }) =
       windowDimensions,
       width,
       height,
-      displayClass: getSensorDisplayClass(sensorType),
+      DisplayComponent: getSensorDisplayClass(sensorType),
       onSensorClick: () => setCurSensor(curSensor === sensorType ? null : sensorType),
       isSelected: curSensor === sensorType,
     };
 
-    return <SensorDisplay key={sensorType} {...sensorProps} />;
+    return <SensorDisplayR3F key={sensorType} {...sensorProps} />;
   };
 
   const handleTabClick = (tabName) => {
