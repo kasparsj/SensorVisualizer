@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 html, body {
   margin: 0;
   padding: 0;
@@ -6,26 +8,7 @@ html, body {
   color: #fff;
   font-family: sans-serif;
 }
+
 canvas {
   display: block;
-}
-
-#gui-container {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
-}
-
-#gui-container button {
-  background-color: #333;
-  color: #fff;
-  border: 1px solid #555;
-  padding: 5px 10px;
-  margin-right: 5px;
-  cursor: pointer;
-}
-
-#gui-container button:hover {
-  background-color: #555;
 }

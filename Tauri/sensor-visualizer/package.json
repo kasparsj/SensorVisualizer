@@ -9,13 +9,24 @@
     "preview": "vite preview",
     "tauri": "tauri"
   },
-  "devDependencies": {
-    "vite": "^5.3.1",
-    "@tauri-apps/cli": "^1.5.14"
-  },
   "dependencies": {
-    "p5": "^1.9.4",
+    "@tailwindcss/vite": "^4.1.13",
     "@tauri-apps/api": "^1",
-    "kalmanjs": "^1.1.0"
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "kalmanjs": "^1.1.0",
+    "p5": "^2.0.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.5.14",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.21",
+    "tailwindcss": "^4.1.13",
+    "vite": "^5.3.1"
   }
 }

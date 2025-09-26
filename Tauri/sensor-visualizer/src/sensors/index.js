@@ -1,0 +1,13 @@
+export {default as Accelerometer} from './Accelerometer';
+export {default as Altitude} from './Altitude';
+export {default as Sensor} from './Sensor.js';
+export {default as Compass} from './Compass';
+export {default as ECG} from './ECG';
+export {default as EulerSensor} from './EulerSensor';
+export {default as Gyroscope} from './Gyroscope';
+export {default as HR} from './HR';
+export {default as Magnetometer} from './Magnetometer';
+export {default as QuatSensor} from './QuatSensor';
+export {default as RotationSensor} from './RotationSensor';
+export {default as VectorSensor} from './VectorSensor';
+export {default as factory} from './factory.js';
