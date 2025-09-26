@@ -89,7 +89,7 @@ const SensorDisplay = ({
 
       p.draw = () => {
         p.background(0);
-        displayInstanceRef.current.draw(p.width, p.height);
+        displayInstanceRef.current.draw();
       };
     };
 
