@@ -1,26 +1,19 @@
-import React, { useCallback, useState, useEffect, useRef } from 'react';
-import p5 from 'p5';
+import React, { useCallback, useState } from 'react';
 import { FilterType, TransformType } from '../types.js';
 import {cn} from "../lib/utils.js";
 
-const SensorDisplay = ({
+const SensorDisplay = React.forwardRef(({
   sensor,
   deviceData, 
   onSensorClick,
-  windowDimensions,
   width,
   height,
-  displayClass,
   children,
   isSelected = false
-}) => {
+}, ref) => {
   const [visible, setVisible] = useState(true);
   const [filterType, setFilterType] = useState(FilterType.NONE);
   const [transformType, setTransformType] = useState(TransformType.NONE);
-  
-  const canvasRef = useRef(null);
-  const p5InstanceRef = useRef(null);
-  const displayInstanceRef = useRef(null);
 
   // Handle mouse clicks directly on the React div
   const handleClick = useCallback(() => {
@@ -59,66 +52,9 @@ const SensorDisplay = ({
     }
   }, [sensor, visible, filterType, transformType, deviceData]);
 
-  const createDisplayInstance = useCallback((p5Instance) => {
-    if (!p5Instance) return null;
-
-    return new displayClass(
-        p5Instance,
-        sensor,
-        windowDimensions.width / 4 * width,
-        windowDimensions.height / 2 * height,
-    );
-  }, [sensor, displayClass]);
-
-  // Initialize p5.js instance and display instance
-  useEffect(() => {
-    if (!canvasRef.current || p5InstanceRef.current) return;
-
-    const sketch = (p) => {
-      p.setup = async () => {
-        const w = windowDimensions.width / 4 * width;
-        const h = windowDimensions.height / 2 * height;
-        p.createCanvas(w, h, p.WEBGL);
-        p.ortho(0, w, -h, 0, -1000, 1000);
-        // const font = await p.loadFont('assets/Roboto-VariableFont_wdth,wght.ttf');
-        const font = await p.loadFont('assets/Inconsolata.otf');
-        p.textFont(font);
-
-        displayInstanceRef.current = createDisplayInstance(p);
-      };
-
-      p.draw = () => {
-        p.background(0);
-        displayInstanceRef.current.draw(p.width, p.height);
-      };
-    };
-
-    p5InstanceRef.current = new p5(sketch, canvasRef.current);
-
-    return () => {
-      p5InstanceRef.current.remove();
-    };
-  }, [createDisplayInstance]);
-
-  // Expose methods to parent component
-  useEffect(() => {
-    const sensorApi = {
-      visible,
-      setVisible,
-      isSelected,
-      filterType,
-      setFilterType,
-      transformType,
-      setTransformType,
-    };
-    
-    if (deviceData && deviceData.exposeSensor) {
-      deviceData.exposeSensor(sensor.type, sensorApi);
-    }
-  }, [visible, isSelected, filterType, transformType, sensor, deviceData]);
-
   return (
     <div 
+      ref={ref}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
@@ -157,16 +93,12 @@ const SensorDisplay = ({
         </div>
       )}
 
-      {/* P5.js canvas container */}
-      <div
-        ref={canvasRef}
-        className="absolute top-0 left-0 w-full h-full pointer-events-none"
-      />
-
       {/* Custom sensor content */}
       {children}
     </div>
   );
-};
+});
+
+SensorDisplay.displayName = 'SensorDisplay';
 
 export default SensorDisplay;

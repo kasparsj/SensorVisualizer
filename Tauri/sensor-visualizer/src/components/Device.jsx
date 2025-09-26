@@ -1,4 +1,5 @@
-import React, {useState, useEffect, useRef, useMemo} from 'react';
+import React, {useState, useEffect, useRef, useMemo, useCallback} from 'react';
+import p5 from 'p5';
 import { SensorType } from '../types.js';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs.jsx';
 import SensorDisplay from "./SensorDisplay.jsx";
@@ -14,10 +15,10 @@ const Device = ({ device, windowDimensions, isActive, index, onDeviceSelect }) =
 
   const recorders = useRef(new Map());
   const lastUps = useRef(0);
-  const sensorsSignature = useMemo(
-      () => JSON.stringify(Array.from(device.sensors.entries())),
-      [device.sensors]
-  );
+  const canvasRef = useRef(null);
+  const p5InstanceRef = useRef(null);
+  const displayInstanceRef = useRef(null);
+  const sensorRefsMap = useRef(new Map());
 
   const getSensorDisplaySize = (sensorType) => {
     let width = 1, height = 1;
@@ -61,18 +62,81 @@ const Device = ({ device, windowDimensions, isActive, index, onDeviceSelect }) =
 
     const sensor = device.getOrCreateSensor(sensorType);
     const {width, height} = getSensorDisplaySize(sensorType);
+    
+    // Create or get existing ref for this sensor
+    if (!sensorRefsMap.current.has(sensorType)) {
+      sensorRefsMap.current.set(sensorType, React.createRef());
+    }
+    const sensorRef = sensorRefsMap.current.get(sensorType);
+    
     const sensorProps = {
+      ref: sensorRef,
       sensor,
-      windowDimensions,
       width,
       height,
-      displayClass: getSensorDisplayClass(sensorType),
       onSensorClick: () => setCurSensor(curSensor === sensorType ? null : sensorType),
       isSelected: curSensor === sensorType,
     };
 
     return <SensorDisplay key={sensorType} {...sensorProps} />;
   };
+
+  const createDisplayInstance = (p5Instance, displayClass, sensor, width, height) => {
+    if (!p5Instance) return null;
+    return new displayClass(
+        p5Instance,
+        sensor,
+        windowDimensions.width / 4 * width,
+        windowDimensions.height / 2 * height,
+    );
+  };
+
+  // Initialize p5.js instance and display instance
+  useEffect(() => {
+    if (!canvasRef.current || p5InstanceRef.current) return;
+
+    const displayInstances = new Map();
+    const sketch = (p) => {
+      p.setup = async () => {
+        p.createCanvas(windowDimensions.width, windowDimensions.height, p.WEBGL);
+        p.ortho(0, windowDimensions.width, -windowDimensions.height, 0, -1000, 1000);
+        // const font = await p.loadFont('assets/Roboto-VariableFont_wdth,wght.ttf');
+        const font = await p.loadFont('assets/Inconsolata.otf');
+        p.textFont(font);
+
+        for (const [sensorType, sensor] of device.sensors.entries()) {
+          // Assuming sensors have a visible property
+          const {width, height} = getSensorDisplaySize(sensorType);
+          displayInstances.set(sensorType, createDisplayInstance(p, getSensorDisplayClass(sensorType), sensor, width, height));
+        }
+      };
+
+      p.draw = () => {
+        p.background(0);
+        for (const [sensorType, displayInstance] of displayInstances.entries()) {
+          if (displayInstance && displayInstance.draw) {
+            // Get screen coordinates from the sensor ref
+            const sensorRef = sensorRefsMap.current.get(sensorType);
+            let x = 0, y = 0;
+            
+            if (sensorRef && sensorRef.current) {
+              const rect = sensorRef.current.getBoundingClientRect();
+              x = rect.left;
+              y = rect.top;
+            }
+            
+            displayInstance.draw(x, y);
+          }
+        }
+      };
+    };
+
+    p5InstanceRef.current = new p5(sketch, canvasRef.current);
+
+    return () => {
+      p5InstanceRef.current.remove();
+    };
+  }, [isActive]);
 
   const handleTabClick = (tabName) => {
     setCurrentTab(tabName);
@@ -162,6 +226,12 @@ const Device = ({ device, windowDimensions, isActive, index, onDeviceSelect }) =
               </TabsList>
             </div>
           </Tabs>
+
+          {/* P5.js canvas container */}
+          <div
+              ref={canvasRef}
+              className="absolute top-0 left-0 w-full h-full pointer-events-none"
+          />
         </div>
       )}
     </div>
