@@ -58,9 +58,9 @@ public class QuatDisplay extends RotationStats {
     translate(20, 0);
     pushStyle();
     fill(255);
-    text("xzProj", 0, 20);
-    text("yxProj", w/3, 20);
-    text("zyProj", 2*w/3, 20);
+    text("xzProj " + nf(projXZ().x, 0, 2) + " " + nf(projXZ().y, 0, 2), 0, 20);
+    text("yxProj " + nf(projYX().x, 0, 2) + " " + nf(projYX().y, 0, 2), w/3, 20);
+    text("zyProj " + nf(projZY().x, 0, 2) + " " + nf(projZY().y, 0, 2), 2*w/3, 20);
 
     pushMatrix();
     translate(d/2, h/2);

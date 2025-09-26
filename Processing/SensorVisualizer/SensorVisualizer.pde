@@ -213,7 +213,7 @@ void drawCommands(List<String> keys, List<String> infos) {
 }
 
 void oscEvent(OscMessage msg) {
-  String prefix = getOscPrefix(msg.addrPattern());
+  String prefix = getOscPrefix(msg.addrPattern()); //<>//
   String deviceId = prefix.replaceAll("^/", "");
   if (deviceId.equals("")) {
     print("Received an osc message without an address");
@@ -246,9 +246,9 @@ Device getOrCreateDevice(String deviceId, String inPrefix, String ip) {
     }});
     dev.ip = ip;
     devs.put(deviceId, dev);
-    if (cur.equals("")) {
-      cur = deviceId;
-    }
+  }
+  if (cur.equals("")) {
+    cur = deviceId;
   }
   return devs.get(deviceId);
 }
