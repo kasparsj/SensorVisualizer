@@ -14,10 +14,6 @@ const Device = ({ device, windowDimensions, isActive, index, onDeviceSelect }) =
 
   const recorders = useRef(new Map());
   const lastUps = useRef(0);
-  const sensorsSignature = useMemo(
-      () => JSON.stringify(Array.from(device.sensors.entries())),
-      [device.sensors]
-  );
 
   const getSensorDisplaySize = (sensorType) => {
     let width = 1, height = 1;

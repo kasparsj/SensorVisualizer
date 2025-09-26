@@ -56,7 +56,7 @@ class Altitude extends Sensor {
             if (this.ups > 0 && this.minValue !== null && this.maxValue !== null) {
                 avgMinMax += ` (${this.minValue.toFixed(2)}, ${this.maxValue.toFixed(2)})`;
             }
-            header.push(`${avgMinMax}`, 20, 20);
+            header.push(`${avgMinMax}`);
         }
         return header;
     }
