@@ -112,7 +112,7 @@ const Device = ({ device, windowDimensions, isActive, index, onDeviceSelect }) =
       };
 
       p.draw = () => {
-        p.background(0);
+        p.background(0, 0);
         for (const [sensorType, displayInstance] of displayInstances.entries()) {
           if (displayInstance && displayInstance.draw) {
             // Get screen coordinates from the sensor ref
