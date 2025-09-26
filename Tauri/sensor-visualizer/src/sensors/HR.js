@@ -1,8 +1,9 @@
 import Sensor from "./Sensor.js";
 import {SensorType} from "../types.js";
+import {HIST_LEN2} from "../config.js";
 
 class HR extends Sensor {
-    constructor(avgLen = 0, histLen = 50) {
+    constructor(avgLen = 0, histLen = HIST_LEN2) {
         super();
 
         this.type = SensorType.HR;
