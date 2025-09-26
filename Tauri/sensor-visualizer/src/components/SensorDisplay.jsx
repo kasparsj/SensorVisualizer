@@ -96,7 +96,9 @@ const SensorDisplay = ({
     p5InstanceRef.current = new p5(sketch, canvasRef.current);
 
     return () => {
-      p5InstanceRef.current.remove();
+      if (p5InstanceRef.current) {
+        p5InstanceRef.current.remove();
+      }
     };
   }, [createDisplayInstance]);
 

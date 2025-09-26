@@ -1,8 +1,9 @@
 import VectorSensor from "./VectorSensor.js";
 import {SensorType} from "../types.js";
+import {HIST_LEN} from "../config.js";
 
 class Gyroscope extends VectorSensor {
-    constructor(histLen = 500, deltaSumWin = 2) {
+    constructor(histLen = HIST_LEN, deltaSumWin = 2) {
         super(histLen);
 
         this.type = SensorType.GYRO;

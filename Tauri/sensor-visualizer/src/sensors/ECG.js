@@ -3,7 +3,7 @@ import {SensorType} from "../types.js";
 import KalmanFilter from "kalmanjs";
 
 class ECG extends Sensor {
-    constructor(histLen = 500) {
+    constructor(histLen = HIST_LEN) {
         super();
 
         this.type = SensorType.ECG;

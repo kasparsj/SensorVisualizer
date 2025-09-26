@@ -1,0 +1,1 @@
+export const HIST_LEN = 500;

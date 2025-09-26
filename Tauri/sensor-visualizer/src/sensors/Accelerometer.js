@@ -2,6 +2,7 @@ import VectorSensor from "./VectorSensor.js";
 import {SensorType} from "../types.js";
 import { Vector } from '../ds';
 import {eulerAngles} from "../p5/utils/drawing.js";
+import {HIST_LEN} from "../config.js";
 
 export const GravityMethod = {
     NONE: 'NONE',
@@ -16,7 +17,7 @@ export const GravityMethod = {
 };
 
 class Accelerometer extends VectorSensor {
-    constructor(gm = GravityMethod.HIGHPASS, histLen = 500, deltaSumWin = 2, maxMag = 9.81) {
+    constructor(gm = GravityMethod.HIGHPASS, histLen = HIST_LEN, deltaSumWin = 2, maxMag = 9.81) {
         super(histLen);
 
         this.type = SensorType.ACC;

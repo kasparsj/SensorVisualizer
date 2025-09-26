@@ -1,9 +1,10 @@
 import RotationSensor from "./RotationSensor.js";
 import {SensorType} from "../types.js";
 import {Quaternion} from "../ds/index.js";
+import {HIST_LEN} from "../config.js";
 
 class QuatSensor extends RotationSensor {
-    constructor(histLen = 500) {
+    constructor(histLen = HIST_LEN) {
         super(histLen);
 
         this.type = SensorType.QUAT;
